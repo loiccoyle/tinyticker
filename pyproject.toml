@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "rpi_ticker_epaper"
+version = "0.1.0"
+description = ""
+authors = ["Loic Coyle"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+epd-library = "^0.2.3"
+Pillow = "^8.3.2"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
