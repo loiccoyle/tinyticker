@@ -3,9 +3,10 @@
 import logging
 import time
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 from rpi_ticker_epaper.waveshare_lib import CONFIG, EPD
+from rpi_ticker_epaper.settings import FONT
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -20,9 +21,7 @@ try:
     logging.info("1.Drawing on the image...")
     image = Image.new("1", (epd.height, epd.width), 255)  # 255: clear the frame
     draw = ImageDraw.Draw(image)
-    font = draw.getfont()
-    logging.info(font)
-    logging.info(font.__dir__())
+    font = ImageFont.truetype(str(FONT), 18)
 
     draw.rectangle(((0, 0), (50, 50)), outline=0)
     draw.rectangle(((55, 0), (100, 50)), fill=0)
@@ -35,7 +34,7 @@ try:
     draw.polygon([(110, 0), (110, 50), (150, 25)], outline=0)
     draw.polygon([(190, 0), (190, 50), (150, 25)], fill=0)
     draw.text((120, 60), "e-Paper demo", font=font, fill=0)
-    draw.text((110, 90), u"微雪电子", font=font, fill=0)
+    # draw.text((110, 90), u"微雪电子", font=font, fill=0)
     epd.display(epd.getbuffer(image))
     time.sleep(2)
 
