@@ -25,22 +25,22 @@ Note:
 """,
         formatter_class=RawTextArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument(
-        "-c", "--coin", help="Crypto coins.", type=str, nargs=2, default=["BTC", "ETH"]
-    )
+    parser.add_argument("-c", "--coin", help="Crypto coin.", type=str, default="BTC")
     parser.add_argument(
         "-C", "--currency", help="Display currency.", type=str, default="USD"
     )
     parser.add_argument(
-        "-w", "--wait-time", help="Wait time, in seconds.", type=int, default=120
+        "-i",
+        "--interval",
+        help="Interval.",
+        type=str,
+        default="hour",
+        choices=["day", "hour", "minute"],
     )
     parser.add_argument(
-        "-f",
-        "--string-format",
-        help="Python format string.",
-        type=str,
-        default="{delta}{coin}:{currency} {price}",
+        "-l", "--look-back", help="Look back amount.", type=int, default=None
     )
+
     parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
     parser.add_argument(
         "api_key",
@@ -71,13 +71,18 @@ def main():
 
     logger.debug("Args: %s", args)
 
-    display = Display(args.i2c_address, string_format=args.string_format)
-    ticker = Ticker(args.api_key, args.wait_time)
+    display = Display(args.coin, args.currency)
+    ticker = Ticker(
+        args.api_key,
+        coin=args.coin,
+        currency=args.currency,
+        interval=args.interval,
+        look_back=args.look_back,
+    )
 
-    for response in ticker.tick(args.coin, args.currency):
+    for response in ticker.tick():
         if response is None:
-            display.lcd.set("API Error     :(", 1)
-            display.lcd.set("Check internet.", 2)
+            print("something went wrong")
         else:
             logger.debug("API response: %s", response)
             display.show(response)

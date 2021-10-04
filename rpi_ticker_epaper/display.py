@@ -1,103 +1,70 @@
 import logging
-from typing import Callable
+from typing import Tuple
 
+import matplotlib
+import matplotlib.pyplot as plt
+import mplfinance as mpf
+import pandas as pd
+from PIL import Image
 
+from .waveshare_lib import CONFIG, EPD
 
-CURRENCY_SYMBOLS = {"USD": "$"}
-
-
-def default_delta_func(delta: float, _: float) -> str:
-    if delta < 0:
-        out = "-"
-    elif delta == 0:
-        out = "="
-    else:
-        out = "+"
-    return out
+CURRENCY_SYMBOLS = {"USD": "$", "EUR": "€", "GBP": "£"}
 
 
 class Display:
-    pass
-# class Display:
-#     """Handle the displaying of the API response.
+    """Handle the displaying of the API response."""
 
-#     Args:
-#         i2c_address: i2c address, see the i2cdetect shell command.
-#         delta_func: Callable which should take the change in price and the
-#             current price and return a string.
-#         string_format: Python format string.
-#     """
+    def __init__(
+        self,
+        coin: str,
+        currency: str,
+    ) -> None:
+        self._log = logging.getLogger(__name__)
+        self.coin = coin
+        self.currency = currency
+        self.previous_response = {}
+        self.epd = EPD()
+        self.init_epd()
 
-#     def __init__(
-#         self,
-#         i2c_address: int = I2C_ADDRESS,
-#         delta_func: Callable[[float, float], str] = default_delta_func,
-#         string_format: str = "{delta}{coin}:{currency} {price}",
-#     ) -> None:
-#         self._log = logging.getLogger(__name__)
-#         self.i2c_address = i2c_address
-#         self.lcd = lcd.HD44780(self.i2c_address)
-#         self.delta_func = delta_func
-#         self.string_format = string_format
-#         self.previous_response = {}
+    def init_epd(self):
+        self.epd.init(self.epd.FULL_UPDATE)
+        self.epd.Clear(0xFF)
 
-#     def get_delta_string(self, coin: str, prices: dict) -> str:
-#         """Determine the up down character indicator.
+    @staticmethod
+    def fig_to_image(fig: plt.Figure) -> Image.Image:
+        matplotlib.use("Agg")
+        fig.canvas.draw()
+        return Image.frombytes(
+            "RGB",
+            fig.canvas.get_width_height(),
+            fig.canvas.tostring_rgb(),
+        )
 
-#         Args:
-#             coin: Coin ticker string.
-#             prices: Dictionary containing the currencies and prices.
+    def show(self, response: dict) -> None:
+        fig, _ = self.plot(response)
+        image = self.fig_to_image(fig)
+        assert image.size == (self.epd.width, self.epd.height)
+        self.epd.display(self.epd.getbuffer(image))
 
-#         Returns:
-#             The change indicator character.
-#         """
-#         if coin not in self.previous_response.keys():
-#             self.previous_response[coin] = prices
-#             out = "?"
-#         else:
-#             prices_prev = self.previous_response[coin]
-#             # compute the difference on just one currency
-#             price = list(prices.values())[0]
-#             delta = price - list(prices_prev.values())[0]
-#             self._log.debug("%s delta: %f", coin, delta)
-#             out = self.delta_func(delta, price)
-#             # update the previous response
-#             self.previous_response[coin] = prices
-#         self._log.debug("%s delta string: %s", coin, out)
-#         return out
+    def plot(self, response: dict) -> Tuple[plt.Figure, plt.Axes]:
+        df = pd.DataFrame(response)
+        df.set_index("time", inplace=True)
+        df.index = pd.to_datetime(df.index, unit="s")  # type: ignore
+        df.rename(
+            columns={"high": "High", "close": "Close", "low": "Low", "open": "Open"},
+            inplace=True,
+        )
 
-#     def display_string(self, coin: str, prices: dict) -> str:
-#         """Construct the display string.
+        px = 1 / plt.rcParams.get("figure.dpi", 96)
+        fig, ax = plt.subplots(figsize=(self.epd.width * px, self.epd.height * px))
+        ax.set_axis_off()
+        mpf.plot(df, type="candle", ax=ax)
+        ax.text(
+            0, 0, f"{self.coin}:{self.currency}", transform=ax.transAxes, fontsize=10
+        )
+        fig.set_tight_layout(True)
+        return fig, ax
 
-#         Args:
-#             coin: Coin ticker string.
-#             prices: Dictionary containing the currencies and prices.
-
-#         Returns:
-#             Display string.
-#         """
-#         currency, amount = list(prices.items())[0]
-#         currency_str = CURRENCY_SYMBOLS.get(currency, currency)
-#         delta_str = self.get_delta_string(coin, prices)
-#         display_str_no_price = self.string_format.replace("{price}", "").format(
-#             delta=delta_str, coin=coin, currency=currency_str
-#         )
-#         price_str = str(amount)
-#         n_padding = 16 - len(display_str_no_price)
-#         if n_padding > 0:
-#             price_str = "{amount:>{padding}}".format(amount=amount, padding=n_padding)
-#         return self.string_format.format(
-#             delta=delta_str, coin=coin, currency=currency_str, price=price_str
-#         )
-
-#     def show(self, response: dict) -> None:
-#         """Display the API response on the display.
-
-#         Args:
-#             response: The API response.
-#         """
-#         for i, (coin, prices) in enumerate(response.items(), start=1):
-#             display_str = self.display_string(coin, prices)
-#             self._log.info("Current line: %i", i)
-#             self._log.info("Display string: %s", display_str)
-#             self.lcd.set(display_str, i)
+    def __del__(self):
+        CONFIG.module_exit()
