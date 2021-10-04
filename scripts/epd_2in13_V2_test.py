@@ -5,7 +5,7 @@ import time
 
 from PIL import Image, ImageDraw
 
-from .waveshare_lib import CONFIG, EPD
+from rpi_ticker_epaper.waveshare_lib import CONFIG, EPD
 
 logging.basicConfig(level=logging.DEBUG)
 
