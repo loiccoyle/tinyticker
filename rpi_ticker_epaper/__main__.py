@@ -5,7 +5,6 @@ from typing import List
 
 from . import logger
 from .display import Display
-from .settings import I2C_ADDRESS
 from .ticker import Ticker
 
 
@@ -41,13 +40,6 @@ Note:
         help="Python format string.",
         type=str,
         default="{delta}{coin}:{currency} {price}",
-    )
-    parser.add_argument(
-        "-i",
-        "--i2c-address",
-        help="I2C address of the backpack.",
-        type=int,
-        default=I2C_ADDRESS,
     )
     parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
     parser.add_argument(
