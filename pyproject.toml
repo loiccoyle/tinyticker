@@ -6,10 +6,11 @@ authors = ["Loic Coyle"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.7,<3.11"
 Pillow = "^8.3.2"
 "RPi.GPIO" = "^0.7.0"
 spidev = "^3.5"
+numpy = "^1.21.2"
 
 [tool.poetry.dev-dependencies]
 
