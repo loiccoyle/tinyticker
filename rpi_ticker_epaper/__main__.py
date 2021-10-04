@@ -19,9 +19,7 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         description="""Raspberry Pi crypto ticker using an LCD display.
 
 Note:
-    Make sure i2c is enabled on your RPi.
-    To avoid permissions errors add the user to the i2c group.
-    Find your i2c address using i2cdetect -y 0 or i2cdetect -y 1.
+    Make sure SPI is enabled on your RPi.
 """,
         formatter_class=RawTextArgumentDefaultsHelpFormatter,
     )
