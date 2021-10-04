@@ -11,6 +11,7 @@ Pillow = "^8.3.2"
 "RPi.GPIO" = "^0.7.0"
 spidev = "^3.5"
 numpy = "^1.21.2"
+cryptocompare = "^0.7.5"
 
 [tool.poetry.dev-dependencies]
 
