@@ -105,7 +105,7 @@ class Display:
         if sub_string is not None:
             text = ax.text(
                 0,
-                0.9,
+                0.88,
                 sub_string,
                 transform=ax.transAxes,
                 fontsize=8,
