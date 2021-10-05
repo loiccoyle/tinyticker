@@ -79,12 +79,14 @@ def main():
         currency=args.currency,
         interval=args.interval,
         look_back=args.look_back,
-        wait_time=args.wait_time
+        wait_time=args.wait_time,
     )
 
     for response in ticker.tick():
+        response = None
         if response is None:
             print("something went wrong")
+            display.text("test test")
         else:
             logger.debug("API response[0]: %s", response[0])
             logger.debug("API len(response): %s", len(response))
