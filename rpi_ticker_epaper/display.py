@@ -84,9 +84,7 @@ class Display:
         mpf.plot(df, type="candle", ax=ax)
         display_str = f"{self.coin}:{self.currency}"
         if current_price is not None:
-            display_str = (
-                display_str + f" {current_price[self.coin][self.currency]:.2f}"
-            )
+            display_str = display_str + f" {current_price[self.coin][self.currency]}"
         text = ax.text(
             0,
             1,
