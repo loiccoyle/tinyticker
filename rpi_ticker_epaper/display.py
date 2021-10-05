@@ -59,8 +59,8 @@ class Display:
         )
 
         px = 1 / plt.rcParams.get("figure.dpi", 96)
-        self._log.debug("Plog width: %s", self.epd.width)
-        self._log.debug("Plog height: %s", self.epd.height)
+        self._log.debug("Plot width: %s", self.epd.width)
+        self._log.debug("Plot height: %s", self.epd.height)
         fig, ax = plt.subplots(figsize=(self.epd.height * px, self.epd.width * px))
         plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
         ax.axis("off")
