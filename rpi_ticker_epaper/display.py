@@ -43,12 +43,32 @@ class Display:
             fig.canvas.tostring_rgb(),
         )
 
-    def show(self, response: dict) -> None:
-        fig, _ = self.plot(response)
+    def _plot(self) -> Tuple[plt.Figure, plt.Axes]:
+        dpi = plt.rcParams.get("figure.dpi", 96)
+        px = 1 / dpi
+        self._log.debug("Plot width: %s", self.epd.width)
+        self._log.debug("Plot height: %s", self.epd.height)
+        fig, ax = plt.subplots(figsize=(self.epd.height * px, self.epd.width * px))
+        fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+        fig.set_dpi(dpi)
+        ax.axis("off")
+        ax.margins(0, 0)
+        return fig, ax
+
+    def text(self, text: str) -> None:
+        fig, ax = self._plot()
+        ax.text(0, 0, text, ha="center", va="center", wrap=True)
+        self._show(fig)
+
+    def _show(self, fig: plt.Figure) -> None:
         image = self.fig_to_image(fig)
         image = image.convert("1")
         self._log.debug("Image size: %s", image.size)
         self.epd.displayPartial(self.epd.getbuffer(image))
+
+    def show(self, response: dict) -> None:
+        fig, _ = self.plot(response)
+        self._show(fig)
 
     def plot(self, response: dict) -> Tuple[plt.Figure, plt.Axes]:
         df = pd.DataFrame(response)
@@ -58,14 +78,7 @@ class Display:
             columns={"high": "High", "close": "Close", "low": "Low", "open": "Open"},
             inplace=True,
         )
-
-        px = 1 / plt.rcParams.get("figure.dpi", 96)
-        self._log.debug("Plot width: %s", self.epd.width)
-        self._log.debug("Plot height: %s", self.epd.height)
-        fig, ax = plt.subplots(figsize=(self.epd.height * px, self.epd.width * px))
-        plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
-        ax.axis("off")
-        ax.margins(0, 0)
+        fig, ax = self._plot()
         mpf.plot(df, type="candle", ax=ax)
         ax.text(
             0, 0, f"{self.coin}:{self.currency}", transform=ax.transAxes, fontsize=10
