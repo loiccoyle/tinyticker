@@ -86,10 +86,10 @@ def main():
         for historical, current in ticker.tick():
             logger.debug("API response[0]: %s", historical[0])
             logger.debug("API len(response): %s", len(historical))
-            display.response(historical, current)
+            display.plot(historical, current, show=True)
     except Exception as e:
         logger.error(e, stack_info=True)
-        display.text(str(e))
+        display.text(str(e), show=True)
     finally:
         logger.info("Exiting")
         del display

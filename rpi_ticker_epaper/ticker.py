@@ -57,13 +57,18 @@ class Ticker:
             self.wait_time = wait_time  # type: int
 
     def get_api_method(self) -> Callable:
+        """Get the right method for the requested inverval.
+
+        Returns:
+            Appropriate API method.
+        """
         return getattr(cryptocompare, "get_historical_price_" + self.interval)
 
     def tick(self) -> Iterator[Tuple[dict, Optional[dict]]]:
         """Perform the queries and yield the responses forever.
 
         Returns:
-            Iterator which returns the API responses.
+            Iterator which returns the API's historical and current price data.
         """
         self._log.info("Started ticking.")
         while True:

@@ -9,11 +9,14 @@ from PIL import Image
 
 from .waveshare_lib import CONFIG, EPD
 
-CURRENCY_SYMBOLS = {"USD": "$", "EUR": "€", "GBP": "£"}
-
 
 class Display:
-    """Handle the displaying of the API response."""
+    """Handle the displaying of the API response.
+
+    Args:
+        coin: Crypto coin, "BTC", "ETH", "DOGE" ...
+        currency: Currency code, "USD", "EUR" ...
+    """
 
     def __init__(
         self,
@@ -28,6 +31,7 @@ class Display:
         self.init_epd()
 
     def init_epd(self):
+        """Initialize the ePaper display module."""
         self._log.debug("Init ePaper display.")
         self.epd.init(self.epd.FULL_UPDATE)
         self.epd.Clear(0xFF)
@@ -35,6 +39,7 @@ class Display:
 
     @staticmethod
     def fig_to_image(fig: plt.Figure) -> Image.Image:
+        """Convert a plt.Figure to PIL.Image"""
         matplotlib.use("Agg")
         fig.canvas.draw()
         return Image.frombytes(
@@ -55,23 +60,23 @@ class Display:
         ax.margins(0, 0)
         return fig, ax
 
-    def text(self, text: str) -> None:
+    def text(self, text: str, show: bool = False) -> Tuple[plt.Figure, plt.Axes]:
+        """Display text on the display."""
         fig, ax = self._plot()
         ax.text(0, 0, text, ha="center", va="center", wrap=True)
-        self.show(fig)
+        if show:
+            self.show(fig)
+        return fig, ax
 
     def show(self, fig: plt.Figure) -> None:
+        """Show a plt.Figure on the display."""
         image = self.fig_to_image(fig)
         image = image.convert("1")
         self._log.debug("Image size: %s", image.size)
         self.epd.displayPartial(self.epd.getbuffer(image))
 
-    def response(self, historical: dict, current_price: Optional[dict]) -> None:
-        fig, _ = self.plot(historical, current_price)
-        self.show(fig)
-
     def plot(
-        self, historical: dict, current_price: Optional[dict]
+        self, historical: dict, current_price: Optional[dict], show: bool = False
     ) -> Tuple[plt.Figure, plt.Axes]:
         df = pd.DataFrame(historical)
         df.set_index("time", inplace=True)
@@ -94,6 +99,8 @@ class Display:
         )
         text.set_bbox(dict(facecolor="white", edgecolor="white"))
         fig.tight_layout(pad=0)
+        if show:
+            self.show(fig)
         return fig, ax
 
     def __del__(self):
