@@ -76,7 +76,11 @@ class Display:
         self.epd.displayPartial(self.epd.getbuffer(image))
 
     def plot(
-        self, historical: dict, current_price: Optional[dict], show: bool = False
+        self,
+        historical: dict,
+        current_price: Optional[dict],
+        sub_string: Optional[str] = None,
+        show: bool = False,
     ) -> Tuple[plt.Figure, plt.Axes]:
         df = pd.DataFrame(historical)
         df.set_index("time", inplace=True)
@@ -98,6 +102,16 @@ class Display:
             fontsize=10,
         )
         text.set_bbox(dict(facecolor="white", edgecolor="white"))
+        if sub_string is not None:
+            text = ax.text(
+                0,
+                0.9,
+                sub_string,
+                transform=ax.transAxes,
+                fontsize=8,
+            )
+            text.set_bbox(dict(facecolor="white", edgecolor="white"))
+
         fig.tight_layout(pad=0)
         if show:
             self.show(fig)
