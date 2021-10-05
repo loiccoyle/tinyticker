@@ -59,7 +59,7 @@ class Ticker:
     def get_api_method(self) -> Callable:
         return getattr(cryptocompare, "get_historical_price_" + self.interval)
 
-    def tick(self) -> Iterator[Union[dict, None]]:
+    def tick(self) -> Iterator[dict]:
         """Perform the queries and yield the responses forever.
 
         Returns:
@@ -67,14 +67,11 @@ class Ticker:
         """
         self._log.info("Started ticking.")
         while True:
-            try:
-                yield self.api_method(
-                    self.coin,
-                    self.currency,
-                    toTs=datetime.now(),
-                    limit=self.look_back - 1,
-                )
-            except Exception:
-                yield None
+            yield self.api_method(
+                self.coin,
+                self.currency,
+                toTs=datetime.now(),
+                limit=self.look_back - 1,
+            )
             self._log.debug("Sleeping %i s", self.wait_time)
             time.sleep(self.wait_time)

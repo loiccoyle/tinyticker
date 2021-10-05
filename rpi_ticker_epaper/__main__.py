@@ -82,12 +82,13 @@ def main():
         wait_time=args.wait_time,
     )
 
-    for response in ticker.tick():
-        response = None
-        if response is None:
-            print("something went wrong")
-            display.text("test test")
-        else:
+    try:
+        for response in ticker.tick():
             logger.debug("API response[0]: %s", response[0])
             logger.debug("API len(response): %s", len(response))
             display.show(response)
+    except Exception as e:
+        logger.error(e, stack_info=True)
+        display.text(str(e))
+    finally:
+        del display
