@@ -38,6 +38,9 @@ Note:
     parser.add_argument(
         "-l", "--look-back", help="Look back amount.", type=int, default=None
     )
+    parser.add_argument(
+        "-w", "--wait-time", help="Wait time in seconds.", type=int, default=None
+    )
 
     parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
     parser.add_argument(
@@ -76,6 +79,7 @@ def main():
         currency=args.currency,
         interval=args.interval,
         look_back=args.look_back,
+        wait_time=args.wait_time
     )
 
     for response in ticker.tick():
