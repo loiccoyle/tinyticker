@@ -46,7 +46,8 @@ class Display:
         fig, _ = self.plot(response)
         image = self.fig_to_image(fig)
         image = image.convert("1")
-        assert image.size == (self.epd.width, self.epd.height)
+        image = image.rotate(90)
+        self._log.debug("Image size: %s", image.size)
         self.epd.display(self.epd.getbuffer(image))
 
     def plot(self, response: dict) -> Tuple[plt.Figure, plt.Axes]:
@@ -59,6 +60,8 @@ class Display:
         )
 
         px = 1 / plt.rcParams.get("figure.dpi", 96)
+        self._log.debug("Plog width: %s", self.epd.width)
+        self._log.debug("Plog height: %s", self.epd.height)
         fig, ax = plt.subplots(figsize=(self.epd.width * px, self.epd.height * px))
         plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
         ax.axis("off")
