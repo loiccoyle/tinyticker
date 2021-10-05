@@ -31,6 +31,7 @@ class Display:
         self._log.debug("Init ePaper display.")
         self.epd.init(self.epd.FULL_UPDATE)
         self.epd.Clear(0xFF)
+        self.epd.init(self.epd.PART_UPDATE)
 
     @staticmethod
     def fig_to_image(fig: plt.Figure) -> Image.Image:
@@ -47,7 +48,7 @@ class Display:
         image = self.fig_to_image(fig)
         image = image.convert("1")
         self._log.debug("Image size: %s", image.size)
-        self.epd.display(self.epd.getbuffer(image))
+        self.epd.displayPartial(self.epd.getbuffer(image))
 
     def plot(self, response: dict) -> Tuple[plt.Figure, plt.Axes]:
         df = pd.DataFrame(response)
