@@ -95,7 +95,8 @@ class Display:
             1,
             display_str,
             transform=ax.transAxes,
-            fontsize=10,
+            fontsize=12,
+            weight="bold"
         )
         text.set_bbox(dict(facecolor="white", edgecolor="white"))
         fig.tight_layout(pad=0)
