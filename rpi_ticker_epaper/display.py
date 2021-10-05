@@ -28,6 +28,7 @@ class Display:
         self.init_epd()
 
     def init_epd(self):
+        self._log.debug("Init ePaper display.")
         self.epd.init(self.epd.FULL_UPDATE)
         self.epd.Clear(0xFF)
 
@@ -44,6 +45,7 @@ class Display:
     def show(self, response: dict) -> None:
         fig, _ = self.plot(response)
         image = self.fig_to_image(fig)
+        image = image.convert("1")
         assert image.size == (self.epd.width, self.epd.height)
         self.epd.display(self.epd.getbuffer(image))
 
@@ -58,12 +60,14 @@ class Display:
 
         px = 1 / plt.rcParams.get("figure.dpi", 96)
         fig, ax = plt.subplots(figsize=(self.epd.width * px, self.epd.height * px))
-        ax.set_axis_off()
+        plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+        ax.axis("off")
+        ax.margins(0, 0)
         mpf.plot(df, type="candle", ax=ax)
         ax.text(
             0, 0, f"{self.coin}:{self.currency}", transform=ax.transAxes, fontsize=10
         )
-        fig.set_tight_layout(True)
+        fig.tight_layout(pad=0)
         return fig, ax
 
     def __del__(self):
