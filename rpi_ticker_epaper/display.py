@@ -81,7 +81,13 @@ class Display:
         fig, ax = self._plot()
         mpf.plot(df, type="candle", ax=ax)
         ax.text(
-            0, 0, f"{self.coin}:{self.currency}", transform=ax.transAxes, fontsize=10
+            0.5,
+            1,
+            f"{self.coin}:{self.currency}",
+            transform=ax.transAxes,
+            ha="center",
+            va="center",
+            fontsize=10,
         )
         fig.tight_layout(pad=0)
         return fig, ax
