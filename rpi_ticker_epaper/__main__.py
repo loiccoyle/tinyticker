@@ -82,5 +82,6 @@ def main():
         if response is None:
             print("something went wrong")
         else:
-            logger.debug("API response: %s", response)
+            logger.debug("API response[0]: %s", response[0])
+            logger.debug("API len(response): %s", len(response))
             display.show(response)

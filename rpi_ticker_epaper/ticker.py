@@ -6,8 +6,8 @@ from typing import Callable, Iterator, Optional, Union
 import cryptocompare
 
 INTERVAL_LOOKBACKS = {
-    "day": 15,
-    "hour": 12,
+    "day": 30,
+    "hour": 24,
     "minute": 30,
 }
 INTERVAL_WAIT_TIMES = {
