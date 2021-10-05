@@ -58,17 +58,17 @@ class Display:
     def text(self, text: str) -> None:
         fig, ax = self._plot()
         ax.text(0, 0, text, ha="center", va="center", wrap=True)
-        self._show(fig)
+        self.show(fig)
 
-    def _show(self, fig: plt.Figure) -> None:
+    def show(self, fig: plt.Figure) -> None:
         image = self.fig_to_image(fig)
         image = image.convert("1")
         self._log.debug("Image size: %s", image.size)
         self.epd.displayPartial(self.epd.getbuffer(image))
 
-    def show(self, response: dict) -> None:
+    def response(self, response: dict) -> None:
         fig, _ = self.plot(response)
-        self._show(fig)
+        self.show(fig)
 
     def plot(self, response: dict) -> Tuple[plt.Figure, plt.Axes]:
         df = pd.DataFrame(response)
