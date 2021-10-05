@@ -1,5 +1,5 @@
 import logging
-from typing import Tuple
+from typing import Tuple, Optional
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -66,12 +66,14 @@ class Display:
         self._log.debug("Image size: %s", image.size)
         self.epd.displayPartial(self.epd.getbuffer(image))
 
-    def response(self, response: dict) -> None:
-        fig, _ = self.plot(response)
+    def response(self, historical: dict, current_price: Optional[dict]) -> None:
+        fig, _ = self.plot(historical, current_price)
         self.show(fig)
 
-    def plot(self, response: dict) -> Tuple[plt.Figure, plt.Axes]:
-        df = pd.DataFrame(response)
+    def plot(
+        self, historical: dict, current_price: Optional[dict]
+    ) -> Tuple[plt.Figure, plt.Axes]:
+        df = pd.DataFrame(historical)
         df.set_index("time", inplace=True)
         df.index = pd.to_datetime(df.index, unit="s")  # type: ignore
         df.rename(
@@ -80,15 +82,19 @@ class Display:
         )
         fig, ax = self._plot()
         mpf.plot(df, type="candle", ax=ax)
-        ax.text(
-            0.5,
+        display_str = f"{self.coin}:{self.currency}"
+        if current_price is not None:
+            display_str = (
+                display_str + f" {current_price[self.coin][self.currency]:.2f}"
+            )
+        text = ax.text(
+            0,
             1,
-            f"{self.coin}:{self.currency}",
+            display_str,
             transform=ax.transAxes,
-            ha="center",
-            va="center",
             fontsize=10,
         )
+        text.set_bbox(dict(facecolor="white", edgecolor="white"))
         fig.tight_layout(pad=0)
         return fig, ax
 

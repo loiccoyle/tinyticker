@@ -83,10 +83,10 @@ def main():
     )
 
     try:
-        for response in ticker.tick():
-            logger.debug("API response[0]: %s", response[0])
-            logger.debug("API len(response): %s", len(response))
-            display.response(response)
+        for historical, current in ticker.tick():
+            logger.debug("API response[0]: %s", historical[0])
+            logger.debug("API len(response): %s", len(historical))
+            display.response(historical, current)
     except Exception as e:
         logger.error(e, stack_info=True)
         display.text(str(e))

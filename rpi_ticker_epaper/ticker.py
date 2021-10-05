@@ -1,7 +1,7 @@
 import logging
 import time
 from datetime import datetime
-from typing import Callable, Iterator, Optional, Union
+from typing import Callable, Iterator, Optional, Tuple
 
 import cryptocompare
 
@@ -59,7 +59,7 @@ class Ticker:
     def get_api_method(self) -> Callable:
         return getattr(cryptocompare, "get_historical_price_" + self.interval)
 
-    def tick(self) -> Iterator[dict]:
+    def tick(self) -> Iterator[Tuple[dict, Optional[dict]]]:
         """Perform the queries and yield the responses forever.
 
         Returns:
@@ -72,6 +72,6 @@ class Ticker:
                 self.currency,
                 toTs=datetime.now(),
                 limit=self.look_back - 1,
-            )
+            ), cryptocompare.get_price(self.coin, self.currency)
             self._log.debug("Sleeping %i s", self.wait_time)
             time.sleep(self.wait_time)
