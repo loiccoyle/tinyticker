@@ -37,7 +37,6 @@ class Display:
         self._log.debug("Init ePaper display.")
         self.epd.init(self.epd.FULL_UPDATE)
         self.epd.Clear(0xFF)
-        self.epd.init(self.epd.PART_UPDATE)
 
     @staticmethod
     def fig_to_image(fig: plt.Figure) -> Image.Image:
@@ -77,7 +76,9 @@ class Display:
         if self.flip:
             image = image.rotate(180)
         self._log.debug("Image size: %s", image.size)
+        self.epd.init(self.epd.PART_UPDATE)
         self.epd.displayPartial(self.epd.getbuffer(image))
+        self.epd.sleep()
 
     def plot(
         self,
