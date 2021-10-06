@@ -1,7 +1,7 @@
 import logging
 import time
 from datetime import datetime
-from typing import Callable, Iterator, Optional, Tuple
+from typing import Callable, Iterator, List, Optional, Tuple
 
 import cryptocompare
 
@@ -64,7 +64,7 @@ class Ticker:
         """
         return getattr(cryptocompare, "get_historical_price_" + self.interval)
 
-    def tick(self) -> Iterator[Tuple[dict, Optional[dict]]]:
+    def tick(self) -> Iterator[Tuple[List[dict], Optional[dict]]]:
         """Perform the queries and yield the responses forever.
 
         Returns:

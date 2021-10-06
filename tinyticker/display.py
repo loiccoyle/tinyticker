@@ -1,5 +1,5 @@
 import logging
-from typing import Tuple, Optional
+from typing import List, Optional, Tuple
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -35,7 +35,7 @@ class Display:
 
     def init_epd(self):
         """Initialize the ePaper display module."""
-        self._log.debug("Init ePaper display.")
+        self._log.info("Init ePaper display.")
         self.epd.init(self.epd.FULL_UPDATE)
         self.epd.Clear(0xFF)
 
@@ -67,30 +67,51 @@ class Display:
         fig, ax = self._plot()
         ax.text(0, 0, text, ha="center", va="center", wrap=True)
         if show:
-            self.show(fig)
+            self.show_fig(fig)
         return fig, ax
 
-    def show(self, fig: plt.Figure) -> None:
-        """Show a plt.Figure on the display."""
+    def show_fig(self, fig: plt.Figure) -> None:
+        """Show a `plt.Figure` on the display."""
         image = self.fig_to_image(fig)
         image = image.convert("1")
+        self.show_image(image)
+
+    def show_image(self, image: Image.Image) -> None:
+        """Show a `PIL.Image.Image` on the display."""
         if self.flip:
             image = image.rotate(180)
         self._log.debug("Image size: %s", image.size)
-        self._log.debug("Init display partial.")
+        self._log.info("Init display partial.")
         # I think this wakes it from sleep
         self.epd.init(self.epd.FULL_UPDATE)
         self.epd.display(self.epd.getbuffer(image))
-        self._log.debug("Display sleep.")
+        self._log.info("Display sleep.")
         self.epd.sleep()
 
     def plot(
         self,
-        historical: dict,
+        historical: List[dict],
         current_price: Optional[dict],
         sub_string: Optional[str] = None,
         show: bool = False,
+        type: str = "candle",
+        **kwargs,
     ) -> Tuple[plt.Figure, plt.Axes]:
+        """Plot crypto chart.
+
+        Args:
+            historical: API response, list of dictionaries containing the
+                historical price of a coin. Output of
+                `cryptocompare.get_historical_price_*` function.
+            current_price: API response, the current price of the coin. Output
+                of the `cryptocompare.get_price` function.
+            show: display the plot on the ePaper display.
+            type: the chart type, see `mpfinance.plot`.
+            **kwargs: passed to `mpfinance.plot`.
+
+        Returns:
+            The `plt.Figure` and `plt.Axes` of the plot.
+        """
         df = pd.DataFrame(historical)
         df.set_index("time", inplace=True)
         df.index = pd.to_datetime(df.index, unit="s")  # type: ignore
@@ -99,7 +120,7 @@ class Display:
             inplace=True,
         )
         fig, ax = self._plot()
-        mpf.plot(df, type="candle", ax=ax)
+        mpf.plot(df, type=type, ax=ax, **kwargs)
         display_str = f"{self.coin}:{self.currency}"
         if current_price is not None:
             display_str = display_str + f" {current_price[self.coin][self.currency]}"
@@ -123,7 +144,7 @@ class Display:
 
         fig.tight_layout(pad=0)
         if show:
-            self.show(fig)
+            self.show_fig(fig)
         return fig, ax
 
     def __del__(self):
