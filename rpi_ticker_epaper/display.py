@@ -77,8 +77,13 @@ class Display:
         if self.flip:
             image = image.rotate(180)
         self._log.debug("Image size: %s", image.size)
+        self._log.debug("Init display partial.")
+        # I think this wakes it from sleep
+        self.epd.init(self.epd.FULL_UPDATE)
+        # This sets the display mode to partial so the display doesn't flash
         self.epd.init(self.epd.PART_UPDATE)
         self.epd.displayPartial(self.epd.getbuffer(image))
+        self._log.debug("Display Sleep")
         self.epd.sleep()
 
     def plot(
