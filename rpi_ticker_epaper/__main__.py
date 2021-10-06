@@ -41,7 +41,7 @@ Note:
     parser.add_argument(
         "-w", "--wait-time", help="Wait time in seconds.", type=int, default=None
     )
-    parser.add_argument("-f", "--flip", help="Flip the display.", actoin="store_true")
+    parser.add_argument("-f", "--flip", help="Flip the display.", action="store_true")
 
     parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
     parser.add_argument(
