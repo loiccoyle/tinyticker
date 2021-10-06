@@ -97,6 +97,7 @@ def main():
                 sub_string=f"{ticker.look_back} {args.interval}s",
                 show=True,
             )
+            display.epd.sleep()
     except Exception as e:
         logger.error(e, stack_info=True)
         display.text(str(e), show=True)
