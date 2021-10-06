@@ -22,11 +22,13 @@ class Display:
         self,
         coin: str,
         currency: str,
+        flip: bool = False,
     ) -> None:
         self._log = logging.getLogger(__name__)
         self.coin = coin
         self.currency = currency
         self.previous_response = {}
+        self.flip = flip
         self.epd = EPD()
         self.init_epd()
 
@@ -72,6 +74,8 @@ class Display:
         """Show a plt.Figure on the display."""
         image = self.fig_to_image(fig)
         image = image.convert("1")
+        if self.flip:
+            image = image.rotate(180)
         self._log.debug("Image size: %s", image.size)
         self.epd.displayPartial(self.epd.getbuffer(image))
 
