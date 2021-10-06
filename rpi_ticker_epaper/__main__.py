@@ -73,7 +73,11 @@ def main():
 
     logger.debug("Args: %s", args)
 
-    display = Display(args.coin, args.currency, flip=args.flip)
+    display = Display(
+        args.coin,
+        args.currency,
+        flip=args.flip,
+    )
     ticker = Ticker(
         args.api_key,
         coin=args.coin,
@@ -87,7 +91,12 @@ def main():
         for historical, current in ticker.tick():
             logger.debug("API response[0]: %s", historical[0])
             logger.debug("API len(response): %s", len(historical))
-            display.plot(historical, current, sub_string=args.interval, show=True)
+            display.plot(
+                historical,
+                current,
+                sub_string=f"{ticker.look_back} {args.interval}s",
+                show=True,
+            )
     except Exception as e:
         logger.error(e, stack_info=True)
         display.text(str(e), show=True)
