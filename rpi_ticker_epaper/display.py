@@ -16,6 +16,7 @@ class Display:
     Args:
         coin: Crypto coin, "BTC", "ETH", "DOGE" ...
         currency: Currency code, "USD", "EUR" ...
+        flip: Flip the display.
     """
 
     def __init__(
