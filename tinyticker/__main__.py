@@ -1,7 +1,7 @@
 import argparse
 import atexit
-import logging
 import os
+import signal
 import sys
 from typing import List
 
@@ -124,6 +124,7 @@ def main():
         wait_time=args["wait_time"],
     )
 
+    #  setup signal handlers
     def cleanup(display: Display):
         logger.info("Exiting.")
         if PID_FILE.is_file():
@@ -131,6 +132,12 @@ def main():
         del display
 
     atexit.register(cleanup, display)
+
+    def restart(_, _) -> None:
+        logger.info("Restarting.")
+        os.execv(sys.argv[0], sys.argv)
+
+    signal.signal(signal.SIGUSR1, restart)
 
     with open(PID_FILE, "w") as pid_file:
         pid = os.getpid()
