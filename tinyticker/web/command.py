@@ -19,12 +19,12 @@ def register(func: Callable) -> Callable:
 
 @register
 def restart():
-    """Kill the tinyticker process. Systemd is left to restart it."""
+    """Restart the tinyticker process, using the SIGUSR1 signal."""
     if PID_FILE.is_file():
         LOGGER.info("Killing tinyticker.")
         with open(PID_FILE, "r") as pid_file:
             pid = int(pid_file.readline())
-        os.kill(pid, signal.SIGKILL)
+        os.kill(pid, signal.SIGUSR1)
     else:
         LOGGER.info("tinyticker is not runnning.")
 
