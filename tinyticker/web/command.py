@@ -24,5 +24,4 @@ def reboot():
     subprocess.Popen(["sudo", "shutdown", "-h", "now"])
 
 
-COMMANDS["restart"] = restart
-COMMANDS["reboot"] = reboot
+COMMANDS=dict(restart=restart, reboot=reboot)
