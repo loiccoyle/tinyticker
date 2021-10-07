@@ -130,7 +130,7 @@ class Display:
             display_str,
             transform=ax.transAxes,
             fontsize=10,
-            bbox = dict(boxstyle="square,pad=0", facecolor="white", edgecolor="white")
+            bbox=dict(boxstyle="square,pad=0", facecolor="white", edgecolor="white"),
         )
         if sub_string is not None:
             text = ax.text(
@@ -139,7 +139,9 @@ class Display:
                 sub_string,
                 transform=ax.transAxes,
                 fontsize=8,
-                bbox = dict(boxstyle="square,pad=0", facecolor="white", edgecolor="white")
+                bbox=dict(
+                    boxstyle="square,pad=0", facecolor="white", edgecolor="white"
+                ),
             )
 
         fig.tight_layout(pad=0)

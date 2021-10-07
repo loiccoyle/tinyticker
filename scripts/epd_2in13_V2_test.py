@@ -5,8 +5,8 @@ import time
 
 from PIL import Image, ImageDraw, ImageFont
 
-from rpi_ticker_epaper.waveshare_lib import CONFIG, EPD
 from rpi_ticker_epaper.settings import FONT
+from rpi_ticker_epaper.waveshare_lib import CONFIG, EPD
 
 logging.basicConfig(level=logging.DEBUG)
 
