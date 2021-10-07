@@ -113,9 +113,6 @@ def main():
         set_verbosity(logger, args["verbose"])
 
     logger.debug("Args: %s", args)
-    if not args["api_key"]:
-        logger.error("No API key provided.")
-        raise ValueError("No API key provided.")
 
     display = Display(
         flip=args["flip"],
