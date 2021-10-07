@@ -41,7 +41,7 @@
                                 {% endfor %}
                             </select>
                             <label class="uk-form-label" for="lookback">Lookback</label>
-                            <input class="uk-textarea" type="number" id="lookback" name="lookback" min="1">
+                            <input class="uk-textarea" inputmode="numeric" id="lookback" name="lookback" min="1">
                             <label class="uk-form-label" for="flip">Flip <input class="uk-checkbox" type="checkbox" id="flip" name="flip" {% if flip | default(False) %}checked{% endif %}></label>
                         </div>
                         <div class="uk-width-1-1 uk-margin">
