@@ -95,10 +95,6 @@ class Ticker:
         self._interval_dt = INTERVAL_TIMEDELTAS[self.interval]
         if self._interval_dt == pd.NaT:
             raise ValueError("interval Timedelta is NaT.")
-        self._crypto_interval = self._get_crypto_interval()
-        self._crypto_api_method = self.get_crypto_api_method()
-        self._crypto_lookback = self._get_crypto_lookback()
-
         if self.symbol_type == "crypto" and api_key is None:
             raise ValueError("No API key provided.")
         self.api_key = api_key
@@ -113,6 +109,10 @@ class Ticker:
             self.wait_time = self._interval_dt.seconds  # type: ignore
         else:
             self.wait_time = wait_time  # type: int
+
+        self._crypto_interval = self._get_crypto_interval()
+        self._crypto_api_method = self.get_crypto_api_method()
+        self._crypto_lookback = self._get_crypto_lookback()
 
     def get_crypto_api_method(self) -> Callable:
         """Get the right method for the requested inverval.
