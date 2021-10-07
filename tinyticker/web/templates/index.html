@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TinyTicker</title>
+    <link rel="icon" href="img/favicon.ico">
+    <!-- CSS FILES -->
+    <link rel="stylesheet" type="text/css" href="css/uikit.min.css">
+    <!-- JS FILES -->
+    <script src="js/uikit.min.js"></script>
+    <script src="js/uikit-icons.min.js"></script>
+</head>
+<body class="uk-height-1-1 uk-margin">
+    <div class="uk-flex uk-flex-center uk-flex-middle">
+        <div class="uk-width-large">
+            <div class="uk-width-1-1 uk-text-center">
+                <p class="uk-text-large">🚀 TinyTicker Control Panel 🚀</p>
+            </div>
+
+            <div class="uk-width-large">
+                <p class="uk-text-large">Config</p>
+                <form class="uk-form-stacked" action="/config">
+                    <div class="uk-grid uk-grid-small">
+                        <div class="uk-width-1-1">
+                            <label class="uk-form-label" for="api_key">API key</label>
+                            <input class="uk-textarea" type="text" id="api_key" name="api_key" {% if api_key %} value="{{api_key}}" {% endif %}>
+                            <label class="uk-form-label" for="coin">Coin</label>
+                            <input class="uk-textarea" type="text" id="coin" name="coin" value="{{coin|default("BTC")}}">
+                            <label class="uk-form-label" for="currency">Currency</label>
+                            <input class="uk-textarea" type="text" id="currency" name="currency" value="{{currency | default("USD")}}">
+                            <label class="uk-form-label" for="interval">Interval</label>
+                            <select class="uk-select" id="interval" name="interval">
+                                {% for interval_option in ["day", "hour", "minute"] %}
+                                {% if interval_option == interval %}
+                                <option value="{{interval_option}}" selected>{{interval_option}}</option>
+                                {% else %}
+                                <option value="{{interval_option}}">{{interval_option}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                            <label class="uk-form-label" for="lookback">Lookback</label>
+                            <input class="uk-textarea" type="number" id="lookback" name="lookback" min="1">
+                            <label class="uk-form-label" for="flip">Flip <input class="uk-checkbox" type="checkbox" id="flip" name="flip" {% if flip | default(True) %}checked{% endif %}></label>
+                        </div>
+                        <div class="uk-width-1-1 uk-margin">
+                            <button type="submit" value="submit" class="uk-button uk-button-primary uk-width-expand">Apply</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="uk-width-large uk-margin">
+                <div class="uk-width-1-1">
+                    <p class="uk-text-large">Command</p>
+                    <form class="uk-form-stacked" action="/command">
+                        <button type="submit" name="command" value="restart" class="uk-button uk-button-primary uk-width-expand">Restart</button>
+                        <button type="submit" name="command" value="reboot" class="uk-button uk-button-primary uk-width-expand">Reboot</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="uk-position-bottom-center uk-position-small">
+            <span class="uk-text-small uk-text-muted">TinyTicker Control Panel - Built with <a href="https://github.com/loiccoyle/tinyticker" title="tinyticker" target="_blank" data-uk-tooltip>TinyTicker</a></span>
+        </div>
+    </div>
+</body>
+</html>
