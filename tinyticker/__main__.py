@@ -121,7 +121,7 @@ def main():
         flip=args["flip"],
     )
     ticker = Ticker(
-        type=args["symbol_type"],
+        symbol_type=args["symbol_type"],
         api_key=args["api_key"],
         symbol=args["symbol"],
         currency=args["currency"],

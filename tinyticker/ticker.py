@@ -50,8 +50,8 @@ class Ticker:
         wait_time: Optional[int] = None,
     ) -> None:
         self._log = logging.getLogger(__name__)
-        if symbol_type not in TYPES:
-            raise ValueError(f"'symbol_type' not in {TYPES}")
+        if symbol_type not in SYMBOL_TYPES:
+            raise ValueError(f"'symbol_type' not in {SYMBOL_TYPES}")
         self.symbol_type = symbol_type
         self.interval = interval
         self._crypto_api_method = self.get_crypto_api_method()
