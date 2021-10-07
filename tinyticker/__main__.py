@@ -51,6 +51,14 @@ Note:
         "-w", "--wait-time", help="Wait time in seconds.", type=int, default=None
     )
     parser.add_argument("-f", "--flip", help="Flip the display.", action="store_true")
+    parser.add_argument(
+        "-t",
+        "--type",
+        help="Plot style, see mplfinance.",
+        default="candle",
+        type=str,
+        choices=["ohlc", "line", "candle", "renko", "pnf"],
+    )
 
     parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
     parser.add_argument(
@@ -126,6 +134,7 @@ def main():
                 historical,
                 current,
                 sub_string=f"{ticker.look_back} {args['interval']}s",
+                type=args["type"],
                 show=True,
             )
     except Exception as e:

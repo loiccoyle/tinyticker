@@ -13,6 +13,7 @@ DEFAULT = {
     "lookback": None,
     "wait_time": None,
     "flip": False,
+    "type": "candle"
 }
 
 
