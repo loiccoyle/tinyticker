@@ -175,13 +175,16 @@ class Ticker:
         self._log.debug("self.lookback: %s", self.lookback)
         self._log.debug("start: %s", start)
         self._log.debug("end: %s", end)
-        current_price = yfinance.download(
+        current_price_data = yfinance.download(
             self.symbol,
             start=end - pd.Timedelta("2m"),  # type: ignore
             end=end,
             interval="1m",
         )  # type: pd.DataFrame
-        current_price = current_price.iloc[-1]["Close"]
+        if not current_price_data:
+            current_price = None
+        else:
+            current_price = current_price_data.iloc[-1]["Close"]
 
         return {
             "historical": yfinance.download(
