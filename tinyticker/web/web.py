@@ -8,11 +8,13 @@ from flask import Flask, abort, redirect, render_template, request, send_from_di
 
 from .. import config as config_file
 from ..settings import CONFIG_FILE, set_verbosity
-from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_WAIT_TIMES, SYMBOL_TYPES
+from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from . import logger
 from .command import COMMANDS
 
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
+
+INTERVAL_WAIT_TIMES = {k: v.seconds for k, v in INTERVAL_TIMEDELTAS.items()} # type: ignore
 
 
 def create_app():
