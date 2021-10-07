@@ -5,7 +5,7 @@ import os
 import sys
 from typing import List
 
-from . import logger
+from . import config, logger
 from .display import Display
 from .settings import PID_FILE
 from .ticker import Ticker
@@ -25,6 +25,12 @@ Note:
     Make sure SPI is enabled on your RPi.
 """,
         formatter_class=RawTextArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "-a",
+        "--api-key",
+        help="CryptoCompare API key, https://min-api.cryptocompare.com/pricing.",
+        type=str,
     )
     parser.add_argument("-c", "--coin", help="Crypto coin.", type=str, default="BTC")
     parser.add_argument(
@@ -48,18 +54,25 @@ Note:
 
     parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
     parser.add_argument(
-        "api_key",
-        help="CryptoCompare API key, https://min-api.cryptocompare.com/pricing.",
-        type=str,
+        "-c",
+        "--config",
+        help="Run tinyticker using the config file, all other arguments will be ignored.",
+        action="store_true",
     )
     return parser.parse_args(args)
 
 
 def main():
     args = parse_args(sys.argv[1:])
-    if args.verbose > 0:
+    if args.config:
+        args = config.read()
+    else:
+        # make sure the interface is a dictionary regardless
+        args = vars(args)
+
+    if args["verbose"] > 0:
         verbose_map = {1: logging.INFO, 2: logging.DEBUG}
-        level = verbose_map[args.verbose]
+        level = verbose_map[args["verbose"]]
         # from https://docs.python.org/3/howto/logging.html#configuring-logging
         logger.setLevel(level)
         # create console handler and set level to debug
@@ -75,19 +88,22 @@ def main():
         logger.addHandler(handler)
 
     logger.debug("Args: %s", args)
+    if not args["api_key"]:
+        logger.error("No API key provided.")
+        raise ValueError("Not API key provided.")
 
     display = Display(
-        args.coin,
-        args.currency,
-        flip=args.flip,
+        args["coin"],
+        args["currency"],
+        flip=args["flip"],
     )
     ticker = Ticker(
-        args.api_key,
-        coin=args.coin,
-        currency=args.currency,
-        interval=args.interval,
-        look_back=args.look_back,
-        wait_time=args.wait_time,
+        args["api_key"],
+        coin=args["coin"],
+        currency=args["currency"],
+        interval=args["interval"],
+        look_back=args["look_back"],
+        wait_time=args["wait_time"],
     )
 
     def cleanup(display: Display):
@@ -98,7 +114,7 @@ def main():
 
     atexit.register(cleanup, display)
 
-    with open(PID_FILE, "+a") as pid_file:
+    with open(PID_FILE, "w") as pid_file:
         pid = os.getpid()
         logger.info("PID: %s", pid)
         pid_file.write(str(pid))
@@ -110,7 +126,7 @@ def main():
             display.plot(
                 historical,
                 current,
-                sub_string=f"{ticker.look_back} {args.interval}s",
+                sub_string=f"{ticker.look_back} {args['interval']}s",
                 show=True,
             )
     except Exception as e:

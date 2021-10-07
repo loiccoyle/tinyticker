@@ -2,6 +2,19 @@ import json
 
 from .settings import CONFIG_FILE
 
+DEFAULT = {
+    api_key: None,
+    coin: "BTC",
+    currency: "USD",
+    interval: "hour",
+    lookback: None,
+    wait_time: None,
+    flip: False,
+}
+
+if not CONFIG_FILE.if_file():
+    write(DEFAULT)
+
 
 def read() -> dict:
     if CONFIG_FILE.is_file():
