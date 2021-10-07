@@ -4,7 +4,7 @@ from .settings import CONFIG_FILE
 
 
 def read() -> dict:
-    if CONFIG_FILE.is_file()
+    if CONFIG_FILE.is_file():
         with open(CONFIG_FILE, "r") as config_file:
             return json.load(config_file)
     else:
