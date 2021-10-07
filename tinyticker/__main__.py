@@ -156,7 +156,7 @@ def main():
                 response["historical"],
                 response["current_price"],
                 top_string=f"{args['symbol']}:{args['currency']}",
-                sub_string=f"{ticker.lookback} {args['interval']}s",
+                sub_string=f"{len(response['historical'])}x{args['interval']}",
                 type=args["type"],
                 show=True,
             )
