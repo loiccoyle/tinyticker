@@ -97,10 +97,10 @@ class Display:
         """Plot crypto chart.
 
         Args:
-            historical: API response, `pd.DataFrame` containing the historical 
-                price of the symbol. 
+            historical: API response, `pd.DataFrame` containing the historical
+                price of the symbol.
             current_price: API response, the current price of the symbol.
-            top_string: Contents of the top left string, the current will be 
+            top_string: Contents of the top left string, the current will be
                 appended if provided.
             sub_string: Contents of a smaller text box bollow top_string.
             show: display the plot on the ePaper display.
@@ -110,34 +110,29 @@ class Display:
         Returns:
             The `plt.Figure` and `plt.Axes` of the plot.
         """
-        df = pd.DataFrame(historical)
-        df.set_index("time", inplace=True)
-        df.index = pd.to_datetime(df.index, unit="s")  # type: ignore
-        df.rename(
-            columns={"high": "High", "close": "Close", "low": "Low", "open": "Open"},
-            inplace=True,
-        )
         fig, ax = self._plot()
         mpf.plot(
-            df,
+            historical,
             type=type,
             ax=ax,
             update_width_config={"candle_linewidth": 1.5},
             **kwargs,
         )
-        if top_string is None:
-            top_string = ""
-        if current_price is not None:
-            top_string = top_string + f" {current_price}"
-        ax.text(
-            0,
-            1,
-            top_string,
-            transform=ax.transAxes,
-            fontsize=10,
-            weight="bold",
-            bbox=dict(boxstyle="square,pad=0", facecolor="white", edgecolor="white"),
-        )
+        if top_string is None 
+            if current_price is not None:
+                top_string = str(current_price)
+        else:
+            top_string += f" {current_price}"
+        if top_string is not None:
+            ax.text(
+                0,
+                1,
+                top_string,
+                transform=ax.transAxes,
+                fontsize=10,
+                weight="bold",
+                bbox=dict(boxstyle="square,pad=0", facecolor="white", edgecolor="white"),
+            )
         if sub_string is not None:
             ax.text(
                 0,
