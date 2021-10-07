@@ -18,7 +18,9 @@ YFINANCE_NON_STANDARD_INTERVALS = {
 }
 
 INTERVAL_TIMEDELTAS = {
-    interval: YFINANCE_NON_STANDARD_INTERVALS.get(interval, pd.Timedelta(interval))
+    interval: YFINANCE_NON_STANDARD_INTERVALS[interval]
+    if interval in YFINANCE_NON_STANDARD_INTERVALS
+    else pd.Timedelta(interval)
     for interval in [
         "1m",
         "2m",
