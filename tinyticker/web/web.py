@@ -7,6 +7,7 @@ from flask import Flask, abort, redirect, render_template, request, send_from_di
 
 from .. import config as config_file
 from ..settings import CONFIG_FILE
+from .command import COMMANDS
 
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
 LOGGER = logging.getLogger(__name__)
@@ -44,7 +45,11 @@ def create_app():
 
     @app.route("/command")
     def command():
-        LOGGER.info("/command url args: %s", request.args)
+        LOGGER.debug("/command url args: %s", request.args)
+        command = request.args.get("command")
+        if command:
+            COMMANDS.get(command, lambda: None)()
+
         return redirect("/", code=302)
 
     @app.route("/img/favicon.ico")
