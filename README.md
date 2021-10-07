@@ -2,6 +2,13 @@
 
 > its not the size that matters
 
+## Hardware
+
+Shopping list:
+- [Raspberry Pi Zero W](https://www.raspberrypi.com/products/raspberry-pi-zero-w/)
+- [Waveshare ePaper 2.13in V2 two color](https://www.amazon.com/s?k=waveshare+epaper+2.13inch)
+- A micro sd card
+
 ## Installation
 
 ```
