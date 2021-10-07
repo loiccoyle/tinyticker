@@ -118,7 +118,7 @@ class Display:
             update_width_config={"candle_linewidth": 1.5},
             **kwargs,
         )
-        if top_string is None 
+        if top_string is None:
             if current_price is not None:
                 top_string = str(current_price)
         else:
@@ -131,7 +131,9 @@ class Display:
                 transform=ax.transAxes,
                 fontsize=10,
                 weight="bold",
-                bbox=dict(boxstyle="square,pad=0", facecolor="white", edgecolor="white"),
+                bbox=dict(
+                    boxstyle="square,pad=0", facecolor="white", edgecolor="white"
+                ),
             )
         if sub_string is not None:
             ax.text(
