@@ -15,7 +15,7 @@
     <div class="uk-flex uk-flex-center uk-flex-middle">
         <div class="uk-width-large">
             <div class="uk-width-1-1 uk-text-center">
-                <p class="uk-text-large">🚀 TinyTicker Control Panel 🚀</p>
+                <p class="uk-text-large">🚀 TinyTicker Dashboard 🚀</p>
             </div>
 
             <div class="uk-width-large">
@@ -57,6 +57,12 @@
                             {% else %}
                             <input class="uk-textarea" inputmode="numeric" id="lookback" name="lookback" min="1" value="{{lookback}}">
                             {%endif%}
+                            {% if wait_time is none %}
+                            {# If the wait_time is None then it hasn't been set so use the default wait_time for the interval #}
+                            <input class="uk-textarea" inputmode="numeric" id="wait_time" name="wait_time" min="1" placeholder="{{interval_wait_times[interval]}}">
+                            {% else %}
+                            <input class="uk-textarea" inputmode="numeric" id="wait_time" name="wait_time" min="1" value="{{wait_time}}">
+                            {%endif%}
                             <label class="uk-form-label" for="flip">Flip <input class="uk-checkbox" type="checkbox" id="flip" name="flip" {% if flip | default(False) %}checked{% endif %}></label>
                         </div>
                         <div class="uk-width-1-1 uk-margin">
@@ -78,7 +84,7 @@
         </div>
     </div>
     <div class="uk-text-center uk-position-small">
-        <span class="uk-text-small uk-text-muted">TinyTicker Control Panel - Built with <a href="https://github.com/loiccoyle/tinyticker" title="tinyticker" target="_blank" data-uk-tooltip>TinyTicker</a></span>
+        <span class="uk-text-small uk-text-muted">TinyTicker Dashboard - Built with <a href="https://github.com/loiccoyle/tinyticker" title="tinyticker" target="_blank" data-uk-tooltip>TinyTicker</a></span>
     </div>
 </body>
 </html>
