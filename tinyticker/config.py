@@ -7,7 +7,10 @@ from .settings import CONFIG_FILE
 
 LOGGER = logging.getLogger(__name__)
 
-TYPES = _get_valid_plot_types()
+# remove hollow types because white on white doesn't show
+TYPES = [
+    plot_type for plot_type in _get_valid_plot_types() if "hollow" not in plot_type
+]
 
 DEFAULT = {
     "api_key": None,
