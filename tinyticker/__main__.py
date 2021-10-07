@@ -107,6 +107,8 @@ def main():
     except Exception as e:
         logger.error(e, stack_info=True)
         display.text(str(e), show=True)
+    except KeyboardInterrupt:
+        logger.warning("Keyboard interupt.")
     finally:
         logger.info("Exiting")
         del display
