@@ -19,6 +19,7 @@ def register(func: Callable) -> Callable:
 
 @register
 def restart():
+    """Kill the tinyticker process. Systemd is left to restart it."""
     if PID_FILE.is_file():
         LOGGER.info("Killing tinyticker.")
         with open(PID_FILE, "r") as pid_file:
@@ -30,5 +31,6 @@ def restart():
 
 @register
 def reboot():
+    """Reboot the Raspberry Pi, requires sudo."""
     LOGGER.info("Rebooting.")
     subprocess.Popen(["sudo", "shutdown", "-h", "now"])
