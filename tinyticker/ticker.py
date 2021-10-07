@@ -105,7 +105,7 @@ class Ticker:
         if current is not None:
             current = current[self.symbol][self.currency]
 
-        return {"historical": historical, "current": current}
+        return {"historical": historical, "current_price": current}
 
     def _tick_stock(self) -> dict:
         interval = INTERVAL_YFINANCE_FORMAT[self.interval]
@@ -118,7 +118,7 @@ class Ticker:
             "historical": yfinance.download(
                 self.symbol, start=start, end=end, interval=interval
             ),
-            "current": None,
+            "current_price": None,
         }
 
     def tick(self) -> Iterator[dict]:
