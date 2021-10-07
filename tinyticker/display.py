@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -21,13 +21,9 @@ class Display:
 
     def __init__(
         self,
-        coin: str,
-        currency: str,
         flip: bool = False,
     ) -> None:
         self._log = logging.getLogger(__name__)
-        self.coin = coin
-        self.currency = currency
         self.previous_response = {}
         self.flip = flip
         self.epd = EPD()
@@ -90,8 +86,9 @@ class Display:
 
     def plot(
         self,
-        historical: List[dict],
-        current_price: Optional[dict],
+        historical: pd.DataFrame,
+        current_price: Optional[float],
+        top_string: Optional[str] = None,
         sub_string: Optional[str] = None,
         show: bool = False,
         type: str = "candle",
@@ -100,11 +97,12 @@ class Display:
         """Plot crypto chart.
 
         Args:
-            historical: API response, list of dictionaries containing the
-                historical price of a coin. Output of
-                `cryptocompare.get_historical_price_*` function.
-            current_price: API response, the current price of the coin. Output
-                of the `cryptocompare.get_price` function.
+            historical: API response, `pd.DataFrame` containing the historical 
+                price of the symbol. 
+            current_price: API response, the current price of the symbol.
+            top_string: Contents of the top left string, the current will be 
+                appended if provided.
+            sub_string: Contents of a smaller text box bollow top_string.
             show: display the plot on the ePaper display.
             type: the chart type, see `mpfinance.plot`.
             **kwargs: passed to `mpfinance.plot`.
@@ -127,20 +125,21 @@ class Display:
             update_width_config={"candle_linewidth": 1.5},
             **kwargs,
         )
-        display_str = f"{self.coin}:{self.currency}"
+        if top_string is None:
+            top_string = ""
         if current_price is not None:
-            display_str = display_str + f" {current_price[self.coin][self.currency]}"
-        text = ax.text(
+            top_string = top_string + f" {current_price}"
+        ax.text(
             0,
             1,
-            display_str,
+            top_string,
             transform=ax.transAxes,
             fontsize=10,
             weight="bold",
             bbox=dict(boxstyle="square,pad=0", facecolor="white", edgecolor="white"),
         )
         if sub_string is not None:
-            text = ax.text(
+            ax.text(
                 0,
                 0.88,
                 sub_string,

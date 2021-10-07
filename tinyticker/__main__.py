@@ -9,7 +9,7 @@ from . import config, logger
 from .config import DEFAULT, TYPES
 from .display import Display
 from .settings import CONFIG_FILE, PID_FILE, set_verbosity
-from .ticker import INTERVAL_LOOKBACKS, Ticker
+from .ticker import INTERVAL_LOOKBACKS, Ticker, SYMBOL_TYPES
 
 
 class RawTextArgumentDefaultsHelpFormatter(
@@ -28,6 +28,13 @@ Note:
         formatter_class=RawTextArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
+        "--symbol-type",
+        help="The type of the symbol.",
+        type=str,
+        default="stock",
+        choices=SYMBOL_TYPES,
+    )
+    parser.add_argument(
         "-a",
         "--api-key",
         help="CryptoCompare API key, https://min-api.cryptocompare.com/pricing.",
@@ -35,11 +42,11 @@ Note:
         default=DEFAULT["api_key"],
     )
     parser.add_argument(
-        "-c",
-        "--coin",
-        help="Crypto coin.",
+        "-s",
+        "--symbol",
+        help="Asset symbol.",
         type=str,
-        default=DEFAULT["coin"],
+        default=DEFAULT["symbol"],
     )
     parser.add_argument(
         "-C",
@@ -111,13 +118,12 @@ def main():
         raise ValueError("No API key provided.")
 
     display = Display(
-        args["coin"],
-        args["currency"],
         flip=args["flip"],
     )
     ticker = Ticker(
-        args["api_key"],
-        coin=args["coin"],
+        type=args["symbol_type"],
+        api_key=args["api_key"],
+        symbol=args["symbol"],
         currency=args["currency"],
         interval=args["interval"],
         lookback=args["lookback"],
@@ -151,6 +157,7 @@ def main():
             display.plot(
                 historical,
                 current,
+                top_string=f"{args['symbol']}:{args['currency']}",
                 sub_string=f"{ticker.lookback} {args['interval']}s",
                 type=args["type"],
                 show=True,

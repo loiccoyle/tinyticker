@@ -13,8 +13,9 @@ TYPES = [
 ]
 
 DEFAULT = {
+    "symbol_type": "stock",
     "api_key": None,
-    "coin": "BTC",
+    "symbol": "AAPL",
     "currency": "USD",
     "interval": "hour",
     "lookback": None,

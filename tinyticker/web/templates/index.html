@@ -24,12 +24,22 @@
                 <form class="uk-form-stacked" action="/config">
                     <div class="uk-grid uk-grid-small">
                         <div class="uk-width-1-1">
+                            <label class="uk-form-label" for="symbol_type">Symbol type</label>
+                            <select class="uk-select" id="symbol_type" name="symbol_type">
+                                {% for symbol_type_option in symbol_type_options %}
+                                {% if symbol_type_option == symbol_type %}
+                                <option value="{{symbol_type_option}}" selected>{{symbol_type_option}}</option>
+                                {% else %}
+                                <option value="{{symbol_type_option}}">{{symbol_type_option}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
                             <label class="uk-form-label" for="api_key"><a href="https://min-api.cryptocompare.com/pricing">CryptoCompare</a> API key</label>
                             <input class="uk-textarea" type="text" id="api_key" name="api_key" {% if api_key %} value="{{api_key}}" {% endif %}>
-                            <label class="uk-form-label" for="coin">Coin</label>
-                            <input class="uk-textarea" type="text" id="coin" name="coin" value="{{coin|default("BTC")}}">
+                            <label class="uk-form-label" for="symbol">Symbol</label>
+                            <input class="uk-textarea" type="text" id="symbol" name="symbol" value="{{symbol}">
                             <label class="uk-form-label" for="currency">Currency</label>
-                            <input class="uk-textarea" type="text" id="currency" name="currency" value="{{currency | default("USD")}}">
+                            <input class="uk-textarea" type="text" id="currency" name="currency" value="{{currency}}">
                             <label class="uk-form-label" for="interval">Interval</label>
                             <select class="uk-select" id="interval" name="interval">
                                 {% for interval_option in ["day", "hour", "minute"] %}

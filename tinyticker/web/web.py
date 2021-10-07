@@ -8,7 +8,7 @@ from flask import Flask, abort, redirect, render_template, request, send_from_di
 
 from .. import config as config_file
 from ..settings import CONFIG_FILE, set_verbosity
-from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_WAIT_TIMES
+from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_WAIT_TIMES, SYMBOL_TYPES
 from . import logger
 from .command import COMMANDS
 
@@ -31,6 +31,7 @@ def create_app():
             config_file=str(CONFIG_FILE),
             commands=COMMANDS.keys(),
             type_options=config_file.TYPES,
+            symbol_type_options=SYMBOL_TYPES,
             interval_lookbacks=INTERVAL_LOOKBACKS,
             interval_wait_times=INTERVAL_WAIT_TIMES,
             **config,
