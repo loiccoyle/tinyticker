@@ -23,7 +23,7 @@ def create_app():
     @app.route("/")
     def index():
         config = config_file.read()
-        return render_template("index.html", config_file, **config)
+        return render_template("index.html", config_file=config_file, **config)
 
     @app.route("/config")
     def config():
