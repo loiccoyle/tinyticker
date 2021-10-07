@@ -1,0 +1,15 @@
+[Unit]
+Description=Raspberry Pi crypto ticker on epaper display.
+
+[Service]
+Type=simple
+User=YOUR_USER
+Group=YOUR_USER
+ExecStartPre=/usr/bin/nm-online
+ExecStart="$HOME"/.local/bin/rpi-ticker --config -vv
+Restart=on-failture
+StandardOutput=file:/tmp/tinyticker1.log
+StandardError=file:/tmp/tinyticker2.log
+
+[Install]
+WantedBy=multi-user.target
