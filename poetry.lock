@@ -316,7 +316,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1,<3.11"
-content-hash = "d4eb30b4ac8c9de2851849a5c3feb193e176bd9f56969d22e82780c076a555d4"
+content-hash = "6aca1e8eda3d7179844aee73c491c79a93d0606d9c8a6b45feae4589fd3807e3"
 
 [metadata.files]
 certifi = [
@@ -333,7 +333,6 @@ click = [
 ]
 colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
-    {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
 ]
 cryptocompare = [
     {file = "cryptocompare-0.7.5.tar.gz", hash = "sha256:7583d5519dc74cbd9e4c704e1530c5e8446f4500d4dda481357616e3439410da"},
