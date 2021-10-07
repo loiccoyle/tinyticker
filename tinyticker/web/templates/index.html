@@ -57,6 +57,7 @@
                             {% else %}
                             <input class="uk-textarea" inputmode="numeric" id="lookback" name="lookback" min="1" value="{{lookback}}">
                             {%endif%}
+                            <label class="uk-form-label" for="wait_time">Wait time</label>
                             {% if wait_time is none %}
                             {# If the wait_time is None then it hasn't been set so use the default wait_time for the interval #}
                             <input class="uk-textarea" inputmode="numeric" id="wait_time" name="wait_time" min="1" placeholder="{{interval_wait_times[interval]}}">
