@@ -51,7 +51,7 @@
                                 {% endfor %}
                             </select>
                             <label class="uk-form-label" for="lookback">Lookback</label>
-                            {% if lookback is None %}
+                            {% if lookback is none %}
                             {# If the look back is None then it hasn't been set so use the default lookback for the interval #}
                             <input class="uk-textarea" inputmode="numeric" id="lookback" name="lookback" min="1" placeholder="{{interval_lookbacks[interval]}}">
                             {% else %}
