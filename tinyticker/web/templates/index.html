@@ -40,8 +40,18 @@
                                 {% endif %}
                                 {% endfor %}
                             </select>
+                            <label class="uk-form-label" for="type">Plot type</label>
+                            <select class="uk-select" id="type" name="type">
+                                {% for type_option in type_options %}
+                                {% if type_option == type%}
+                                <option value="{{type_option}}" selected>{{type_option}}</option>
+                                {% else %}
+                                <option value="{{type_option}}">{{type_option}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
                             <label class="uk-form-label" for="lookback">Lookback</label>
-                            <input class="uk-textarea" inputmode="numeric" id="lookback" name="lookback" min="1">
+                            <input class="uk-textarea" inputmode="numeric" id="lookback" name="lookback" min="1" value={{lookback}}>
                             <label class="uk-form-label" for="flip">Flip <input class="uk-checkbox" type="checkbox" id="flip" name="flip" {% if flip | default(False) %}checked{% endif %}></label>
                         </div>
                         <div class="uk-width-1-1 uk-margin">
