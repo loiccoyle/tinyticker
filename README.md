@@ -1,20 +1,37 @@
-#
+# tinyticker
 
+> its not the size that matters
 
-# Setup
+## Installation
+
+```
+pip install tinyticker
+```
+
+to not mess with your system python, consider using [pipx](https://github.com/pypa/pipx):
+
+```
+pipx install tinyticker
+```
+
+### Dependencies
 
 If you get the following error when installing numpy:
+
 ```
 libf77blas.so.3: cannot open shared object file: No such file or directory
 ```
+
 Install the missing library:
+
 ```
 sudo apt-get install libatlas-base-dev
 ```
+
 [source](https://numpy.org/devdocs/user/troubleshooting-importerror.html#raspberry-pi)
 
+If pillow (PIL) complains then your missing some libraries, try:
 
-PIL error:
 ```
 sudo apt install libopenjp2-7 libtiff5
 ```
