@@ -51,7 +51,12 @@
                                 {% endfor %}
                             </select>
                             <label class="uk-form-label" for="lookback">Lookback</label>
-                            <input class="uk-textarea" inputmode="numeric" id="lookback" name="lookback" min="1" value={{lookback}}>
+                            {% if lookback is None %}
+                            {# If the look back is None then it hasn't been set so use the default lookback for the interval #}
+                            <input class="uk-textarea" inputmode="numeric" id="lookback" name="lookback" min="1" placeholder="{{interval_lookbacks[interval]}}">
+                            {% else %}
+                            <input class="uk-textarea" inputmode="numeric" id="lookback" name="lookback" min="1" value="{{lookback}}">
+                            {%endif%}
                             <label class="uk-form-label" for="flip">Flip <input class="uk-checkbox" type="checkbox" id="flip" name="flip" {% if flip | default(False) %}checked{% endif %}></label>
                         </div>
                         <div class="uk-width-1-1 uk-margin">
