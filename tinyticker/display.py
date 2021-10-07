@@ -118,11 +118,10 @@ class Display:
             update_width_config={"candle_linewidth": 1.5},
             **kwargs,
         )
-        if top_string is None:
-            if current_price is not None:
-                top_string = str(current_price)
-        else:
+        if top_string is not None:
             top_string += f" {current_price}"
+        else:
+            top_string = str(current_price)
         if top_string is not None:
             ax.text(
                 0,
