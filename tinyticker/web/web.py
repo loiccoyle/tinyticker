@@ -25,7 +25,12 @@ def create_app():
     @app.route("/")
     def index():
         config = config_file.read()
-        return render_template("index.html", config_file=str(CONFIG_FILE), **config)
+        return render_template(
+            "index.html",
+            config_file=str(CONFIG_FILE),
+            commands=COMMANDS.keys(),
+            **config
+        )
 
     @app.route("/config")
     def config():

@@ -54,8 +54,9 @@
                 <div class="uk-width-1-1">
                     <p class="uk-text-large">Command</p>
                     <form class="uk-form-stacked" action="/command">
-                        <button type="submit" name="command" value="restart" class="uk-button uk-button-primary uk-width-expand">Restart</button>
-                        <button type="submit" name="command" value="reboot" class="uk-button uk-button-primary uk-width-expand">Reboot</button>
+                        {% for command in commands %}
+                        <button type="submit" name="command" value="{{command}}" class="uk-button uk-button-primary uk-width-expand">{{command.title()}}</button>
+                        {% endfor %}
                     </form>
                 </div>
             </div>
