@@ -63,11 +63,9 @@ Note:
 
 def main():
     args = parse_args(sys.argv[1:])
-    if args.config:
-        args = config.read()
-    else:
-        # make sure the interface is a dictionary regardless
-        args = vars(args)
+    args = vars(args)
+    if args["config"]:
+        args.update(config.read())
 
     if args["verbose"] > 0:
         verbose_map = {1: logging.INFO, 2: logging.DEBUG}
