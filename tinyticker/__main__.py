@@ -151,12 +151,13 @@ def main():
         pid_file.write(str(pid))
 
     try:
-        for historical, current in ticker.tick():
-            logger.debug("API response[0]: %s", historical[0])
-            logger.debug("API len(response): %s", len(historical))
+        for response in ticker.tick():
+            logger.debug("API historical[0]: %s", response["historical"].iloc[0])
+            logger.debug("API len(historical): %s", len(response["historical"]))
+            logger.debug("API current_price: %s", response["current_price"])
             display.plot(
-                historical,
-                current,
+                response["historical"],
+                response["current_price"],
                 top_string=f"{args['symbol']}:{args['currency']}",
                 sub_string=f"{ticker.lookback} {args['interval']}s",
                 type=args["type"],
