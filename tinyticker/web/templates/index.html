@@ -24,7 +24,7 @@
                 <form class="uk-form-stacked" action="/config">
                     <div class="uk-grid uk-grid-small">
                         <div class="uk-width-1-1">
-                            <label class="uk-form-label" for="api_key">API key</label>
+                            <label class="uk-form-label" for="api_key"><a href="https://min-api.cryptocompare.com/pricing">CryptoCompare</a> API key</label>
                             <input class="uk-textarea" type="text" id="api_key" name="api_key" {% if api_key %} value="{{api_key}}" {% endif %}>
                             <label class="uk-form-label" for="coin">Coin</label>
                             <input class="uk-textarea" type="text" id="coin" name="coin" value="{{coin|default("BTC")}}">
