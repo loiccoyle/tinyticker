@@ -6,10 +6,10 @@ import sys
 from typing import List
 
 from . import config, logger
+from .config import DEFAULT, TYPES
 from .display import Display
 from .settings import CONFIG_FILE, PID_FILE, set_verbosity
-from .ticker import Ticker, INTERVAL_LOOKBACKS
-from .config import TYPES, DEFAULT
+from .ticker import INTERVAL_LOOKBACKS, Ticker
 
 
 class RawTextArgumentDefaultsHelpFormatter(

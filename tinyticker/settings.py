@@ -1,5 +1,5 @@
-from pathlib import Path
 import logging
+from pathlib import Path
 
 CONFIG_DIR = Path.home() / ".config" / "tinyticker"
 if not CONFIG_DIR.is_dir():
@@ -22,7 +22,7 @@ def set_verbosity(logger: logging.Logger, verbosity: int) -> logging.Logger:
     handler.setLevel(level)
     # create formatter
     formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s-8s: %(message)s", "%H:%M:%S"
+        "%(asctime)s - %(name)s - %(levelname)s: %(message)s", "%H:%M:%S"
     )
     # add formatter to handler
     handler.setFormatter(formatter)
