@@ -120,7 +120,7 @@ class Display:
             inplace=True,
         )
         fig, ax = self._plot()
-        mpf.plot(df, type=type, ax=ax, **kwargs)
+        mpf.plot(df, type=type, ax=ax, update_width_config={"candle_linewidth": 1.5}, **kwargs)
         display_str = f"{self.coin}:{self.currency}"
         if current_price is not None:
             display_str = display_str + f" {current_price[self.coin][self.currency]}"
@@ -130,6 +130,7 @@ class Display:
             display_str,
             transform=ax.transAxes,
             fontsize=10,
+            weight="bold",
             bbox=dict(boxstyle="square,pad=0", facecolor="white", edgecolor="white"),
         )
         if sub_string is not None:
@@ -139,6 +140,7 @@ class Display:
                 sub_string,
                 transform=ax.transAxes,
                 fontsize=8,
+                weight="bold",
                 bbox=dict(
                     boxstyle="square,pad=0", facecolor="white", edgecolor="white"
                 ),
