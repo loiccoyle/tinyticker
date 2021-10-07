@@ -21,6 +21,7 @@ Flask = "^2.0.2"
 
 [tool.poetry.scripts]
 tinyticker = 'tinyticker.__main__:main'
+tinyticker-web = 'tinyticker.web.web:main'
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
