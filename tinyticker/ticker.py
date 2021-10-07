@@ -182,8 +182,10 @@ class Ticker:
             interval="1m",
         )  # type: pd.DataFrame
         if current_price_data.empty:
+            self._log.debug("current price data empty")
             current_price = None
         else:
+            self._log.debug("current price data not empty")
             current_price = current_price_data.iloc[-1]["Close"]
 
         return {
