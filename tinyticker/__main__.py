@@ -1,4 +1,5 @@
 import argparse
+import atexit
 import logging
 import sys
 import os
@@ -89,6 +90,14 @@ def main():
         wait_time=args.wait_time,
     )
 
+    def cleanup(display: Display):
+        logger.info("Exiting.")
+        if PID_FILE.is_file():
+            PID_FILE.unlink()
+        del display
+
+    atexit.register(cleanup, display)
+
     with open(PID_FILE, "+a") as pid_file:
         pid = os.getpid()
         logger.info("PID: %s", pid)
@@ -107,9 +116,3 @@ def main():
     except Exception as e:
         logger.error(e, stack_info=True)
         display.text(str(e), show=True)
-    except KeyboardInterrupt:
-        logger.warning("Keyboard interupt.")
-    finally:
-        logger.info("Exiting")
-        del display
-        PID_FILE.unlink()
