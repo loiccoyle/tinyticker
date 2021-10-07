@@ -1,11 +1,13 @@
 import argparse
 import logging
 import sys
+import os
 from typing import List
 
 from . import logger
 from .display import Display
 from .ticker import Ticker
+from .settings import PID_FILE
 
 
 class RawTextArgumentDefaultsHelpFormatter(
@@ -87,6 +89,11 @@ def main():
         wait_time=args.wait_time,
     )
 
+    with open(PID_FILE, "+a") as pid_file:
+        pid = os.getpid()
+        logger.info("PID: %s", pid)
+        pid_file.write(str(pid))
+
     try:
         for historical, current in ticker.tick():
             logger.debug("API response[0]: %s", historical[0])
@@ -103,3 +110,4 @@ def main():
     finally:
         logger.info("Exiting")
         del display
+        PID_FILE.unlink()
