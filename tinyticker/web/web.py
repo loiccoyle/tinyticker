@@ -27,7 +27,7 @@ def create_app():
 
     @app.route("/config")
     def config():
-        LOGGER.info(request.args)
+        LOGGER.debug("/config url args: %s", request.args)
         config = {}
         for key, value in request.args.items():
             if key in ["lookback"] and value == "":
@@ -37,13 +37,13 @@ def create_app():
             config[key] = value
         if "flip" not in config:
             config["flip"] = False
-        LOGGER.info(config)
+        LOGGER.debug("config dict: %s", config)
         config_file.write(config)
         return redirect("/", code=302)
 
     @app.route("/command")
     def command():
-        LOGGER.info(request.args)
+        LOGGER.info("/command url args: %s", request.args)
         return redirect("/", code=302)
 
     @app.route("/img/favicon.ico")
@@ -72,7 +72,6 @@ def create_app():
 
 def main():
     LOGGER.info("Starting tinyticker-web")
-    LOGGER.info(request.host)
     app = create_app()
     app.run(host="0.0.0.0", port=80, debug=False, threaded=True)
     LOGGER.info("Stopping tinyticker-web")
