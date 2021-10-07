@@ -1,9 +1,13 @@
 import json
 import logging
 
+from mplfinance._arg_validators import _get_valid_plot_types
+
 from .settings import CONFIG_FILE
 
 LOGGER = logging.getLogger(__name__)
+
+TYPES = _get_valid_plot_types()
 
 DEFAULT = {
     "api_key": None,
@@ -13,7 +17,7 @@ DEFAULT = {
     "lookback": None,
     "wait_time": None,
     "flip": False,
-    "type": "candle"
+    "type": "candle",
 }
 
 

@@ -8,7 +8,8 @@ from typing import List
 from . import config, logger
 from .display import Display
 from .settings import CONFIG_FILE, PID_FILE
-from .ticker import Ticker
+from .ticker import Ticker, INTERVAL_LOOKBACKS
+from .config import TYPES, DEFAULT
 
 
 class RawTextArgumentDefaultsHelpFormatter(
@@ -31,33 +32,57 @@ Note:
         "--api-key",
         help="CryptoCompare API key, https://min-api.cryptocompare.com/pricing.",
         type=str,
+        default=DEFAULT["api_key"],
     )
-    parser.add_argument("-c", "--coin", help="Crypto coin.", type=str, default="BTC")
     parser.add_argument(
-        "-C", "--currency", help="Display currency.", type=str, default="USD"
+        "-c",
+        "--coin",
+        help="Crypto coin.",
+        type=str,
+        default=DEFAULT["coin"],
+    )
+    parser.add_argument(
+        "-C",
+        "--currency",
+        help="Display currency.",
+        type=str,
+        default=DEFAULT["currency"],
     )
     parser.add_argument(
         "-i",
         "--interval",
         help="Interval.",
         type=str,
-        default="hour",
-        choices=["day", "hour", "minute"],
+        default=DEFAULT["interval"],
+        choices=INTERVAL_LOOKBACKS.keys(),
     )
     parser.add_argument(
-        "-l", "--look-back", help="Look back amount.", type=int, default=None
+        "-l",
+        "--lookback",
+        help="Look back amount.",
+        type=int,
+        default=DEFAULT["lookback"],
     )
     parser.add_argument(
-        "-w", "--wait-time", help="Wait time in seconds.", type=int, default=None
+        "-w",
+        "--wait-time",
+        help="Wait time in seconds.",
+        type=int,
+        default=DEFAULT["wait_time"],
     )
-    parser.add_argument("-f", "--flip", help="Flip the display.", action="store_true")
     parser.add_argument(
         "-t",
         "--type",
         help="Plot style, see mplfinance.",
-        default="candle",
         type=str,
-        choices=["ohlc", "line", "candle", "renko", "pnf"],
+        default=DEFAULT["type"],
+        choices=TYPES,
+    )
+    parser.add_argument(
+        "-f",
+        "--flip",
+        help="Flip the display.",
+        action="store_true",
     )
 
     parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
@@ -109,7 +134,7 @@ def main():
         coin=args["coin"],
         currency=args["currency"],
         interval=args["interval"],
-        look_back=args["look_back"],
+        lookback=args["lookback"],
         wait_time=args["wait_time"],
     )
 
@@ -133,7 +158,7 @@ def main():
             display.plot(
                 historical,
                 current,
-                sub_string=f"{ticker.look_back} {args['interval']}s",
+                sub_string=f"{ticker.lookback} {args['interval']}s",
                 type=args["type"],
                 show=True,
             )

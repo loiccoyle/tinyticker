@@ -25,7 +25,7 @@ class Ticker:
         coin: Crypto coin, "BTC", "ETH", "DOGE" ...
         currency: Currency code, "USD", "EUR" ...
         interval: Candle interval, either "day", "hour" or "minute".
-        look_back: How many intervals to look back.
+        lookback: How many intervals to look back.
         wait_time: Time to wait in between API calls.
     """
 
@@ -35,7 +35,7 @@ class Ticker:
         coin: str = "BTC",
         currency: str = "USD",
         interval: str = "hour",
-        look_back: Optional[int] = None,
+        lookback: Optional[int] = None,
         wait_time: Optional[int] = None,
     ) -> None:
         self._log = logging.getLogger(__name__)
@@ -47,10 +47,10 @@ class Ticker:
         cryptocompare.cryptocompare._set_api_key_parameter(self.api_key)
         self.coin = coin
         self.currency = currency
-        if look_back is None:
-            self.look_back = INTERVAL_LOOKBACKS[self.interval]
+        if lookback is None:
+            self.lookback = INTERVAL_LOOKBACKS[self.interval]
         else:
-            self.look_back = look_back  # type: int
+            self.lookback = lookback  # type: int
         if wait_time is None:
             self.wait_time = INTERVAL_WAIT_TIMES[self.interval]
         else:
@@ -76,7 +76,7 @@ class Ticker:
                 self.coin,
                 self.currency,
                 toTs=datetime.now(),
-                limit=self.look_back - 1,
+                limit=self.lookback - 1,
             ), cryptocompare.get_price(self.coin, self.currency)
             self._log.debug("Sleeping %i s", self.wait_time)
             time.sleep(self.wait_time)
