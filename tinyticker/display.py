@@ -81,7 +81,7 @@ class Display:
         if self.flip:
             image = image.rotate(180)
         self._log.debug("Image size: %s", image.size)
-        self._log.info("Init display partial.")
+        self._log.info("Wake up.")
         # I think this wakes it from sleep
         self.epd.init(self.epd.FULL_UPDATE)
         self.epd.display(self.epd.getbuffer(image))
