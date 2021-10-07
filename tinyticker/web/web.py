@@ -90,7 +90,7 @@ def parse_args(args: List[str]) -> argparse.Namespace:
 
 def main():
     args = parse_args(sys.argv[1:])
-    logger.info("Args: %s", args)
+    # refactor this with the other verbosity control
     if args.verbose > 0:
         verbose_map = {1: logging.INFO, 2: logging.DEBUG}
         level = verbose_map[args.verbose]
@@ -107,6 +107,8 @@ def main():
         handler.setFormatter(formatter)
         # add ch to logger
         logger.addHandler(handler)
+
+    logger.debug("Args: %s", args)
 
     logger.info("Starting tinyticker-web")
     app = create_app()
