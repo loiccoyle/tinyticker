@@ -41,8 +41,11 @@ def create_app():
         logger.debug("/config url args: %s", request.args)
         config = {}
         for key, value in request.args.items():
-            if key in ["lookback", "wait_time"] and value == "":
-                value = None
+            if key in ["lookback", "wait_time"]:
+                if value == "":
+                    value = None
+                else:
+                    value = int(value)
             elif key == "flip":
                 value = True
             config[key] = value
