@@ -7,7 +7,7 @@ from typing import List
 
 from . import config, logger
 from .display import Display
-from .settings import PID_FILE
+from .settings import PID_FILE, CONFIG_FILE
 from .ticker import Ticker
 
 
@@ -55,7 +55,7 @@ Note:
     parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
     parser.add_argument(
         "--config",
-        help="Run tinyticker using the config file, all other arguments will be ignored.",
+        help=f"Take values from config file: {CONFIG_FILE}",
         action="store_true",
     )
     return parser.parse_args(args)
@@ -65,7 +65,9 @@ def main():
     args = parse_args(sys.argv[1:])
     args = vars(args)
     if args["config"]:
-        args.update(config.read())
+        # upadte the values if theyare not None
+        # allows for using other args to set values not set in the config file
+        args.update({k: v for k, v in config.read().items() if v is not None})
 
     if args["verbose"] > 0:
         verbose_map = {1: logging.INFO, 2: logging.DEBUG}
@@ -87,7 +89,7 @@ def main():
     logger.debug("Args: %s", args)
     if not args["api_key"]:
         logger.error("No API key provided.")
-        raise ValueError("Not API key provided.")
+        raise ValueError("No API key provided.")
 
     display = Display(
         args["coin"],
