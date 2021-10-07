@@ -114,6 +114,10 @@ class Ticker:
         if delta == pd.NaT:
             raise ValueError("delta is NaT.")
         start = end - delta * (self.lookback - 1)  # type: ignore
+        self._log.debug("interval: %s", interval)
+        self._log.debug("self.lookback: %s", self.lookback)
+        self._log.debug("start: %s", start)
+        self._log.debug("end: %s", end)
         return {
             "historical": yfinance.download(
                 self.symbol, start=start, end=end, interval=interval
