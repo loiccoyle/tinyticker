@@ -73,5 +73,5 @@ def create_app():
 def main():
     LOGGER.info("Starting tinyticker-web")
     app = create_app()
-    app.run(host="0.0.0.0", port=80, debug=False, threaded=True)
+    app.run(host="0.0.0.0", port=8000, debug=False, threaded=True)
     LOGGER.info("Stopping tinyticker-web")
