@@ -2,12 +2,22 @@ import logging
 import os
 import signal
 import subprocess
+from typing import Callable
 
 from ..settings import PID_FILE
 
 LOGGER = logging.getLogger(__name__)
 
 
+COMMANDS = {}
+
+
+def register(func: Callable) -> Callable:
+    COMMANDS[func.__name__] = func
+    return func
+
+
+@register
 def restart():
     if PID_FILE.is_file():
         LOGGER.info("Killing tinyticker.")
@@ -18,9 +28,7 @@ def restart():
         LOGGER.info("tinyticker is not runnning.")
 
 
+@register
 def reboot():
     LOGGER.info("Rebooting.")
     subprocess.Popen(["sudo", "shutdown", "-h", "now"])
-
-
-COMMANDS = dict(restart=restart, reboot=reboot)
