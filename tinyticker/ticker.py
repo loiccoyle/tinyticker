@@ -181,7 +181,7 @@ class Ticker:
             end=end,
             interval="1m",
         )  # type: pd.DataFrame
-        if not current_price_data:
+        if current_price_data.empty:
             current_price = None
         else:
             current_price = current_price_data.iloc[-1]["Close"]
