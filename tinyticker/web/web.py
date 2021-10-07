@@ -7,7 +7,7 @@ from typing import List
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
 
 from .. import config as config_file
-from ..settings import CONFIG_FILE
+from ..settings import CONFIG_FILE, set_verbosity
 from . import logger
 from .command import COMMANDS
 
@@ -92,21 +92,7 @@ def main():
     args = parse_args(sys.argv[1:])
     # refactor this with the other verbosity control
     if args.verbose > 0:
-        verbose_map = {1: logging.INFO, 2: logging.DEBUG}
-        level = verbose_map[args.verbose]
-        # from https://docs.python.org/3/howto/logging.html#configuring-logging
-        logger.setLevel(level)
-        # create console handler and set level to debug
-        handler = logging.StreamHandler()
-        handler.setLevel(level)
-        # create formatter
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        # add formatter to handler
-        handler.setFormatter(formatter)
-        # add ch to logger
-        logger.addHandler(handler)
+        set_verbosity(logger, args.verbose)
 
     logger.debug("Args: %s", args)
 

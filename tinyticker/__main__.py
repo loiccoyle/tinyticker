@@ -7,7 +7,7 @@ from typing import List
 
 from . import config, logger
 from .display import Display
-from .settings import CONFIG_FILE, PID_FILE
+from .settings import CONFIG_FILE, PID_FILE, set_verbosity
 from .ticker import Ticker, INTERVAL_LOOKBACKS
 from .config import TYPES, DEFAULT
 
@@ -103,21 +103,7 @@ def main():
         args.update({k: v for k, v in config.read().items() if v is not None})
 
     if args["verbose"] > 0:
-        verbose_map = {1: logging.INFO, 2: logging.DEBUG}
-        level = verbose_map[args["verbose"]]
-        # from https://docs.python.org/3/howto/logging.html#configuring-logging
-        logger.setLevel(level)
-        # create console handler and set level to debug
-        handler = logging.StreamHandler()
-        handler.setLevel(level)
-        # create formatter
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        # add formatter to handler
-        handler.setFormatter(formatter)
-        # add ch to logger
-        logger.addHandler(handler)
+        set_verbosity(logger, args["verbose"])
 
     logger.debug("Args: %s", args)
     if not args["api_key"]:
