@@ -54,7 +54,6 @@ Note:
 
     parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
     parser.add_argument(
-        "-c",
         "--config",
         help="Run tinyticker using the config file, all other arguments will be ignored.",
         action="store_true",
