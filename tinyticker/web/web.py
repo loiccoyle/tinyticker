@@ -6,6 +6,7 @@ from pathlib import Path
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
 
 from .. import config as config_file
+from ..settings import CONFIG_FILE
 
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
 LOGGER = logging.getLogger(__name__)
@@ -23,7 +24,7 @@ def create_app():
     @app.route("/")
     def index():
         config = config_file.read()
-        return render_template("index.html", config_file=config_file, **config)
+        return render_template("index.html", config_file=str(config_file), **config)
 
     @app.route("/config")
     def config():
