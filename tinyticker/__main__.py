@@ -133,7 +133,7 @@ def main():
 
     atexit.register(cleanup, display)
 
-    def restart(_, _) -> None:
+    def restart(*_) -> None:
         logger.info("Restarting.")
         os.execv(sys.argv[0], sys.argv)
 
