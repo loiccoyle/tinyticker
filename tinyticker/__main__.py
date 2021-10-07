@@ -7,7 +7,7 @@ from typing import List
 
 from . import config, logger
 from .display import Display
-from .settings import PID_FILE, CONFIG_FILE
+from .settings import CONFIG_FILE, PID_FILE
 from .ticker import Ticker
 
 
