@@ -1,14 +1,14 @@
 import argparse
 import atexit
 import logging
-import sys
 import os
+import sys
 from typing import List
 
 from . import logger
 from .display import Display
-from .ticker import Ticker
 from .settings import PID_FILE
+from .ticker import Ticker
 
 
 class RawTextArgumentDefaultsHelpFormatter(
