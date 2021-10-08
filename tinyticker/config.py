@@ -19,7 +19,7 @@ DEFAULT = {
     "symbol": "AAPL",
     "currency": "USD",
     "interval": "5m",
-    "lookback": INTERVAL_LOOKBACKS["5m"],
+    "lookback": None,
     "wait_time": None,
     "flip": False,
     "type": "candle",

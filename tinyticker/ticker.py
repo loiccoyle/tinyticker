@@ -38,7 +38,6 @@ INTERVAL_TIMEDELTAS = {
         "3mo",
     ]
 }
-print(INTERVAL_TIMEDELTAS)
 
 INTERVAL_LOOKBACKS = {
     "1m": 20,  # 20m
@@ -94,6 +93,7 @@ class Ticker:
         if interval not in INTERVAL_TIMEDELTAS.keys():
             raise ValueError(f"'interval' not in {INTERVAL_TIMEDELTAS.keys()}")
         self.interval = interval
+        self._log.debug("interval: %s", self.interval)
         self._interval_dt = INTERVAL_TIMEDELTAS[self.interval]
         if self._interval_dt == pd.NaT:
             raise ValueError("interval Timedelta is NaT.")
@@ -104,18 +104,25 @@ class Ticker:
         self.symbol = symbol
         self.currency = currency
         if lookback is None:
+            self._log.debug("lookback None")
             self.lookback = INTERVAL_LOOKBACKS[self.interval]
         else:
+            self._log.debug("lookback not None")
             self.lookback = lookback  # type: int
+        self._log.debug("lookback: %s", self.lookback)
         if wait_time is None:
             self.wait_time = self._interval_dt.value * 1e-9  # type: ignore
         else:
             self.wait_time = wait_time  # type: int
+        self._log.debug("wait_time: %s", self.wait_time)
 
         self._crypto_interval = self._get_crypto_interval()
         self._crypto_interval_dt = CRYPTO_INTERVAL_TIMEDELTAS[self._crypto_interval]
+        self._crypto_scale_factor = int(self._interval_dt / self._crypto_interval_dt)
         self._crypto_api_method = self.get_crypto_api_method()
         self._crypto_lookback = self._get_crypto_lookback()
+
+
 
     def get_crypto_api_method(self) -> Callable:
         """Get the right method for the requested inverval.
@@ -138,7 +145,7 @@ class Ticker:
     def _get_crypto_lookback(self) -> int:
         self._log.debug("crypto_interval_dt: %s", self._crypto_interval_dt)
         return min(
-            self.lookback * int(self._interval_dt / self._crypto_interval_dt),  # type: ignore
+            self.lookback * self._crypto_scale_factor,  # type: ignore
             CRYPTO_MAX_LOOKBACK,
         )
 
@@ -154,7 +161,7 @@ class Ticker:
                 self.symbol,
                 self.currency,
                 toTs=datetime.now(),
-                limit=self._crypto_lookback - 1,
+                limit=self._crypto_lookback,
             )
         )
         historical.set_index("time", inplace=True)
@@ -165,14 +172,15 @@ class Ticker:
         )
         if self._crypto_interval_dt != self._interval_dt:
             # resample the crypto data to get the desired interval
-            group_size = int(self._interval_dt / self._crypto_interval_dt)  # type: ignore
             historical_index = historical.index
             historical = historical.groupby(
-                np.arange(len(historical)) // group_size
+                np.arange(len(historical)) // self._crypto_scale_factor
             ).sum()
-            historical.index = historical_index[::group_size]
+            historical.index = historical_index[::self._crypto_scale_factor]
             # drop the last candle because it hasn't finished
             historical = historical.iloc[:-1]
+        else:
+            historical = historical.iloc[1:]
         current = cryptocompare.get_price(self.symbol, self.currency)
         if current is not None:
             current = current[self.symbol][self.currency]
