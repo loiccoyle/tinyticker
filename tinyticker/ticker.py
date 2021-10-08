@@ -40,10 +40,10 @@ INTERVAL_TIMEDELTAS = {
 print(INTERVAL_TIMEDELTAS)
 
 INTERVAL_LOOKBACKS = {
-    "1m": 30,  # 30m
-    "2m": 30,  # 1h
-    "5m": 30,  # 2h30
-    "15m": 32,  # 8h
+    "1m": 20,  # 20m
+    "2m": 15,  # 30m
+    "5m": 24,  # 2h
+    "15m": 16,  # 8h
     "30m": 24,  # 12h
     "60m": 24,  # 24h
     "90m": 24,  # 36h
