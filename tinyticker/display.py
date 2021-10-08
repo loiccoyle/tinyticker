@@ -123,7 +123,7 @@ class Display:
         if current_price is None:
             current_price = historical.iloc[-1]["Close"]
         if top_string is not None:
-            top_string += f" {current_price}"
+            top_string += f" {current_price:.2f}"
         else:
             top_string = str(current_price)
         if top_string is not None:
