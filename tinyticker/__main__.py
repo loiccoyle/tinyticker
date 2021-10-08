@@ -112,6 +112,11 @@ def main():
     if args["verbose"] > 0:
         set_verbosity(logger, args["verbose"])
 
+    with open(PID_FILE, "w") as pid_file:
+        pid = os.getpid()
+        logger.info("PID: %s", pid)
+        pid_file.write(str(pid))
+
     logger.debug("Args: %s", args)
 
     display = Display(
@@ -141,11 +146,6 @@ def main():
         os.execv(sys.argv[0], sys.argv)
 
     signal.signal(signal.SIGUSR1, restart)
-
-    with open(PID_FILE, "w") as pid_file:
-        pid = os.getpid()
-        logger.info("PID: %s", pid)
-        pid_file.write(str(pid))
 
     for response in ticker.tick():
         try:
