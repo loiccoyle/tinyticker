@@ -147,9 +147,9 @@ def main():
         logger.info("PID: %s", pid)
         pid_file.write(str(pid))
 
-    try:
-        for response in ticker.tick():
-            logger.debug("API historical[0]: %s", response["historical"].iloc[0])
+    for response in ticker.tick():
+        try:
+            logger.debug("API historical[0]: \n%s", response["historical"].iloc[0])
             logger.debug("API len(historical): %s", len(response["historical"]))
             logger.debug("API current_price: %s", response["current_price"])
             display.plot(
@@ -160,6 +160,6 @@ def main():
                 type=args["type"],
                 show=True,
             )
-    except Exception as e:
-        logger.error(e, stack_info=True)
-        display.text(str(e), show=True)
+        except Exception as e:
+            logger.error(e, stack_info=True)
+            display.text("Wooops something broke :(", show=True)
