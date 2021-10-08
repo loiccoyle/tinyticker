@@ -116,6 +116,7 @@ class Display:
             type=type,
             ax=ax,
             update_width_config={"candle_linewidth": 1.5},
+            style="classic",
             **kwargs,
         )
         if top_string is not None:
