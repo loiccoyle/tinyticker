@@ -175,10 +175,7 @@ class Ticker:
                 np.arange(len(historical)) // self._crypto_scale_factor
             ).agg({"Open": "first", "High": "max", "Low": "min", "Close": "last"})
             historical.index = historical_index[:: self._crypto_scale_factor]
-            # drop the last candle because it hasn't finished
-            historical = historical.iloc[:-1]
-        else:
-            historical = historical.iloc[1:]
+        historical = historical.iloc[1:]
         current = cryptocompare.get_price(self.symbol, self.currency)
         if current is not None:
             current = current[self.symbol][self.currency]
