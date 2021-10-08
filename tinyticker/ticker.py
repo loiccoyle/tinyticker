@@ -112,6 +112,7 @@ class Ticker:
             self.wait_time = wait_time  # type: int
 
         self._crypto_interval = self._get_crypto_interval()
+        self._crypto_interval_dt = CRYPTO_INTERVAL_TIMEDELTAS[self._crypto_interval]
         self._crypto_api_method = self.get_crypto_api_method()
         self._crypto_lookback = self._get_crypto_lookback()
 
@@ -134,10 +135,9 @@ class Ticker:
         return out
 
     def _get_crypto_lookback(self) -> int:
-        crypto_interval_dt = CRYPTO_INTERVAL_TIMEDELTAS[self._crypto_interval]
-        self._log.debug("crypto_interval_dt: %s", crypto_interval_dt)
+        self._log.debug("crypto_interval_dt: %s", self._crypto_interval_dt)
         return min(
-            self.lookback * int(self._interval_dt / crypto_interval_dt),  # type: ignore
+            self.lookback * int(self._interval_dt / self._crypto_interval_dt),  # type: ignore
             CRYPTO_MAX_LOOKBACK,
         )
 
@@ -162,6 +162,8 @@ class Ticker:
             columns={"high": "High", "close": "Close", "low": "Low", "open": "Open"},
             inplace=True,
         )
+        if self._crypto_interval_dt != self._interval_dt:
+            historical = historical.resample(self._interval_dt).sum()
         current = cryptocompare.get_price(self.symbol, self.currency)
         if current is not None:
             current = current[self.symbol][self.currency]
