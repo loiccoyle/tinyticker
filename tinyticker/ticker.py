@@ -37,6 +37,7 @@ INTERVAL_TIMEDELTAS = {
         "3mo",
     ]
 }
+print(INTERVAL_TIMEDELTAS)
 
 INTERVAL_LOOKBACKS = {
     "1m": 30,  # 30m
@@ -106,7 +107,7 @@ class Ticker:
         else:
             self.lookback = lookback  # type: int
         if wait_time is None:
-            self.wait_time = self._interval_dt.seconds  # type: ignore
+            self.wait_time = self._interval_dt.value * 1e-9  # type: ignore
         else:
             self.wait_time = wait_time  # type: int
 
