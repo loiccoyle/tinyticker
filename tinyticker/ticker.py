@@ -1,6 +1,5 @@
 import logging
 import time
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable, Iterator, Optional
 
@@ -38,7 +37,6 @@ INTERVAL_TIMEDELTAS = {
         "3mo",
     ]
 }
-print(INTERVAL_TIMEDELTAS)
 
 INTERVAL_LOOKBACKS = {
     "1m": 20,  # 20m
@@ -164,6 +162,7 @@ class Ticker:
             inplace=True,
         )
         if self._crypto_interval_dt != self._interval_dt:
+            self._log.debug("Resampling crypto data.")
             # resample the crypto data to get the desired interval
             group_size = int(self._interval_dt / self._crypto_interval_dt)  # type: ignore
             historical_index = historical.index
