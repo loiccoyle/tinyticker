@@ -1,6 +1,5 @@
 import logging
 import time
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable, Iterator, Optional
 
@@ -171,6 +170,7 @@ class Ticker:
             inplace=True,
         )
         if self._crypto_interval_dt != self._interval_dt:
+            self._log.debug("Resampling crypto data.")
             # resample the crypto data to get the desired interval
             historical_index = historical.index
             historical = historical.groupby(
