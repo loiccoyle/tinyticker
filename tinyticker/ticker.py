@@ -121,8 +121,6 @@ class Ticker:
         self._crypto_api_method = self.get_crypto_api_method()
         self._crypto_lookback = self._get_crypto_lookback()
 
-
-
     def get_crypto_api_method(self) -> Callable:
         """Get the right method for the requested inverval.
 
@@ -175,8 +173,8 @@ class Ticker:
             historical_index = historical.index
             historical = historical.groupby(
                 np.arange(len(historical)) // self._crypto_scale_factor
-            ).sum()
-            historical.index = historical_index[::self._crypto_scale_factor]
+            ).agg({"Open": "first", "High": "max", "Low": "min", "Close": "last"})
+            historical.index = historical_index[:: self._crypto_scale_factor]
             # drop the last candle because it hasn't finished
             historical = historical.iloc[:-1]
         else:
