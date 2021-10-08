@@ -119,6 +119,9 @@ class Display:
             style="classic",
             **kwargs,
         )
+        # Fall back to using the last closing price
+        if current_price is None:
+            current_price = historical.iloc[-1]["Close"]
         if top_string is not None:
             top_string += f" {current_price}"
         else:
