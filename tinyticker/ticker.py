@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Callable, Iterator, Optional
 
 import pandas as pd
+import numpy as np
 import cryptocompare
 import yfinance
 
@@ -163,8 +164,15 @@ class Ticker:
             inplace=True,
         )
         if self._crypto_interval_dt != self._interval_dt:
+            # resample the crypto data to get the desired interval
+            group_size = int(self._interval_dt / self._crypto_interval_dt)  # type: ignore
+            historical_index = historical.index
+            historical = historical.groupby(
+                np.arange(len(historical)) // group_size
+            ).sum()
+            historical.index = historical_index[::group_size]
             # drop the last candle because it hasn't finished
-            historical = historical.resample(self._interval_dt).sum().iloc[:-1]
+            historical = historical.iloc[:-1]
         current = cryptocompare.get_price(self.symbol, self.currency)
         if current is not None:
             current = current[self.symbol][self.currency]
