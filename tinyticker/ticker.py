@@ -163,7 +163,8 @@ class Ticker:
             inplace=True,
         )
         if self._crypto_interval_dt != self._interval_dt:
-            historical = historical.resample(self._interval_dt).sum()
+            # drop the last candle because it hasn't finished
+            historical = historical.resample(self._interval_dt).sum().iloc[:-1]
         current = cryptocompare.get_price(self.symbol, self.currency)
         if current is not None:
             current = current[self.symbol][self.currency]
