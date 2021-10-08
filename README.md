@@ -45,3 +45,4 @@ sudo apt install libopenjp2-7 libtiff5
 
 - [ ] Implement stock ticking 
 - [ ] Change API to one which does not require a key, maybe yahoo https://github.com/ranaroussi/yfinance
+- [ ] use async
