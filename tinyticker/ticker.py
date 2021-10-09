@@ -4,7 +4,6 @@ from datetime import datetime
 from typing import Iterator, Optional
 
 import cryptocompare
-import numpy as np
 import pandas as pd
 import yfinance
 
@@ -62,6 +61,9 @@ CRYPTO_INTERVAL_TIMEDELTAS = {
 }
 
 
+LOGGER = logging.getLogger(__name__)
+
+
 def get_cryptocompare(
     coin: str,
     interval_dt: pd.Timedelta,
@@ -69,26 +71,29 @@ def get_cryptocompare(
 ) -> pd.DataFrame:
     max_timedelta = pd.Timedelta(0)
     crypto_interval = "minute"
+    # get the biggest interval_dt which is smaller than the desired interval
     for interval, timedelta in CRYPTO_INTERVAL_TIMEDELTAS.items():
         if max_timedelta <= timedelta <= interval_dt:
             max_timedelta = timedelta
             crypto_interval = interval
-
     crypto_interval_dt = CRYPTO_INTERVAL_TIMEDELTAS[crypto_interval]
-    scale_factor = int(interval_dt / crypto_interval_dt)  # type: ignore
+    # how much to extend the query back in time so that after resampling
+    # we get the correct lookback
+    scale_factor = int(interval_dt / crypto_interval_dt)
     api_method = getattr(cryptocompare, "get_historical_price_" + crypto_interval)
     crypto_limit = min(
-        lookback * scale_factor,  # type: ignore
+        lookback * scale_factor,
         CRYPTO_MAX_LOOKBACK,
     )
     historical = pd.DataFrame(
         api_method(
             coin,
-            currency,
+            CRYPTO_CURRENCY,
             toTs=datetime.now(),
             limit=crypto_limit,
         )
     )
+    LOGGER.debug("crypto historical data columns: %s", historical.columns)
     historical.set_index("time", inplace=True)
     historical.index = pd.to_datetime(historical.index, unit="s")  # type: ignore
     historical.rename(
@@ -96,13 +101,17 @@ def get_cryptocompare(
         inplace=True,
     )
     if crypto_interval_dt != interval_dt:
+        LOGGER.debug("resampling historical data")
         # resample the crypto data to get the desired interval
         historical_index = historical.index
         historical = historical.resample(interval_dt).agg(
             {"Open": "first", "High": "max", "Low": "min", "Close": "last"}
         )
         historical.index = historical_index[::scale_factor]
-    historical = historical.iloc[1:]
+    LOGGER.debug("crypto historical length: %s", len(historical))
+    if len(historical) > lookback:
+        historical = historical.iloc[len(historical) - lookback :]
+    LOGGER.debug("crypto historical length pruned: %s", len(historical))
     return historical
 
 
