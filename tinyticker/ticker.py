@@ -97,7 +97,10 @@ def get_cryptocompare(
     historical.set_index("time", inplace=True)
     historical.index = pd.to_datetime(historical.index, unit="s")  # type: ignore
     # drop volume info, not used
-    historical.drop(columns=["volumeto", "volumefrom"], inplace=True)
+    historical.drop(
+        columns=["volumeto", "volumefrom", "conversionType", "conversionSymbol"],
+        inplace=True,
+    )
     historical.rename(
         columns={"high": "High", "close": "Close", "low": "Low", "open": "Open"},
         inplace=True,
