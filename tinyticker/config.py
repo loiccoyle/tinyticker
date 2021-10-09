@@ -8,11 +8,11 @@ from .settings import CONFIG_FILE
 LOGGER = logging.getLogger(__name__)
 
 # remove hollow types because white on white doesn't show
-BROKEN_PLOTS_TYPES = ["renko", "pnf"]
+IGNORE_PLOTS_TYPES = ["renko", "pnf", "candle", "ohlc_bars"]
 TYPES = [
     plot_type
     for plot_type in _get_valid_plot_types()
-    if "hollow" not in plot_type and plot_type not in BROKEN_PLOTS_TYPES
+    if "hollow" not in plot_type and plot_type not in IGNORE_PLOTS_TYPES
 ]
 
 DEFAULT = {
@@ -23,7 +23,7 @@ DEFAULT = {
     "lookback": None,
     "wait_time": None,
     "flip": False,
-    "type": "candle",
+    "type": "candlestick",
 }
 
 
