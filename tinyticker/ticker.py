@@ -1,7 +1,7 @@
 import logging
 import time
 from datetime import datetime
-from typing import Callable, Iterator, Optional
+from typing import Iterator, Optional
 
 import pandas as pd
 import numpy as np
@@ -61,6 +61,46 @@ CRYPTO_INTERVAL_TIMEDELTAS = {
 }
 
 
+def get_cryptocompare(
+    coin: str, currency: str, interval_dt: pd.Timdelta
+) -> pd.DataFrame:
+    max_timedelta = pd.Timedelta(0)
+    crypto_interval = "minute"
+    for interval, timedelta in CRYPTO_INTERVAL_TIMEDELTAS.items():
+        if max_timedelta <= timedelta <= interval_dt:
+            max_timedelta = timedelta
+            crypto_interval = interval
+
+    crypto_interval_dt = CRYPTO_INTERVAL_TIMEDELTAS[crypto_interval]
+    scale_factor = int(interval_dt / crypto_interval_dt)  # type: ignore
+    api_method = getattr(cryptocompare, "get_historical_price_" + crypto_interval)
+    crypto_limit = min(
+        self.lookback * scale_factor,  # type: ignore
+        CRYPTO_MAX_LOOKBACK,
+    )
+    historical = api_method(
+        coin,
+        currency,
+        toTs=datetime.now(),
+        limit=crypto_limit,
+    )
+    historical.set_index("time", inplace=True)
+    historical.index = pd.to_datetime(historical.index, unit="s")  # type: ignore
+    historical.rename(
+        columns={"high": "High", "close": "Close", "low": "Low", "open": "Open"},
+        inplace=True,
+    )
+    if crypto_interval_dt != interval_dt:
+        # resample the crypto data to get the desired interval
+        historical_index = historical.index
+        historical = historical.resample(interval_dt).agg(
+            {"Open": "first", "High": "max", "Low": "min", "Close": "last"}
+        )
+        historical.index = historical_index[::scale_factor]
+    historical = historical.iloc[1:]
+    return historical
+
+
 class Ticker:
     """Query the CryptoCompare API.
 
@@ -115,37 +155,6 @@ class Ticker:
             self.wait_time = wait_time  # type: int
         self._log.debug("wait_time: %s", self.wait_time)
 
-        self._crypto_interval = self._get_crypto_interval()
-        self._crypto_interval_dt = CRYPTO_INTERVAL_TIMEDELTAS[self._crypto_interval]
-        self._crypto_scale_factor = int(self._interval_dt / self._crypto_interval_dt)
-        self._crypto_api_method = self.get_crypto_api_method()
-        self._crypto_lookback = self._get_crypto_lookback()
-
-    def get_crypto_api_method(self) -> Callable:
-        """Get the right method for the requested inverval.
-
-        Returns:
-            Appropriate API method.
-        """
-        return getattr(cryptocompare, "get_historical_price_" + self._crypto_interval)
-
-    def _get_crypto_interval(self) -> str:
-        max_timedelta = pd.Timedelta(0)
-        out = "minute"
-        for interval, timedelta in CRYPTO_INTERVAL_TIMEDELTAS.items():
-            if timedelta <= self._interval_dt and timedelta >= max_timedelta:
-                max_timedelta = timedelta
-                out = interval
-        self._log.debug("crypto_interval: %s", out)
-        return out
-
-    def _get_crypto_lookback(self) -> int:
-        self._log.debug("crypto_interval_dt: %s", self._crypto_interval_dt)
-        return min(
-            self.lookback * self._crypto_scale_factor,  # type: ignore
-            CRYPTO_MAX_LOOKBACK,
-        )
-
     def _tick_crypto(self) -> dict:
         """Query the crypto API.
 
@@ -153,29 +162,7 @@ class Ticker:
             Iterator which returns the cryptocompare API's historical and current price data.
         """
         self._log.info("Crypto tick.")
-        historical = pd.DataFrame(
-            self._crypto_api_method(
-                self.symbol,
-                self.currency,
-                toTs=datetime.now(),
-                limit=self._crypto_lookback,
-            )
-        )
-        historical.set_index("time", inplace=True)
-        historical.index = pd.to_datetime(historical.index, unit="s")  # type: ignore
-        historical.rename(
-            columns={"high": "High", "close": "Close", "low": "Low", "open": "Open"},
-            inplace=True,
-        )
-        if self._crypto_interval_dt != self._interval_dt:
-            self._log.debug("Resampling crypto data.")
-            # resample the crypto data to get the desired interval
-            historical_index = historical.index
-            historical = historical.groupby(
-                np.arange(len(historical)) // self._crypto_scale_factor
-            ).agg({"Open": "first", "High": "max", "Low": "min", "Close": "last"})
-            historical.index = historical_index[:: self._crypto_scale_factor]
-        historical = historical.iloc[1:]
+        historical = get_cryptocompare(self.symbol, self.currency, self._interval_dt)
         current = cryptocompare.get_price(self.symbol, self.currency)
         if current is not None:
             current = current[self.symbol][self.currency]
