@@ -8,13 +8,7 @@ from .settings import CONFIG_FILE
 LOGGER = logging.getLogger(__name__)
 
 # remove hollow types because white on white doesn't show
-IGNORE_PLOTS_TYPES = ["renko", "pnf", "candle", "ohlc_bars"]
-TYPES = [
-    plot_type
-    for plot_type in _get_valid_plot_types()
-    if "hollow" not in plot_type and plot_type not in IGNORE_PLOTS_TYPES
-]
-
+TYPES = ["candlestick", "line", "ohlc"]
 DEFAULT = {
     "symbol_type": "stock",
     "api_key": None,
