@@ -14,8 +14,6 @@ class Display:
     """Handle the displaying of the API response.
 
     Args:
-        coin: Crypto coin, "BTC", "ETH", "DOGE" ...
-        currency: Currency code, "USD", "EUR" ...
         flip: Flip the display.
     """
 
@@ -58,10 +56,19 @@ class Display:
         ax.margins(0, 0)
         return fig, ax
 
-    def text(self, text: str, show: bool = False) -> Tuple[plt.Figure, plt.Axes]:
-        """Display text on the display."""
+    def text(self, text: str, show: bool = False, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+        """Create a plt.Figure, plt.Axes with text centered.
+
+        Args:
+            text: Text on the plot.
+            show: Display the figure on the display.
+            **kwargs: Passed to ax.text.
+
+        Returns:
+            The `plt.Figure` and `plt.Axes` with the text.
+        """
         fig, ax = self._plot()
-        ax.text(0, 0, text, ha="center", va="center", wrap=True)
+        ax.text(0, 0, text, ha="center", va="center", wrap=True, **kwargs)
         if show:
             self.show_fig(fig)
         return fig, ax
