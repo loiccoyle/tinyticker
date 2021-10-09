@@ -14,7 +14,7 @@ from .command import COMMANDS
 
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
 
-INTERVAL_WAIT_TIMES = {k: v.seconds for k, v in INTERVAL_TIMEDELTAS.items()} # type: ignore
+INTERVAL_WAIT_TIMES = {k: v.seconds for k, v in INTERVAL_TIMEDELTAS.items()}  # type: ignore
 
 
 def create_app():
@@ -36,6 +36,7 @@ def create_app():
             symbol_type_options=SYMBOL_TYPES,
             interval_lookbacks=INTERVAL_LOOKBACKS,
             interval_wait_times=INTERVAL_WAIT_TIMES,
+            interval_options=INTERVAL_LOOKBACKS.keys(),
             **config,
         )
 

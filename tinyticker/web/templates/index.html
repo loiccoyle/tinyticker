@@ -42,7 +42,7 @@
                             <input class="uk-textarea" type="text" id="currency" name="currency" value="{{currency}}">
                             <label class="uk-form-label" for="interval">Interval</label>
                             <select class="uk-select" id="interval" name="interval">
-                                {% for interval_option in ["day", "hour", "minute"] %}
+                                {% for interval_option in interval_options %}
                                 {% if interval_option == interval %}
                                 <option value="{{interval_option}}" selected>{{interval_option}}</option>
                                 {% else %}
