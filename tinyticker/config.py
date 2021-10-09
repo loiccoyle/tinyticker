@@ -4,7 +4,6 @@ import logging
 from mplfinance._arg_validators import _get_valid_plot_types
 
 from .settings import CONFIG_FILE
-from .ticker import INTERVAL_LOOKBACKS
 
 LOGGER = logging.getLogger(__name__)
 
@@ -17,7 +16,6 @@ DEFAULT = {
     "symbol_type": "stock",
     "api_key": None,
     "symbol": "AAPL",
-    "currency": "USD",
     "interval": "5m",
     "lookback": None,
     "wait_time": None,

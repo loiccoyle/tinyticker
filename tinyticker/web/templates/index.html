@@ -38,8 +38,6 @@
                             <input class="uk-textarea" type="text" id="api_key" name="api_key" {% if api_key %} value="{{api_key}}" {% endif %}>
                             <label class="uk-form-label" for="symbol">Symbol</label>
                             <input class="uk-textarea" type="text" id="symbol" name="symbol" value="{{symbol}}">
-                            <label class="uk-form-label" for="currency">Currency</label>
-                            <input class="uk-textarea" type="text" id="currency" name="currency" value="{{currency}}">
                             <label class="uk-form-label" for="interval">Interval</label>
                             <select class="uk-select" id="interval" name="interval">
                                 {% for interval_option in interval_options %}

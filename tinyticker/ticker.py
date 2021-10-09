@@ -9,6 +9,7 @@ import pandas as pd
 import yfinance
 
 CRYPTO_MAX_LOOKBACK = 1440
+CRYPTO_CURRENCY = "USD"
 SYMBOL_TYPES = ["crypto", "stock"]
 
 YFINANCE_NON_STANDARD_INTERVALS = {
@@ -63,7 +64,6 @@ CRYPTO_INTERVAL_TIMEDELTAS = {
 
 def get_cryptocompare(
     coin: str,
-    currency: str,
     interval_dt: pd.Timedelta,
     lookback: int,
 ) -> pd.DataFrame:
@@ -114,7 +114,6 @@ class Ticker:
         api_key: CryptoCompare API key, https://min-api.cryptocompare.com/pricing,
             required for obtaining crypto prices.
         symbol:  Ticker symbol, "AAPL", "BTC", "ETH", "DOGE" ...
-        currency: Currency code for cryto, "USD", "EUR" ...
         interval: Data time interval,
         lookback: How many intervals to look back.
         wait_time: Time to wait in between API calls.
@@ -125,7 +124,6 @@ class Ticker:
         symbol_type: str = "crypto",
         api_key: Optional[str] = None,
         symbol: str = "BTC",
-        currency: str = "USD",
         interval: str = "1d",
         lookback: Optional[int] = None,
         wait_time: Optional[int] = None,
@@ -146,7 +144,6 @@ class Ticker:
         self.api_key = api_key
         cryptocompare.cryptocompare._set_api_key_parameter(self.api_key)
         self.symbol = symbol
-        self.currency = currency
         if lookback is None:
             self._log.debug("lookback None")
             self.lookback = INTERVAL_LOOKBACKS[self.interval]
@@ -167,12 +164,10 @@ class Ticker:
             Iterator which returns the cryptocompare API's historical and current price data.
         """
         self._log.info("Crypto tick.")
-        historical = get_cryptocompare(
-            self.symbol, self.currency, self._interval_dt, self.lookback
-        )
-        current = cryptocompare.get_price(self.symbol, self.currency)
+        historical = get_cryptocompare(self.symbol, self._interval_dt, self.lookback)
+        current = cryptocompare.get_price(self.symbol, CRYPTO_CURRENCY)
         if current is not None:
-            current = current[self.symbol][self.currency]
+            current = current[self.symbol][CRYPTO_CURRENCY]
 
         return {"historical": historical, "current_price": current}
 

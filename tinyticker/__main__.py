@@ -49,13 +49,6 @@ Note:
         default=DEFAULT["symbol"],
     )
     parser.add_argument(
-        "-C",
-        "--currency",
-        help="Display currency.",
-        type=str,
-        default=DEFAULT["currency"],
-    )
-    parser.add_argument(
         "-i",
         "--interval",
         help="Interval.",
@@ -126,7 +119,6 @@ def main():
         symbol_type=args["symbol_type"],
         api_key=args["api_key"],
         symbol=args["symbol"],
-        currency=args["currency"],
         interval=args["interval"],
         lookback=args["lookback"],
         wait_time=args["wait_time"],
