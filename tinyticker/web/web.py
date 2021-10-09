@@ -45,7 +45,9 @@ def create_app():
         logger.debug("/config url args: %s", request.args)
         config = {}
         for key, value in request.args.items():
-            if key in ["lookback", "wait_time"]:
+            if key in ["api_key"] and value == "":
+                value = None
+            elif key in ["lookback", "wait_time"]:
                 if value == "":
                     value = None
                 else:
