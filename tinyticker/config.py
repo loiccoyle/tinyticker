@@ -12,7 +12,7 @@ BROKEN_PLOTS_TYPES = ["renko", "pnf"]
 TYPES = [
     plot_type
     for plot_type in _get_valid_plot_types()
-    if "hollow" not in plot_type or plot_type not in BROKEN_PLOTS_TYPES
+    if "hollow" not in plot_type and plot_type not in BROKEN_PLOTS_TYPES
 ]
 
 DEFAULT = {
