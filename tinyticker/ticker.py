@@ -62,7 +62,7 @@ CRYPTO_INTERVAL_TIMEDELTAS = {
 
 
 def get_cryptocompare(
-    coin: str, currency: str, interval_dt: pd.Timdelta
+    coin: str, currency: str, interval_dt: pd.Timedelta
 ) -> pd.DataFrame:
     max_timedelta = pd.Timedelta(0)
     crypto_interval = "minute"
