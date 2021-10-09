@@ -126,6 +126,7 @@ class Display:
             ax=ax,
             update_width_config={"candle_linewidth": 1.5},
             style="classic",
+            linecolor="k",
             **kwargs,
         )
         # Fall back to using the last closing price
