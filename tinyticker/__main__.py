@@ -144,14 +144,21 @@ def main():
             logger.debug("API historical[0]: \n%s", response["historical"].iloc[0])
             logger.debug("API len(historical): %s", len(response["historical"]))
             logger.debug("API current_price: %s", response["current_price"])
-            display.plot(
-                response["historical"],
-                response["current_price"],
-                top_string=f"{args['symbol']}:{args['currency']}",
-                sub_string=f"{len(response['historical'])}x{args['interval']}",
-                type=args["type"],
-                show=True,
-            )
-        except Exception as e:
-            logger.error(e, stack_info=True)
-            display.text("Wooops something broke :(", show=True)
+            if not response["historical"]:
+                display.text(
+                    f"No data in lookback range: {args['lookback']}x{args['interval']} :(",
+                    show=True,
+                    weight="bold",
+                )
+            else:
+                display.plot(
+                    response["historical"],
+                    response["current_price"],
+                    top_string=f"{args['symbol']}: $",
+                    sub_string=f"{len(response['historical'])}x{args['interval']}",
+                    type=args["type"],
+                    show=True,
+                )
+        except Exception as exc:
+            logger.error(exc, stack_info=True)
+            display.text("Wooops something broke :(", show=True, weight="bold")
