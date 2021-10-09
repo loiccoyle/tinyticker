@@ -14,7 +14,7 @@ from .command import COMMANDS
 
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
 
-INTERVAL_WAIT_TIMES = {k: v.seconds for k, v in INTERVAL_TIMEDELTAS.items()}  # type: ignore
+INTERVAL_WAIT_TIMES = {k: v.value * 1e-9 for k, v in INTERVAL_TIMEDELTAS.items()}  # type: ignore
 
 
 def create_app():
