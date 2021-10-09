@@ -59,6 +59,8 @@ def create_app():
             config["flip"] = False
         logger.debug("config dict: %s", config)
         config_file.write(config)
+        # restart
+        COMMANDS["restart"]()
         return redirect("/", code=302)
 
     @app.route("/command")
