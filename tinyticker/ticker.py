@@ -62,7 +62,7 @@ CRYPTO_INTERVAL_TIMEDELTAS = {
 
 
 def get_cryptocompare(
-    coin: str, currency: str, interval_dt: pd.Timedelta
+        coin: str, currency: str, interval_dt: pd.Timedelta, lookback: int,
 ) -> pd.DataFrame:
     max_timedelta = pd.Timedelta(0)
     crypto_interval = "minute"
@@ -75,7 +75,7 @@ def get_cryptocompare(
     scale_factor = int(interval_dt / crypto_interval_dt)  # type: ignore
     api_method = getattr(cryptocompare, "get_historical_price_" + crypto_interval)
     crypto_limit = min(
-        self.lookback * scale_factor,  # type: ignore
+        lookback * scale_factor,  # type: ignore
         CRYPTO_MAX_LOOKBACK,
     )
     historical = api_method(
@@ -162,7 +162,7 @@ class Ticker:
             Iterator which returns the cryptocompare API's historical and current price data.
         """
         self._log.info("Crypto tick.")
-        historical = get_cryptocompare(self.symbol, self.currency, self._interval_dt)
+        historical = get_cryptocompare(self.symbol, self.currency, self._interval_dt, self.lookback)
         current = cryptocompare.get_price(self.symbol, self.currency)
         if current is not None:
             current = current[self.symbol][self.currency]
