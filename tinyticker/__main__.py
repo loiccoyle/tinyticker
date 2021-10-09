@@ -9,7 +9,7 @@ from . import config, logger
 from .config import DEFAULT, TYPES
 from .display import Display
 from .settings import CONFIG_FILE, PID_FILE, set_verbosity
-from .ticker import INTERVAL_LOOKBACKS, Ticker, SYMBOL_TYPES
+from .ticker import INTERVAL_LOOKBACKS, SYMBOL_TYPES, Ticker
 
 
 class RawTextArgumentDefaultsHelpFormatter(

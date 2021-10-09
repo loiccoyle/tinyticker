@@ -56,7 +56,9 @@ class Display:
         ax.margins(0, 0)
         return fig, ax
 
-    def text(self, text: str, show: bool = False, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+    def text(
+        self, text: str, show: bool = False, **kwargs
+    ) -> Tuple[plt.Figure, plt.Axes]:
         """Create a plt.Figure, plt.Axes with text centered.
 
         Args:

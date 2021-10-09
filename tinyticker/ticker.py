@@ -3,9 +3,9 @@ import time
 from datetime import datetime
 from typing import Iterator, Optional
 
-import pandas as pd
-import numpy as np
 import cryptocompare
+import numpy as np
+import pandas as pd
 import yfinance
 
 CRYPTO_MAX_LOOKBACK = 1440
