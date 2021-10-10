@@ -10,7 +10,7 @@ from .. import config as cfg
 from ..settings import CONFIG_FILE, RawTextArgumentDefaultsHelpFormatter, set_verbosity
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from . import logger
-from .command import COMMANDS
+from .command import COMMANDS, restart
 
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
 
@@ -60,7 +60,7 @@ def create_app(config_file: Path = CONFIG_FILE):
         logger.debug("config dict: %s", config)
         cfg.write(config, config_file)
         # restart
-        COMMANDS["restart"]()
+        restart()
         return redirect("/", code=302)
 
     @app.route("/command")
