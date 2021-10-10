@@ -2,7 +2,6 @@ import logging
 import os
 import signal
 import subprocess
-import sys
 from typing import Callable, List, Union
 
 from ..settings import PID_FILE, USER
