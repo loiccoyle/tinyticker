@@ -145,6 +145,7 @@ def main():
         qrcode = generate_qrcode(args.port)
         display = Display()
         display.show_image(qrcode)
+        del display
         sys.exit()
 
     logger.debug("Args: %s", args)
