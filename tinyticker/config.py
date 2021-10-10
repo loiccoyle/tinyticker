@@ -42,7 +42,7 @@ def write(config: dict, config_file: Path = CONFIG_FILE) -> None:
 def write_default(config_file: Path = CONFIG_FILE) -> None:
     LOGGER.debug("Creating default.")
     if not config_file.parent.is_dir():
-        config_file.mkdir(parents=True)
+        config_file.parent.mkdir(parents=True)
     write(DEFAULT)
 
 
