@@ -102,6 +102,7 @@ def create_app(config_file: Path = CONFIG_FILE):
 
 
 def parse_args(args: List[str]) -> argparse.Namespace:
+    """Parse the command line arguments."""
     parser = argparse.ArgumentParser(
         description="tinyticker web interface.",
         formatter_class=RawTextArgumentDefaultsHelpFormatter,

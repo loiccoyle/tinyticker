@@ -24,6 +24,7 @@ DEFAULT = {
 
 
 def read(config_file: Path = CONFIG_FILE) -> dict:
+    """Read the config file and return a dictionary."""
     if config_file.is_file():
         LOGGER.debug("Reading config file: %s", config_file)
         with open(CONFIG_FILE, "r") as fd:
@@ -34,12 +35,14 @@ def read(config_file: Path = CONFIG_FILE) -> dict:
 
 
 def write(config: dict, config_file: Path = CONFIG_FILE) -> None:
+    """Write the config file."""
     LOGGER.debug("Writing config file: %s", config_file)
     with open(config_file, "w") as fd:
         json.dump(config, fd, indent=2)
 
 
 def write_default(config_file: Path = CONFIG_FILE) -> None:
+    """Write the default values to the config file."""
     LOGGER.debug("Creating default config: %s", config_file)
     if not config_file.parent.is_dir():
         config_file.parent.mkdir(parents=True)
