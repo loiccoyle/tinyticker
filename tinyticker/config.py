@@ -56,7 +56,7 @@ Description=Raspberry Pi ticker on ePaper display.
 Type=simple
 ExecStartPre=/usr/bin/nm-online
 ExecStart={HOME_DIR}/.local/bin/tinyticker --config -vv
-Restart=on-failture
+Restart=on-failure
 RestartSec=30s
 StandardOutput=file:/tmp/tinyticker1.log
 StandardError=file:/tmp/tinyticker2.log
@@ -71,7 +71,7 @@ Description=Raspberry Pi ticker on epaper display, web interface.
 Type=simple
 ExecStartPre=/usr/bin/nm-online
 ExecStart={HOME_DIR}/.local/bin/tinyticker-web -vv --port 80
-Restart=on-failture
+Restart=on-failure
 RestartSec=30s
 StandardOutput=file:/tmp/tinyticker-web1.log
 StandardError=file:/tmp/tinyticker-web2.log
@@ -91,6 +91,11 @@ def start_on_boot(systemd_service_dir: Path = SERVICE_FILE_DIR) -> None:
 
     def enable_service(service_file_name: str) -> None:
         try:
+            subprocess.check_output(
+                ["sudo", "systemctl", "daemon-reload"],
+                stderr=subprocess.STDOUT,
+                shell=True,
+            )
             subprocess.check_output(
                 ["sudo", "systemctl", "enable", service_file_name],
                 stderr=subprocess.STDOUT,
