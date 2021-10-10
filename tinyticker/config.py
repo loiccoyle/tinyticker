@@ -88,6 +88,7 @@ After=networking.service
 Type=simple
 User={USER}
 Group={USER}
+ExceCondition=sh -c '/usr/bin/sudo comitup-cli i | grep -q "CONNECTED"'
 ExecStart=/usr/bin/sudo {HOME_DIR}/.local/bin/tinyticker-web --port 80 --config {CONFIG_FILE} -vv
 Restart=on-failure
 RestartSec=5s
