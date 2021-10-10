@@ -22,7 +22,7 @@ from .ticker import INTERVAL_LOOKBACKS, SYMBOL_TYPES, Ticker
 def parse_args(args: List[str]) -> argparse.Namespace:
     """Parse the command line arguments."""
     parser = argparse.ArgumentParser(
-        description="""Raspberry Pi crypto ticker using an LCD display.
+        description="""Raspberry Pi ticker using an ePaper display.
 
 Note:
     Make sure SPI is enabled on your RPi.
