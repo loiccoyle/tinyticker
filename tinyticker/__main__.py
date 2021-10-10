@@ -131,10 +131,11 @@ def main():
             subprocess.check_call(["sudo", sys.executable] + sys.argv)
         sys.exit()
 
-    with open(PID_FILE, "w") as pid_file:
-        pid = os.getpid()
-        logger.info("PID: %s", pid)
-        pid_file.write(str(pid))
+    pid = os.getpid()
+    logger.info("PID: %s", pid)
+    if not PID_FILE.parent.is_dir():
+        PID_FILE.parent.mkdir(parents=True, exist_ok=True)
+    PID_FILE.write_text(str(pid))
 
     logger.debug("Args: %s", args)
 
@@ -164,11 +165,6 @@ def main():
         os.execv(sys.argv[0], sys.argv)
 
     signal.signal(signal.SIGUSR1, restart)
-
-    with open(PID_FILE, "w") as pid_file:
-        pid = os.getpid()
-        logger.info("PID: %s", pid)
-        pid_file.write(str(pid))
 
     for response in ticker.tick():
         try:
