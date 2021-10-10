@@ -2,8 +2,8 @@ import argparse
 import atexit
 import os
 import signal
-import sys
 import subprocess
+import sys
 from typing import List
 
 from . import config, logger
