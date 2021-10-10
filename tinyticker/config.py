@@ -1,13 +1,11 @@
-import getpass
 import json
 import logging
-import os
 import subprocess
 from pathlib import Path
 
 from mplfinance._arg_validators import _get_valid_plot_types
 
-from .settings import CONFIG_FILE
+from .settings import CONFIG_FILE, HOME_DIR, USER
 
 LOGGER = logging.getLogger(__name__)
 
@@ -46,8 +44,7 @@ if not CONFIG_FILE.is_file():
     LOGGER.debug("No config file, creating default.")
     write(DEFAULT)
 
-USER = os.environ.get("SUDO_USER", getpass.getuser())
-HOME_DIR = os.path.expanduser(f"~{USER}")
+
 SERVICE_FILE_DIR = Path("/etc/systemd/system/")
 TINYTICKER_SERVICE = f"""[Unit]
 Description=Raspberry Pi ticker on ePaper display.
@@ -55,6 +52,8 @@ Description=Raspberry Pi ticker on ePaper display.
 [Service]
 Type=simple
 ExecStartPre=/usr/bin/nm-online
+User={USER}
+Group={USER}
 ExecStart={HOME_DIR}/.local/bin/tinyticker --config -vv
 Restart=on-failure
 RestartSec=30s
@@ -70,7 +69,9 @@ Description=Raspberry Pi ticker on epaper display, web interface.
 [Service]
 Type=simple
 ExecStartPre=/usr/bin/nm-online
-ExecStart={HOME_DIR}/.local/bin/tinyticker-web -vv --port 80
+User={USER}
+Group={USER}
+ExecStart=/usr/bin/sudo {HOME_DIR}/.local/bin/tinyticker-web -vv --port 80
 Restart=on-failure
 RestartSec=30s
 StandardOutput=file:/tmp/tinyticker-web1.log
@@ -101,7 +102,7 @@ def start_on_boot(systemd_service_dir: Path = SERVICE_FILE_DIR) -> None:
                 stderr=subprocess.STDOUT,
                 shell=True,
             )
-            LOGGER.info(output.decode("utf8)
+            LOGGER.info(output.decode("utf8"))
         except subprocess.CalledProcessError:
             LOGGER.error("Enabling service %s failed.", service_file_name)
             raise
