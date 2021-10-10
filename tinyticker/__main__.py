@@ -5,6 +5,7 @@ import signal
 import subprocess
 import sys
 from typing import List
+from pathlib import Path
 
 from . import config, logger
 from .config import DEFAULT, TYPES, start_on_boot
@@ -90,7 +91,7 @@ Note:
         "--config",
         help=f"Take values from config file.",
         nargs="?",
-        type=argparse.FileType("r"),
+        type=Path,
         const=CONFIG_FILE,
         default=None,
     )
