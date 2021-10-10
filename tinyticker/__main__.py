@@ -144,17 +144,28 @@ def main():
         logger.info("PID: %s", pid)
         pid_file.write(str(pid))
 
-    try:
-        for historical, current in ticker.tick():
-            logger.debug("API response[0]: %s", historical[0])
-            logger.debug("API len(response): %s", len(historical))
-            display.plot(
-                historical,
-                current,
-                sub_string=f"{ticker.lookback} {args['interval']}s",
-                type=args["type"],
-                show=True,
-            )
-    except Exception as e:
-        logger.error(e, stack_info=True)
-        display.text(str(e), show=True)
+    for response in ticker.tick():
+        try:
+            if response["historical"] is None or response["historical"].empty:
+                error_str = f"No data in lookback range: {ticker.lookback}x{args['interval']} :("
+                logger.debug(error_str)
+                display.text(
+                    error_str,
+                    show=True,
+                    weight="bold",
+                )
+            else:
+                logger.debug("API historical[0]: \n%s", response["historical"].iloc[0])
+                logger.debug("API len(historical): %s", len(response["historical"]))
+                logger.debug("API current_price: %s", response["current_price"])
+                display.plot(
+                    response["historical"],
+                    response["current_price"],
+                    top_string=f"{args['symbol']}: $",
+                    sub_string=f"{len(response['historical'])}x{args['interval']}",
+                    type=args["type"],
+                    show=True,
+                )
+        except Exception as exc:
+            logger.error(exc, stack_info=True)
+            display.text("Wooops something broke :(", show=True, weight="bold")
