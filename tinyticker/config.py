@@ -104,13 +104,23 @@ def start_on_boot(systemd_service_dir: Path = SERVICE_FILE_DIR) -> None:
         systemd_service_dir: folder location in which to place the unit file.
     """
 
-    def write_service(service_file: Path, content: str) -> None:
-        """Helper function to write the service file."""
-        if service_file.is_file():
-            LOGGER.warning("%s already exists, overwriting.", str(service_file))
-        service_file.write_text(content)
+    def write_unit(unit_file: Path, content: str) -> None:
+        """Helper function to write the service file.
 
-    def enable_service(service_file_name: str) -> None:
+        Args:
+            unit_file: unit file destination.
+            content: content to write into the unit file.
+        """
+        if unit_file.is_file():
+            LOGGER.warning("%s already exists, overwriting.", str(unit_file))
+        unit_file.write_text(content)
+
+    def enable_service(unit_name: str) -> None:
+        """Enable a systemd service.
+
+        Args:
+            unit_name: the name of the systemd unit.
+        """
         try:
             subprocess.check_output(
                 "systemctl daemon-reload",
@@ -118,21 +128,21 @@ def start_on_boot(systemd_service_dir: Path = SERVICE_FILE_DIR) -> None:
                 shell=True,
             )
             output = subprocess.check_output(
-                f"systemctl enable {service_file_name}",
+                f"systemctl enable {unit_name}",
                 stderr=subprocess.STDOUT,
                 shell=True,
             )
             if output:
                 LOGGER.info(output.decode("utf8"))
         except subprocess.CalledProcessError:
-            LOGGER.error("Enabling service %s failed.", service_file_name)
+            LOGGER.error("Enabling service %s failed.", unit_name)
             raise
 
     tinyticker_service_file = systemd_service_dir / "tinyticker.service"
     tinyticker_web_service_file = systemd_service_dir / "tinyticker-web.service"
 
-    write_service(tinyticker_service_file, TINYTICKER_SERVICE)
-    write_service(tinyticker_web_service_file, TINYTICKER_WEB_SERVICE)
+    write_unit(tinyticker_service_file, TINYTICKER_SERVICE)
+    write_unit(tinyticker_web_service_file, TINYTICKER_WEB_SERVICE)
 
     enable_service(tinyticker_service_file.name)
     enable_service(tinyticker_web_service_file.name)
