@@ -142,9 +142,12 @@ def main():
         set_verbosity(logger, args.verbose)
 
     if args.show_qrcode:
+        logger.info("Generating qrcode.")
         qrcode = generate_qrcode(args.port)
         display = Display()
+        logger.info("Displaying qrcode.")
         display.show_image(qrcode)
+        del display
         sys.exit()
 
     logger.debug("Args: %s", args)
