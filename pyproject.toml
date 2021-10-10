@@ -1,9 +1,12 @@
 [tool.poetry]
 name = "tinyticker"
 version = "0.1.0"
-description = ""
+description = "A tiny Raspberry Pi powered ePaper ticker."
 authors = ["Loic Coyle <loic.coyle@hotmail.fr>"]
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/loiccoyle/tinyticker"
+keywords = ["raspberry-pi", "ticker", "stock", "crypto", "epaper"]
 
 [tool.poetry.dependencies]
 python = ">=3.7.1,<3.11"
