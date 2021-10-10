@@ -1,5 +1,9 @@
+import getpass
 import json
 import logging
+import os
+import subprocess
+from pathlib import Path
 
 from mplfinance._arg_validators import _get_valid_plot_types
 
@@ -41,3 +45,66 @@ def write(config: dict) -> None:
 if not CONFIG_FILE.is_file():
     LOGGER.debug("No config file, creating default.")
     write(DEFAULT)
+
+USER = os.environ.get("SUDO_USER", getpass.getuser())
+HOME_DIR = os.path.expanduser(f"~{USER}")
+SERVICE_FILE_DIR = Path("/etc/systemd/system/")
+TINYTICKER_SERVICE = f"""[Unit]
+Description=Raspberry Pi ticker on ePaper display.
+
+[Service]
+Type=simple
+ExecStartPre=/usr/bin/nm-online
+ExecStart={HOME_DIR}/.local/bin/tinyticker --config -vv
+Restart=on-failture
+RestartSec=30s
+StandardOutput=file:/tmp/tinyticker1.log
+StandardError=file:/tmp/tinyticker2.log
+
+[Install]
+WantedBy=multi-user.target"""
+
+TINYTICKER_WEB_SERVICE = f"""[Unit]
+Description=Raspberry Pi ticker on epaper display, web interface.
+
+[Service]
+Type=simple
+ExecStartPre=/usr/bin/nm-online
+ExecStart={HOME_DIR}/.local/bin/tinyticker-web -vv --port 80
+Restart=on-failture
+RestartSec=30s
+StandardOutput=file:/tmp/tinyticker-web1.log
+StandardError=file:/tmp/tinyticker-web2.log
+
+[Install]
+WantedBy=multi-user.target"""
+
+
+def start_on_boot(systemd_service_dir: Path = SERVICE_FILE_DIR) -> None:
+    """Create and enable the systemd service. Requires sudo."""
+
+    def write_service(service_file: Path, content: str) -> None:
+        """Helper function to write the service file."""
+        if service_file.is_file():
+            LOGGER.warning("%s already exists, overwriting.", str(service_file))
+        service_file.write_text(content)
+
+    def enable_service(service_file_name: str) -> None:
+        try:
+            subprocess.check_output(
+                ["sudo", "systemctl", "enable", service_file_name],
+                stderr=subprocess.STDOUT,
+                shell=True,
+            )
+        except subprocess.CalledProcessError:
+            LOGGER.error("Enabling service %s failed.", service_file_name)
+            raise
+
+    tinyticker_service_file = systemd_service_dir / "tinyticker.service"
+    tinyticker_web_service_file = systemd_service_dir / "tinyticker-web.service"
+
+    write_service(tinyticker_service_file, TINYTICKER_SERVICE)
+    write_service(tinyticker_web_service_file, TINYTICKER_WEB_SERVICE)
+
+    enable_service(tinyticker_service_file.name)
+    enable_service(tinyticker_web_service_file.name)

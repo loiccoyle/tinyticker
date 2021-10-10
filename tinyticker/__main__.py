@@ -6,7 +6,7 @@ import sys
 from typing import List
 
 from . import config, logger
-from .config import DEFAULT, TYPES
+from .config import DEFAULT, TYPES, start_on_boot
 from .display import Display
 from .settings import CONFIG_FILE, PID_FILE, set_verbosity
 from .ticker import INTERVAL_LOOKBACKS, SYMBOL_TYPES, Ticker
@@ -91,6 +91,11 @@ Note:
         help=f"Take values from config file: {CONFIG_FILE}",
         action="store_true",
     )
+    parser.add_argument(
+        "--start-on-boot",
+        help="Creates and enables the systemd service files, then exits. Requires sudo.",
+        action="store_true",
+    )
     return parser.parse_args(args)
 
 
@@ -104,6 +109,11 @@ def main():
 
     if args["verbose"] > 0:
         set_verbosity(logger, args["verbose"])
+
+    if args["start_on_boot"]:
+        logger.info("Creating and enabling systemd unit files.")
+        start_on_boot()
+        sys.exit()
 
     with open(PID_FILE, "w") as pid_file:
         pid = os.getpid()
