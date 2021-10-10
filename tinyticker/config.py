@@ -43,7 +43,7 @@ def write_default(config_file: Path = CONFIG_FILE) -> None:
     LOGGER.debug("Creating default.")
     if not config_file.parent.is_dir():
         config_file.parent.mkdir(parents=True)
-    write(DEFAULT)
+    write(DEFAULT, config_file)
 
 
 SERVICE_FILE_DIR = Path("/etc/systemd/system/")

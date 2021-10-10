@@ -58,7 +58,7 @@ def create_app(config_file_path: Path):
         if "flip" not in config:
             config["flip"] = False
         logger.debug("config dict: %s", config)
-        config_file.write(config)
+        config_file.write(config, config_file_path)
         # restart
         COMMANDS["restart"]()
         return redirect("/", code=302)

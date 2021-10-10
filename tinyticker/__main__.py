@@ -116,7 +116,7 @@ def main():
             config.write_default(args["config"])
         # upadte the values if they are not None
         # allows for using other args to set values not set in the config file
-        args.update({k: v for k, v in config.read().items() if v is not None})
+        args.update({k: v for k, v in config.read(args["config"]).items() if v is not None})
 
     if args["start_on_boot"]:
         logger.info("Creating and enabling systemd unit files.")
