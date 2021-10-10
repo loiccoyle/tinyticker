@@ -113,7 +113,6 @@ def main():
     if args["config"]:
         # if the config file is not present, write the default values
         if not args["config"].is_file():
-
             config.write_default(args["config"])
         # upadte the values if they are not None
         # allows for using other args to set values not set in the config file
