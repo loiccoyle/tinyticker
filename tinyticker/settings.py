@@ -57,7 +57,7 @@ def set_verbosity(logger: logging.Logger, verbosity: int) -> logging.Logger:
 
 
 def generate_qrcode(port: int = 8000) -> Image.Image:
-    url = f"https://{socket.gethostname()}:{port}"
+    url = f"https://{socket.gethostname()}.local:{port}"
     qr = qrcode.make(url)
     qr = trim(qr)
     qr = qr.resize((EPD_WIDTH, EPD_WIDTH))
