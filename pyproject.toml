@@ -16,6 +16,7 @@ matplotlib = "^3.4.3"
 mplfinance = "^0.12.7-alpha.17"
 Flask = "^2.0.2"
 yfinance = "^0.1.63"
+qrcode = "^7.3.1"
 
 [tool.poetry.dev-dependencies]
 

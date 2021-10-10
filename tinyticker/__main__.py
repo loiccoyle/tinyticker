@@ -2,26 +2,27 @@ import argparse
 import atexit
 import os
 import signal
-import sys
 import subprocess
+import sys
+from pathlib import Path
 from typing import List
 
 from . import config, logger
 from .config import DEFAULT, TYPES, start_on_boot
 from .display import Display
-from .settings import CONFIG_FILE, PID_FILE, set_verbosity
+from .settings import (
+    CONFIG_FILE,
+    PID_FILE,
+    RawTextArgumentDefaultsHelpFormatter,
+    set_verbosity,
+)
 from .ticker import INTERVAL_LOOKBACKS, SYMBOL_TYPES, Ticker
 
 
-class RawTextArgumentDefaultsHelpFormatter(
-    argparse.RawTextHelpFormatter, argparse.ArgumentDefaultsHelpFormatter
-):
-    pass
-
-
 def parse_args(args: List[str]) -> argparse.Namespace:
+    """Parse the command line arguments."""
     parser = argparse.ArgumentParser(
-        description="""Raspberry Pi crypto ticker using an LCD display.
+        description="""Raspberry Pi ticker using an ePaper display.
 
 Note:
     Make sure SPI is enabled on your RPi.
@@ -89,12 +90,15 @@ Note:
     parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
     parser.add_argument(
         "--config",
-        help=f"Take values from config file: {CONFIG_FILE}",
-        action="store_true",
+        help=f"Take values from config file.",
+        nargs="?",
+        type=Path,
+        const=CONFIG_FILE,
+        default=None,
     )
     parser.add_argument(
         "--start-on-boot",
-        help="Create and enable the systemd service files, then exits. Requires sudo.",
+        help="Create and enable the systemd service files, then exits. Will require sudo.",
         action="store_true",
     )
     return parser.parse_args(args)
@@ -103,13 +107,19 @@ Note:
 def main():
     args = parse_args(sys.argv[1:])
     args = vars(args)
-    if args["config"]:
-        # upadte the values if theyare not None
-        # allows for using other args to set values not set in the config file
-        args.update({k: v for k, v in config.read().items() if v is not None})
 
     if args["verbose"] > 0:
         set_verbosity(logger, args["verbose"])
+
+    if args["config"]:
+        # if the config file is not present, write the default values
+        if not args["config"].is_file():
+            config.write_default(args["config"])
+        # upadte the values if they are not None
+        # allows for using other args to set values not set in the config file
+        args.update(
+            {k: v for k, v in config.read(args["config"]).items() if v is not None}
+        )
 
     if args["start_on_boot"]:
         logger.info("Creating and enabling systemd unit files.")
@@ -121,10 +131,11 @@ def main():
             subprocess.check_call(["sudo", sys.executable] + sys.argv)
         sys.exit()
 
-    with open(PID_FILE, "w") as pid_file:
-        pid = os.getpid()
-        logger.info("PID: %s", pid)
-        pid_file.write(str(pid))
+    pid = os.getpid()
+    logger.info("PID: %s", pid)
+    if not PID_FILE.parent.is_dir():
+        PID_FILE.parent.mkdir(parents=True, exist_ok=True)
+    PID_FILE.write_text(str(pid))
 
     logger.debug("Args: %s", args)
 
@@ -154,11 +165,6 @@ def main():
         os.execv(sys.argv[0], sys.argv)
 
     signal.signal(signal.SIGUSR1, restart)
-
-    with open(PID_FILE, "w") as pid_file:
-        pid = os.getpid()
-        logger.info("PID: %s", pid)
-        pid_file.write(str(pid))
 
     for response in ticker.tick():
         try:
