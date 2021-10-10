@@ -65,8 +65,7 @@ def write_default(config_file: Path = CONFIG_FILE) -> None:
 SERVICE_FILE_DIR = Path("/etc/systemd/system/")
 TINYTICKER_SERVICE = f"""[Unit]
 Description=Raspberry Pi ticker on ePaper display.
-After=network-online.service
-Wants=network-online.service
+After=networking.service
 
 [Service]
 Type=simple
@@ -83,8 +82,7 @@ WantedBy=multi-user.target"""
 # the user and group lines are required to be able to run the update command
 TINYTICKER_WEB_SERVICE = f"""[Unit]
 Description=Raspberry Pi ticker on epaper display, web interface.
-After=network-online.service
-Wants=network-online.service
+After=networking.service
 
 [Service]
 Type=simple
@@ -92,7 +90,7 @@ User={USER}
 Group={USER}
 ExecStart=/usr/bin/sudo {HOME_DIR}/.local/bin/tinyticker-web --port 80 --config {CONFIG_FILE} -vv
 Restart=on-failure
-RestartSec=30s
+RestartSec=5s
 StandardOutput=file:/tmp/tinyticker-web1.log
 StandardError=file:/tmp/tinyticker-web2.log
 
