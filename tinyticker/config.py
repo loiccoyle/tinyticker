@@ -5,7 +5,7 @@ from pathlib import Path
 
 from mplfinance._arg_validators import _get_valid_plot_types
 
-from .settings import CONFIG_FILE, HOME_DIR, USER
+from .settings import CONFIG_FILE, HOME_DIR
 
 LOGGER = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ def write(config: dict, config_file: Path = CONFIG_FILE) -> None:
 
 
 def write_default(config_file: Path = CONFIG_FILE) -> None:
-    LOGGER.debug("Creating default.")
+    LOGGER.debug("Creating default config: %s", config_file)
     if not config_file.parent.is_dir():
         config_file.parent.mkdir(parents=True)
     write(DEFAULT, config_file)
