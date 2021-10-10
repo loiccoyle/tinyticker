@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -14,20 +14,14 @@ class Display:
     """Handle the displaying of the API response.
 
     Args:
-        coin: Crypto coin, "BTC", "ETH", "DOGE" ...
-        currency: Currency code, "USD", "EUR" ...
         flip: Flip the display.
     """
 
     def __init__(
         self,
-        coin: str,
-        currency: str,
         flip: bool = False,
     ) -> None:
         self._log = logging.getLogger(__name__)
-        self.coin = coin
-        self.currency = currency
         self.previous_response = {}
         self.flip = flip
         self.epd = EPD()
@@ -62,10 +56,21 @@ class Display:
         ax.margins(0, 0)
         return fig, ax
 
-    def text(self, text: str, show: bool = False) -> Tuple[plt.Figure, plt.Axes]:
-        """Display text on the display."""
+    def text(
+        self, text: str, show: bool = False, **kwargs
+    ) -> Tuple[plt.Figure, plt.Axes]:
+        """Create a plt.Figure, plt.Axes with text centered.
+
+        Args:
+            text: Text on the plot.
+            show: Display the figure on the display.
+            **kwargs: Passed to ax.text.
+
+        Returns:
+            The `plt.Figure` and `plt.Axes` with the text.
+        """
         fig, ax = self._plot()
-        ax.text(0, 0, text, ha="center", va="center", wrap=True)
+        ax.text(0, 0, text, ha="center", va="center", wrap=True, **kwargs)
         if show:
             self.show_fig(fig)
         return fig, ax
@@ -90,8 +95,9 @@ class Display:
 
     def plot(
         self,
-        historical: List[dict],
-        current_price: Optional[dict],
+        historical: pd.DataFrame,
+        current_price: Optional[float],
+        top_string: Optional[str] = None,
         sub_string: Optional[str] = None,
         show: bool = False,
         type: str = "candle",
@@ -100,11 +106,12 @@ class Display:
         """Plot crypto chart.
 
         Args:
-            historical: API response, list of dictionaries containing the
-                historical price of a coin. Output of
-                `cryptocompare.get_historical_price_*` function.
-            current_price: API response, the current price of the coin. Output
-                of the `cryptocompare.get_price` function.
+            historical: API response, `pd.DataFrame` containing the historical
+                price of the symbol.
+            current_price: API response, the current price of the symbol.
+            top_string: Contents of the top left string, the current will be
+                appended if provided.
+            sub_string: Contents of a smaller text box bollow top_string.
             show: display the plot on the ePaper display.
             type: the chart type, see `mpfinance.plot`.
             **kwargs: passed to `mpfinance.plot`.
@@ -112,35 +119,37 @@ class Display:
         Returns:
             The `plt.Figure` and `plt.Axes` of the plot.
         """
-        df = pd.DataFrame(historical)
-        df.set_index("time", inplace=True)
-        df.index = pd.to_datetime(df.index, unit="s")  # type: ignore
-        df.rename(
-            columns={"high": "High", "close": "Close", "low": "Low", "open": "Open"},
-            inplace=True,
-        )
         fig, ax = self._plot()
         mpf.plot(
-            df,
+            historical,
             type=type,
             ax=ax,
             update_width_config={"candle_linewidth": 1.5},
+            style="classic",
+            linecolor="k",
             **kwargs,
         )
-        display_str = f"{self.coin}:{self.currency}"
-        if current_price is not None:
-            display_str = display_str + f" {current_price[self.coin][self.currency]}"
-        text = ax.text(
-            0,
-            1,
-            display_str,
-            transform=ax.transAxes,
-            fontsize=10,
-            weight="bold",
-            bbox=dict(boxstyle="square,pad=0", facecolor="white", edgecolor="white"),
-        )
+        # Fall back to using the last closing price
+        if current_price is None:
+            current_price = historical.iloc[-1]["Close"]
+        if top_string is not None:
+            top_string += f" {current_price:.2f}"
+        else:
+            top_string = str(current_price)
+        if top_string is not None:
+            ax.text(
+                0,
+                1,
+                top_string,
+                transform=ax.transAxes,
+                fontsize=10,
+                weight="bold",
+                bbox=dict(
+                    boxstyle="square,pad=0", facecolor="white", edgecolor="white"
+                ),
+            )
         if sub_string is not None:
-            text = ax.text(
+            ax.text(
                 0,
                 0.88,
                 sub_string,

@@ -8,19 +8,16 @@ from .settings import CONFIG_FILE
 LOGGER = logging.getLogger(__name__)
 
 # remove hollow types because white on white doesn't show
-TYPES = [
-    plot_type for plot_type in _get_valid_plot_types() if "hollow" not in plot_type
-]
-
+TYPES = ["candlestick", "line", "ohlc"]
 DEFAULT = {
+    "symbol_type": "stock",
     "api_key": None,
-    "coin": "BTC",
-    "currency": "USD",
-    "interval": "hour",
+    "symbol": "AAPL",
+    "interval": "5m",
     "lookback": None,
     "wait_time": None,
     "flip": False,
-    "type": "candle",
+    "type": "candlestick",
 }
 
 

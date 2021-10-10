@@ -9,7 +9,7 @@ from . import config, logger
 from .config import DEFAULT, TYPES
 from .display import Display
 from .settings import CONFIG_FILE, PID_FILE, set_verbosity
-from .ticker import INTERVAL_LOOKBACKS, Ticker
+from .ticker import INTERVAL_LOOKBACKS, SYMBOL_TYPES, Ticker
 
 
 class RawTextArgumentDefaultsHelpFormatter(
@@ -28,6 +28,13 @@ Note:
         formatter_class=RawTextArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
+        "--symbol-type",
+        help="The type of the symbol.",
+        type=str,
+        default="stock",
+        choices=SYMBOL_TYPES,
+    )
+    parser.add_argument(
         "-a",
         "--api-key",
         help="CryptoCompare API key, https://min-api.cryptocompare.com/pricing.",
@@ -35,18 +42,11 @@ Note:
         default=DEFAULT["api_key"],
     )
     parser.add_argument(
-        "-c",
-        "--coin",
-        help="Crypto coin.",
+        "-s",
+        "--symbol",
+        help="Asset symbol.",
         type=str,
-        default=DEFAULT["coin"],
-    )
-    parser.add_argument(
-        "-C",
-        "--currency",
-        help="Display currency.",
-        type=str,
-        default=DEFAULT["currency"],
+        default=DEFAULT["symbol"],
     )
     parser.add_argument(
         "-i",
@@ -105,20 +105,20 @@ def main():
     if args["verbose"] > 0:
         set_verbosity(logger, args["verbose"])
 
+    with open(PID_FILE, "w") as pid_file:
+        pid = os.getpid()
+        logger.info("PID: %s", pid)
+        pid_file.write(str(pid))
+
     logger.debug("Args: %s", args)
-    if not args["api_key"]:
-        logger.error("No API key provided.")
-        raise ValueError("No API key provided.")
 
     display = Display(
-        args["coin"],
-        args["currency"],
         flip=args["flip"],
     )
     ticker = Ticker(
-        args["api_key"],
-        coin=args["coin"],
-        currency=args["currency"],
+        symbol_type=args["symbol_type"],
+        api_key=args["api_key"],
+        symbol=args["symbol"],
         interval=args["interval"],
         lookback=args["lookback"],
         wait_time=args["wait_time"],
@@ -139,22 +139,26 @@ def main():
 
     signal.signal(signal.SIGUSR1, restart)
 
-    with open(PID_FILE, "w") as pid_file:
-        pid = os.getpid()
-        logger.info("PID: %s", pid)
-        pid_file.write(str(pid))
-
-    try:
-        for historical, current in ticker.tick():
-            logger.debug("API response[0]: %s", historical[0])
-            logger.debug("API len(response): %s", len(historical))
-            display.plot(
-                historical,
-                current,
-                sub_string=f"{ticker.lookback} {args['interval']}s",
-                type=args["type"],
-                show=True,
-            )
-    except Exception as e:
-        logger.error(e, stack_info=True)
-        display.text(str(e), show=True)
+    for response in ticker.tick():
+        try:
+            logger.debug("API historical[0]: \n%s", response["historical"].iloc[0])
+            logger.debug("API len(historical): %s", len(response["historical"]))
+            logger.debug("API current_price: %s", response["current_price"])
+            if response["historical"] is None or response["historical"].empty:
+                display.text(
+                    f"No data in lookback range: {args['lookback']}x{args['interval']} :(",
+                    show=True,
+                    weight="bold",
+                )
+            else:
+                display.plot(
+                    response["historical"],
+                    response["current_price"],
+                    top_string=f"{args['symbol']}: $",
+                    sub_string=f"{len(response['historical'])}x{args['interval']}",
+                    type=args["type"],
+                    show=True,
+                )
+        except Exception as exc:
+            logger.error(exc, stack_info=True)
+            display.text("Wooops something broke :(", show=True, weight="bold")

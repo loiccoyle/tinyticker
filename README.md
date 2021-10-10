@@ -41,6 +41,11 @@ If `pillow` (PIL) complains then your missing some libraries, try:
 sudo apt install libopenjp2-7 libtiff5
 ```
 
+If `lxml` complains:
+```
+sudo apt install libxml2-dev libxslt1-dev
+```
+
 ## TODO
 
 - [ ] Implement stock ticking 
