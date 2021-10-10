@@ -157,6 +157,8 @@ def main():
     if args.verbose > 0:
         set_verbosity(logger, args.verbose)
 
+    logger.debug("Args: %s", args)
+
     if args.show_qrcode:
         logger.info("Generating qrcode.")
         qrcode = generate_qrcode(args.port)
@@ -165,8 +167,6 @@ def main():
         display.show_image(qrcode)
         del display
         sys.exit()
-
-    logger.debug("Args: %s", args)
 
     logger.info("Starting tinyticker-web")
     app = create_app(args.config)
