@@ -53,7 +53,7 @@ def restart():
 def reboot():
     """Reboot the Raspberry Pi, requires sudo."""
     LOGGER.info("Rebooting.")
-    try_command("sudo shutdown -h now")
+    try_command("sudo reboot")
 
 
 @register
@@ -61,8 +61,7 @@ def wifi_reset():
     """Reset the Raspberry Pi's comitup settings, requires sudo."""
     LOGGER.info("Removing comitup connection config.")
     try_command("sudo comitup-cli d")
-    # exit so the comitup server can use the 80 port if needed.
-    sys.exit()
+    reboot()
 
 
 @register
