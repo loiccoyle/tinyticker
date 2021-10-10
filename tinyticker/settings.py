@@ -1,15 +1,29 @@
+import argparse
+import getpass
 import logging
+import os
+import socket
 from pathlib import Path
 
-CONFIG_DIR = Path.home() / ".config" / "tinyticker"
-if not CONFIG_DIR.is_dir():
-    CONFIG_DIR.mkdir(parents=True)
+import qrcode
+from PIL import Image, ImageChops
+
+from .waveshare_lib.epd2in13_V2 import EPD_HEIGHT, EPD_WIDTH
+
+USER = os.environ.get("SUDO_USER", getpass.getuser())
+HOME_DIR = Path(os.path.expanduser(f"~{USER}"))
+
+CONFIG_DIR = HOME_DIR / ".config" / "tinyticker"
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
 TMP_DIR = Path("/tmp/tinyticker/")
-if not TMP_DIR.is_dir():
-    TMP_DIR.mkdir(parents=True)
 PID_FILE = TMP_DIR / "tinyticker_pid"
+
+
+class RawTextArgumentDefaultsHelpFormatter(
+    argparse.RawTextHelpFormatter, argparse.ArgumentDefaultsHelpFormatter
+):
+    pass
 
 
 def set_verbosity(logger: logging.Logger, verbosity: int) -> logging.Logger:
@@ -38,3 +52,40 @@ def set_verbosity(logger: logging.Logger, verbosity: int) -> logging.Logger:
     # add ch to logger
     logger.addHandler(handler)
     return logger
+
+
+def generate_qrcode(port: int = 8000) -> Image.Image:
+    """Generate a qrcode poiting to the dashboard url.
+
+    Args:
+        port: the port number on which the dashboard is hosted.
+
+    Returns:
+        The qrcode image.
+    """
+    url = f"http://{socket.gethostname()}.local:{port}"
+    qr = qrcode.make(url)
+    qr = trim(qr)  # type: ignore
+    qr = qr.resize((EPD_WIDTH, EPD_WIDTH))
+    base = Image.new("1", (EPD_HEIGHT, EPD_WIDTH), 1)
+    base.paste(qr, (base.size[0] // 2 - qr.size[0] // 2, 0))
+    return base
+
+
+def trim(image: Image.Image) -> Image.Image:
+    """Trim white space.
+
+    Args:
+        image: Image to trim.
+
+    Returns:
+        Trimmed image.
+    """
+    bg = Image.new(image.mode, image.size, image.getpixel((0, 0)))  # type: ignore
+    diff = ImageChops.difference(image, bg)
+    diff = ImageChops.add(diff, diff, 2.0, -100)
+    bbox = diff.getbbox()
+    if bbox:
+        return image.crop(bbox)
+    else:
+        return image

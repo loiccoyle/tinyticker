@@ -1,23 +1,36 @@
 import argparse
-import logging
 import sys
 from pathlib import Path
 from typing import List
 
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
 
-from .. import config as config_file
-from ..settings import CONFIG_FILE, set_verbosity
+from .. import config as cfg
+from ..display import Display
+from ..settings import (
+    CONFIG_FILE,
+    RawTextArgumentDefaultsHelpFormatter,
+    generate_qrcode,
+    set_verbosity,
+)
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from . import logger
-from .command import COMMANDS
+from .command import COMMANDS, restart
 
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
 
 INTERVAL_WAIT_TIMES = {k: v.value * 1e-9 for k, v in INTERVAL_TIMEDELTAS.items()}  # type: ignore
 
 
-def create_app():
+def create_app(config_file: Path = CONFIG_FILE) -> Flask:
+    """Create the flask app.
+
+    Args:
+        config_file: config file to read from and write to.
+
+    Returns:
+        The flask application.
+    """
     app = Flask(__name__, template_folder=TEMPLATE_PATH)
 
     @app.after_request
@@ -27,12 +40,12 @@ def create_app():
 
     @app.route("/")
     def index():
-        config = {**config_file.DEFAULT, **config_file.read()}
+        config = {**cfg.DEFAULT, **cfg.read(config_file)}
         return render_template(
             "index.html",
-            config_file=str(CONFIG_FILE),
+            cfg=config_file,
             commands=COMMANDS.keys(),
-            type_options=config_file.TYPES,
+            type_options=cfg.TYPES,
             symbol_type_options=SYMBOL_TYPES,
             interval_lookbacks=INTERVAL_LOOKBACKS,
             interval_wait_times=INTERVAL_WAIT_TIMES,
@@ -58,9 +71,9 @@ def create_app():
         if "flip" not in config:
             config["flip"] = False
         logger.debug("config dict: %s", config)
-        config_file.write(config)
+        cfg.write(config, config_file)
         # restart
-        COMMANDS["restart"]()
+        restart()
         return redirect("/", code=302)
 
     @app.route("/command")
@@ -97,21 +110,65 @@ def create_app():
 
 
 def parse_args(args: List[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="tinyticker web interface.")
-    parser.add_argument("-p", "--port", default=8000, type=int, help="Port number.")
-    parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
+    """Parse the command line arguments.
+
+    Args:
+        args: The command line argument.
+
+    Returns:
+        The parsed arguments.
+    """
+    parser = argparse.ArgumentParser(
+        description="tinyticker web interface.",
+        formatter_class=RawTextArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        default=7104,
+        type=int,
+        help="Port number.",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help="Verbosity.",
+        action="count",
+        default=0,
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        help="Config file.",
+        type=Path,
+        default=CONFIG_FILE,
+    )
+    parser.add_argument(
+        "-q",
+        "--show-qrcode",
+        help="Display a qrcode containing the URL of the dashboard and exit.",
+        action="store_true",
+    )
     return parser.parse_args(args)
 
 
 def main():
     args = parse_args(sys.argv[1:])
-    # refactor this with the other verbosity control
     if args.verbose > 0:
         set_verbosity(logger, args.verbose)
 
     logger.debug("Args: %s", args)
 
+    if args.show_qrcode:
+        logger.info("Generating qrcode.")
+        qrcode = generate_qrcode(args.port)
+        display = Display()
+        logger.info("Displaying qrcode.")
+        display.show_image(qrcode)
+        del display
+        sys.exit()
+
     logger.info("Starting tinyticker-web")
-    app = create_app()
+    app = create_app(args.config)
     app.run(host="0.0.0.0", port=args.port, debug=False, threaded=True)
     logger.info("Stopping tinyticker-web")

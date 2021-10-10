@@ -167,4 +167,7 @@ class Display:
         return fig, ax
 
     def __del__(self):
-        CONFIG.module_exit()
+        try:
+            CONFIG.module_exit()
+        except Exception:
+            pass
