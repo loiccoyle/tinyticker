@@ -125,6 +125,7 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         "-c",
         "--config",
         help="Config file.",
+        type=Path,
         default=CONFIG_FILE,
     )
     parser.add_argument(
