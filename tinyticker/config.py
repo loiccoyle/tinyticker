@@ -25,7 +25,7 @@ DEFAULT = {
 
 def read(config_file: Path = CONFIG_FILE) -> dict:
     if config_file.is_file():
-        LOGGER.debug("Reading config file.")
+        LOGGER.debug("Reading config file: %s", config_file)
         with open(CONFIG_FILE, "r") as fd:
             return json.load(fd)
     else:
@@ -34,7 +34,7 @@ def read(config_file: Path = CONFIG_FILE) -> dict:
 
 
 def write(config: dict, config_file: Path = CONFIG_FILE) -> None:
-    LOGGER.debug("Writing config file.")
+    LOGGER.debug("Writing config file: %s", config_file)
     with open(config_file, "w") as fd:
         json.dump(config, fd, indent=2)
 
@@ -54,8 +54,6 @@ Wants=network-online.service
 
 [Service]
 Type=simple
-User={USER}
-Group={USER}
 ExecStartPre={HOME_DIR}/.local/bin/tinyticker-web --port 80 --show-qrcode
 ExecStart={HOME_DIR}/.local/bin/tinyticker --config {CONFIG_FILE} -vv
 Restart=on-failure
