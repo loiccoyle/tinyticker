@@ -8,11 +8,13 @@ from flask import Flask, abort, redirect, render_template, request, send_from_di
 
 from .. import config as config_file
 from ..settings import CONFIG_FILE, set_verbosity
-from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_WAIT_TIMES
+from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from . import logger
 from .command import COMMANDS
 
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
+
+INTERVAL_WAIT_TIMES = {k: v.value * 1e-9 for k, v in INTERVAL_TIMEDELTAS.items()}  # type: ignore
 
 
 def create_app():
@@ -31,8 +33,10 @@ def create_app():
             config_file=str(CONFIG_FILE),
             commands=COMMANDS.keys(),
             type_options=config_file.TYPES,
+            symbol_type_options=SYMBOL_TYPES,
             interval_lookbacks=INTERVAL_LOOKBACKS,
             interval_wait_times=INTERVAL_WAIT_TIMES,
+            interval_options=INTERVAL_LOOKBACKS.keys(),
             **config,
         )
 
@@ -41,7 +45,9 @@ def create_app():
         logger.debug("/config url args: %s", request.args)
         config = {}
         for key, value in request.args.items():
-            if key in ["lookback", "wait_time"]:
+            if key in ["api_key"] and value == "":
+                value = None
+            elif key in ["lookback", "wait_time"]:
                 if value == "":
                     value = None
                 else:
@@ -53,6 +59,8 @@ def create_app():
             config["flip"] = False
         logger.debug("config dict: %s", config)
         config_file.write(config)
+        # restart
+        COMMANDS["restart"]()
         return redirect("/", code=302)
 
     @app.route("/command")

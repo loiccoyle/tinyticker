@@ -13,7 +13,7 @@ COMMANDS = {}
 
 
 def register(func: Callable) -> Callable:
-    COMMANDS[func.__name__] = func
+    COMMANDS[func.__name__.replace("_", " ")] = func
     return func
 
 
@@ -21,7 +21,7 @@ def register(func: Callable) -> Callable:
 def restart():
     """Restart the tinyticker process, using the SIGUSR1 signal."""
     if PID_FILE.is_file():
-        LOGGER.info("Killing tinyticker.")
+        LOGGER.info("Seding SIGUSR1 to tinyticker.")
         with open(PID_FILE, "r") as pid_file:
             pid = int(pid_file.readline())
         os.kill(pid, signal.SIGUSR1)
@@ -34,3 +34,10 @@ def reboot():
     """Reboot the Raspberry Pi, requires sudo."""
     LOGGER.info("Rebooting.")
     subprocess.Popen(["sudo", "shutdown", "-h", "now"])
+
+
+@register
+def wifi_reset():
+    """Reset the Raspberry Pi's comitup settings, requires sudo."""
+    LOGGER.info("Nuking comitup.")
+    subprocess.Popen(["sudo", "comitup-cli", "d"])
