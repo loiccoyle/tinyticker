@@ -32,7 +32,7 @@ def create_app(config_file: Path = CONFIG_FILE):
 
     @app.route("/")
     def index():
-        config = {**cfg.DEFAULT, **cfg.read()}
+        config = {**cfg.DEFAULT, **cfg.read(config_file)}
         return render_template(
             "index.html",
             cfg=config_file,
