@@ -2,7 +2,7 @@ import logging
 import os
 import signal
 import subprocess
-from typing import Callable
+from typing import Callable, List
 
 from ..settings import PID_FILE
 
@@ -15,6 +15,25 @@ COMMANDS = {}
 def register(func: Callable) -> Callable:
     COMMANDS[func.__name__.replace("_", " ")] = func
     return func
+
+
+def try_command(command: List[str]) -> None:
+    """Try to run a command.
+
+    Args:
+        command: shell command.
+    """
+    try:
+        output = subprocess.check_output(
+            command,
+            shell=True,
+            stderr=subprocess.STDOUT,
+        )
+        if output:
+            LOGGER.info(output)
+    except subprocess.CalledProcessError as exc:
+        LOGGER.error("Command failed.")
+        LOGGER.error(exc.output)
 
 
 @register
@@ -33,11 +52,18 @@ def restart():
 def reboot():
     """Reboot the Raspberry Pi, requires sudo."""
     LOGGER.info("Rebooting.")
-    subprocess.Popen(["sudo", "shutdown", "-h", "now"])
+    try_command(["sudo", "shutdown", "-h", "now"])
 
 
 @register
 def wifi_reset():
     """Reset the Raspberry Pi's comitup settings, requires sudo."""
-    LOGGER.info("Nuking comitup.")
-    subprocess.Popen(["sudo", "comitup-cli", "d"])
+    LOGGER.info("Removing comitup connection config.")
+    try_command(["sudo", "comitup-cli", "d"])
+
+
+@register
+def update():
+    """Update tinyticker."""
+    LOGGER.info("Updating tinyticker.")
+    try_command(["pipx", "upgrade", "tinyticker"])
