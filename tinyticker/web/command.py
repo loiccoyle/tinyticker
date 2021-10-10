@@ -38,7 +38,7 @@ def try_command(command: Union[List[str], str]) -> None:
 
 
 @register
-def restart():
+def restart() -> None:
     """Restart the tinyticker process, using the SIGUSR1 signal."""
     if PID_FILE.is_file():
         LOGGER.info("Sending SIGUSR1 to tinyticker.")
@@ -50,14 +50,14 @@ def restart():
 
 
 @register
-def reboot():
+def reboot() -> None:
     """Reboot the Raspberry Pi, requires sudo."""
     LOGGER.info("Rebooting.")
     try_command("sudo reboot")
 
 
 @register
-def wifi_reset():
+def wifi_reset() -> None:
     """Reset the Raspberry Pi's comitup settings, requires sudo."""
     LOGGER.info("Removing comitup connection config.")
     try_command("sudo comitup-cli d")
@@ -65,7 +65,7 @@ def wifi_reset():
 
 
 @register
-def update():
+def update() -> None:
     """Update tinyticker."""
     LOGGER.info("Updating tinyticker.")
     try_command(f"sudo -i -u {USER} pipx upgrade tinyticker")
