@@ -61,7 +61,7 @@ def wifi_reset():
     """Reset the Raspberry Pi's comitup settings, requires sudo."""
     LOGGER.info("Removing comitup connection config.")
     try_command("sudo comitup-cli d")
-    # exit so the comitup server can use the 80 port is needed.
+    # exit so the comitup server can use the 80 port if needed.
     sys.exit()
 
 
