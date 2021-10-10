@@ -27,7 +27,7 @@ def read(config_file: Path = CONFIG_FILE) -> dict:
     """Read the config file and return a dictionary."""
     if config_file.is_file():
         LOGGER.debug("Reading config file: %s", config_file)
-        with open(CONFIG_FILE, "r") as fd:
+        with open(config_file, "r") as fd:
             return json.load(fd)
     else:
         LOGGER.debug("Fallback to default values.")

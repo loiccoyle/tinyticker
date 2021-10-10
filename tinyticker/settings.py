@@ -65,7 +65,7 @@ def generate_qrcode(port: int = 8000) -> Image.Image:
     """
     url = f"https://{socket.gethostname()}.local:{port}"
     qr = qrcode.make(url)
-    qr = trim(qr)
+    qr = trim(qr) # type: ignore
     qr = qr.resize((EPD_WIDTH, EPD_WIDTH))
     base = Image.new("1", (EPD_HEIGHT, EPD_WIDTH), 1)
     base.paste(qr, (base.size[0] // 2 - qr.size[0] // 2, 0))
