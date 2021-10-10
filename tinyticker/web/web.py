@@ -22,7 +22,15 @@ TEMPLATE_PATH = str(Path(__file__).parent / "templates")
 INTERVAL_WAIT_TIMES = {k: v.value * 1e-9 for k, v in INTERVAL_TIMEDELTAS.items()}  # type: ignore
 
 
-def create_app(config_file: Path = CONFIG_FILE):
+def create_app(config_file: Path = CONFIG_FILE) -> Flask:
+    """Create the flask app.
+
+    Args:
+        config_file: config file to read from and write to.
+
+    Returns:
+        The flask application.
+    """
     app = Flask(__name__, template_folder=TEMPLATE_PATH)
 
     @app.after_request
