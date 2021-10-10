@@ -5,7 +5,7 @@ from pathlib import Path
 
 from mplfinance._arg_validators import _get_valid_plot_types
 
-from .settings import CONFIG_FILE, HOME_DIR
+from .settings import CONFIG_FILE, HOME_DIR, USER
 
 LOGGER = logging.getLogger(__name__)
 
@@ -80,6 +80,7 @@ StandardError=file:/tmp/tinyticker2.log
 [Install]
 WantedBy=multi-user.target"""
 
+# the user and group lines are required to be able to run the update command
 TINYTICKER_WEB_SERVICE = f"""[Unit]
 Description=Raspberry Pi ticker on epaper display, web interface.
 After=network-online.service
@@ -87,7 +88,9 @@ Wants=network-online.service
 
 [Service]
 Type=simple
-ExecStart={HOME_DIR}/.local/bin/tinyticker-web --port 80 --config {CONFIG_FILE} -vv
+User={USER}
+Group={USER}
+ExecStart=/usr/bin/sudo {HOME_DIR}/.local/bin/tinyticker-web --port 80 --config {CONFIG_FILE} -vv
 Restart=on-failure
 RestartSec=30s
 StandardOutput=file:/tmp/tinyticker-web1.log
