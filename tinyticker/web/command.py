@@ -41,7 +41,7 @@ def try_command(command: Union[List[str], str]) -> None:
 def restart():
     """Restart the tinyticker process, using the SIGUSR1 signal."""
     if PID_FILE.is_file():
-        LOGGER.info("Seding SIGUSR1 to tinyticker.")
+        LOGGER.info("Sending SIGUSR1 to tinyticker.")
         with open(PID_FILE, "r") as pid_file:
             pid = int(pid_file.readline())
         os.kill(pid, signal.SIGUSR1)
