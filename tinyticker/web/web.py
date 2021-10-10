@@ -17,7 +17,7 @@ TEMPLATE_PATH = str(Path(__file__).parent / "templates")
 INTERVAL_WAIT_TIMES = {k: v.value * 1e-9 for k, v in INTERVAL_TIMEDELTAS.items()}  # type: ignore
 
 
-def create_app():
+def create_app(config_file_path: Path):
     app = Flask(__name__, template_folder=TEMPLATE_PATH)
 
     @app.after_request
@@ -30,7 +30,7 @@ def create_app():
         config = {**config_file.DEFAULT, **config_file.read()}
         return render_template(
             "index.html",
-            config_file=str(CONFIG_FILE),
+            config_file=config_file_path,
             commands=COMMANDS.keys(),
             type_options=config_file.TYPES,
             symbol_type_options=SYMBOL_TYPES,
@@ -100,6 +100,7 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="tinyticker web interface.")
     parser.add_argument("-p", "--port", default=8000, type=int, help="Port number.")
     parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
+    parser.add_argument("-c", "--config-file", help="Config file.", default=CONFIG_FILE)
     return parser.parse_args(args)
 
 
@@ -112,6 +113,6 @@ def main():
     logger.debug("Args: %s", args)
 
     logger.info("Starting tinyticker-web")
-    app = create_app()
+    app = create_app(args.config_file)
     app.run(host="0.0.0.0", port=args.port, debug=False, threaded=True)
     logger.info("Stopping tinyticker-web")
