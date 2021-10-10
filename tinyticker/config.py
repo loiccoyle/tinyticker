@@ -92,15 +92,16 @@ def start_on_boot(systemd_service_dir: Path = SERVICE_FILE_DIR) -> None:
     def enable_service(service_file_name: str) -> None:
         try:
             subprocess.check_output(
-                ["sudo", "systemctl", "daemon-reload"],
+                "systemctl daemon-reload",
                 stderr=subprocess.STDOUT,
                 shell=True,
             )
-            subprocess.check_output(
-                ["sudo", "systemctl", "enable", service_file_name],
+            output = subprocess.check_output(
+                f"systemctl enable {service_file_name}",
                 stderr=subprocess.STDOUT,
                 shell=True,
             )
+            LOGGER.info(output.decode("utf8)
         except subprocess.CalledProcessError:
             LOGGER.error("Enabling service %s failed.", service_file_name)
             raise
