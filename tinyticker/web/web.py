@@ -1,5 +1,4 @@
 import argparse
-import logging
 import sys
 from pathlib import Path
 from typing import List
@@ -7,10 +6,16 @@ from typing import List
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
 
 from .. import config as cfg
-from ..settings import CONFIG_FILE, RawTextArgumentDefaultsHelpFormatter, set_verbosity
+from ..settings import (
+    CONFIG_FILE,
+    RawTextArgumentDefaultsHelpFormatter,
+    set_verbosity,
+    generate_qrcode,
+)
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from . import logger
 from .command import COMMANDS, restart
+from ..display import Display
 
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
 
@@ -101,9 +106,32 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         description="tinyticker web interface.",
         formatter_class=RawTextArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("-p", "--port", default=8000, type=int, help="Port number.")
-    parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
-    parser.add_argument("-c", "--config", help="Config file.", default=CONFIG_FILE)
+    parser.add_argument(
+        "-p",
+        "--port",
+        default=8000,
+        type=int,
+        help="Port number.",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help="Verbosity.",
+        action="count",
+        default=0,
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        help="Config file.",
+        default=CONFIG_FILE,
+    )
+    parser.add_argument(
+        "-q",
+        "--show-qrcode",
+        help="Display a qrcode containing the URL of the dashboard and exit.",
+        action="store_true",
+    )
     return parser.parse_args(args)
 
 
@@ -112,6 +140,12 @@ def main():
     # refactor this with the other verbosity control
     if args.verbose > 0:
         set_verbosity(logger, args.verbose)
+
+    if args.show_qrcode:
+        qrcode = generate_qrcode(args.port)
+        display = Display()
+        display.show_image(qrcode)
+        sys.exit()
 
     logger.debug("Args: %s", args)
 

@@ -3,6 +3,12 @@ import getpass
 import logging
 import os
 from pathlib import Path
+import socket
+
+from PIL import Image, ImageChops
+import qrcode
+
+from .waveshare_lib.epd2in13_V2 import EPD_HEIGHT, EPD_WIDTH
 
 USER = os.environ.get("SUDO_USER", getpass.getuser())
 HOME_DIR = Path(os.path.expanduser(f"~{USER}"))
@@ -48,3 +54,25 @@ def set_verbosity(logger: logging.Logger, verbosity: int) -> logging.Logger:
     # add ch to logger
     logger.addHandler(handler)
     return logger
+
+
+def generate_qrcode(port: int = 8000) -> Image.Image:
+    url = f"https://{socket.gethostname()}:{port}"
+    qr = qrcode.make(url)
+    qr = trim(qr)
+    qr = qr.resize((EPD_WIDTH, EPD_WIDTH))
+    base = Image.new("1", (EPD_HEIGHT, EPD_WIDTH), 1)
+    base.paste(qr, (base.size[0] // 2 - qr.size[0] // 2, 0))
+    return base
+
+
+def trim(im: Image.Image) -> Image.Image:
+    """Trim white space."""
+    bg = Image.new(im.mode, im.size, im.getpixel((0, 0)))  # type: ignore
+    diff = ImageChops.difference(im, bg)
+    diff = ImageChops.add(diff, diff, 2.0, -100)
+    bbox = diff.getbbox()
+    if bbox:
+        return im.crop(bbox)
+    else:
+        return im
