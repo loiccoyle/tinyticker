@@ -6,7 +6,7 @@ from typing import List
 
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
 
-from .. import config as config_file
+from .. import config as cfg
 from ..settings import CONFIG_FILE, RawTextArgumentDefaultsHelpFormatter, set_verbosity
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from . import logger
@@ -17,7 +17,7 @@ TEMPLATE_PATH = str(Path(__file__).parent / "templates")
 INTERVAL_WAIT_TIMES = {k: v.value * 1e-9 for k, v in INTERVAL_TIMEDELTAS.items()}  # type: ignore
 
 
-def create_app(config_file_path: Path):
+def create_app(config_file: Path = CONFIG_FILE):
     app = Flask(__name__, template_folder=TEMPLATE_PATH)
 
     @app.after_request
@@ -27,12 +27,12 @@ def create_app(config_file_path: Path):
 
     @app.route("/")
     def index():
-        config = {**config_file.DEFAULT, **config_file.read()}
+        config = {**cfg.DEFAULT, **cfg.read()}
         return render_template(
             "index.html",
-            config_file=config_file_path,
+            cfg=config_file,
             commands=COMMANDS.keys(),
-            type_options=config_file.TYPES,
+            type_options=cfg.TYPES,
             symbol_type_options=SYMBOL_TYPES,
             interval_lookbacks=INTERVAL_LOOKBACKS,
             interval_wait_times=INTERVAL_WAIT_TIMES,
@@ -58,7 +58,7 @@ def create_app(config_file_path: Path):
         if "flip" not in config:
             config["flip"] = False
         logger.debug("config dict: %s", config)
-        config_file.write(config, config_file_path)
+        cfg.write(config, config_file)
         # restart
         COMMANDS["restart"]()
         return redirect("/", code=302)
@@ -103,7 +103,7 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     )
     parser.add_argument("-p", "--port", default=8000, type=int, help="Port number.")
     parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
-    parser.add_argument("-c", "--config-file", help="Config file.", default=CONFIG_FILE)
+    parser.add_argument("-c", "--config", help="Config file.", default=CONFIG_FILE)
     return parser.parse_args(args)
 
 
@@ -116,6 +116,6 @@ def main():
     logger.debug("Args: %s", args)
 
     logger.info("Starting tinyticker-web")
-    app = create_app(args.config_file)
+    app = create_app(args.config)
     app.run(host="0.0.0.0", port=args.port, debug=False, threaded=True)
     logger.info("Stopping tinyticker-web")
