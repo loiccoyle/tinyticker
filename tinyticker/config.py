@@ -49,12 +49,14 @@ def write_default(config_file: Path = CONFIG_FILE) -> None:
 SERVICE_FILE_DIR = Path("/etc/systemd/system/")
 TINYTICKER_SERVICE = f"""[Unit]
 Description=Raspberry Pi ticker on ePaper display.
+After=network-online.service
+Wants=network-online.service
 
 [Service]
 Type=simple
-ExecStartPre=/usr/bin/nm-online
 User={USER}
 Group={USER}
+ExecStartPre={HOME_DIR}/.local/bin/tinyticker-web --port 80 --show-qrcode
 ExecStart={HOME_DIR}/.local/bin/tinyticker --config {CONFIG_FILE} -vv
 Restart=on-failure
 RestartSec=30s
@@ -66,10 +68,11 @@ WantedBy=multi-user.target"""
 
 TINYTICKER_WEB_SERVICE = f"""[Unit]
 Description=Raspberry Pi ticker on epaper display, web interface.
+After=network-online.service
+Wants=network-online.service
 
 [Service]
 Type=simple
-ExecStartPre=/usr/bin/nm-online
 ExecStart={HOME_DIR}/.local/bin/tinyticker-web --port 80 --config {CONFIG_FILE} -vv
 Restart=on-failure
 RestartSec=30s
