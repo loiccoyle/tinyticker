@@ -3,6 +3,7 @@ import atexit
 import os
 import signal
 import sys
+import subprocess
 from typing import List
 
 from . import config, logger
@@ -93,7 +94,7 @@ Note:
     )
     parser.add_argument(
         "--start-on-boot",
-        help="Creates and enables the systemd service files, then exits. Requires sudo.",
+        help="Create and enable the systemd service files, then exits. Requires sudo.",
         action="store_true",
     )
     return parser.parse_args(args)
@@ -112,7 +113,12 @@ def main():
 
     if args["start_on_boot"]:
         logger.info("Creating and enabling systemd unit files.")
-        start_on_boot()
+
+        if os.geteuid() == 0:
+            start_on_boot()
+        else:
+            logger.info("No sudo access, trying with sudo.")
+            subprocess.check_call(["sudo", sys.executable] + sys.argv)
         sys.exit()
 
     with open(PID_FILE, "w") as pid_file:
