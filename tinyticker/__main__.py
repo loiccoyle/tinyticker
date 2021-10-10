@@ -106,16 +106,17 @@ def main():
     args = parse_args(sys.argv[1:])
     args = vars(args)
 
+    if args["verbose"] > 0:
+        set_verbosity(logger, args["verbose"])
+
     if args["config"]:
         # if the config file is not present, write the default values
         if not args["config"].is_file():
+
             config.write_default(args["config"])
         # upadte the values if they are not None
         # allows for using other args to set values not set in the config file
         args.update({k: v for k, v in config.read().items() if v is not None})
-
-    if args["verbose"] > 0:
-        set_verbosity(logger, args["verbose"])
 
     if args["start_on_boot"]:
         logger.info("Creating and enabling systemd unit files.")
