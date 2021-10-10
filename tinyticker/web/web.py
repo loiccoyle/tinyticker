@@ -125,7 +125,7 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "-p",
         "--port",
-        default=8000,
+        default=7104,
         type=int,
         help="Port number.",
     )
