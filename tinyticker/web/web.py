@@ -110,7 +110,14 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
 
 
 def parse_args(args: List[str]) -> argparse.Namespace:
-    """Parse the command line arguments."""
+    """Parse the command line arguments.
+
+    Args:
+        args: The command line argument.
+
+    Returns:
+        The parsed arguments.
+    """
     parser = argparse.ArgumentParser(
         description="tinyticker web interface.",
         formatter_class=RawTextArgumentDefaultsHelpFormatter,
