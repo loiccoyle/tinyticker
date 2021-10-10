@@ -6,16 +6,16 @@ from typing import List
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
 
 from .. import config as cfg
+from ..display import Display
 from ..settings import (
     CONFIG_FILE,
     RawTextArgumentDefaultsHelpFormatter,
-    set_verbosity,
     generate_qrcode,
+    set_verbosity,
 )
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from . import logger
 from .command import COMMANDS, restart
-from ..display import Display
 
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
 

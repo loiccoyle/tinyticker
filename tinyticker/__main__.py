@@ -4,8 +4,8 @@ import os
 import signal
 import subprocess
 import sys
-from typing import List
 from pathlib import Path
+from typing import List
 
 from . import config, logger
 from .config import DEFAULT, TYPES, start_on_boot
@@ -97,7 +97,7 @@ Note:
     )
     parser.add_argument(
         "--start-on-boot",
-        help="Create and enable the systemd service files, then exits. Requires sudo.",
+        help="Create and enable the systemd service files, then exits. Will require sudo.",
         action="store_true",
     )
     return parser.parse_args(args)

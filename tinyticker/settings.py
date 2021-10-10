@@ -2,11 +2,11 @@ import argparse
 import getpass
 import logging
 import os
-from pathlib import Path
 import socket
+from pathlib import Path
 
-from PIL import Image, ImageChops
 import qrcode
+from PIL import Image, ImageChops
 
 from .waveshare_lib.epd2in13_V2 import EPD_HEIGHT, EPD_WIDTH
 
@@ -57,6 +57,14 @@ def set_verbosity(logger: logging.Logger, verbosity: int) -> logging.Logger:
 
 
 def generate_qrcode(port: int = 8000) -> Image.Image:
+    """Generate a qrcode poiting to the dashboard url.
+
+    Args:
+        port: the port number on which the dashboard is hosted.
+
+    Returns:
+        The qrcode image.
+    """
     url = f"https://{socket.gethostname()}.local:{port}"
     qr = qrcode.make(url)
     qr = trim(qr)
