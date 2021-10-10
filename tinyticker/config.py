@@ -101,7 +101,8 @@ def start_on_boot(systemd_service_dir: Path = SERVICE_FILE_DIR) -> None:
                 stderr=subprocess.STDOUT,
                 shell=True,
             )
-            LOGGER.info(output.decode("utf8"))
+            if output:
+                LOGGER.info(output.decode("utf8"))
         except subprocess.CalledProcessError:
             LOGGER.error("Enabling service %s failed.", service_file_name)
             raise
