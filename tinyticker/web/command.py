@@ -2,6 +2,7 @@ import logging
 import os
 import signal
 import subprocess
+import sys
 from typing import Callable, List, Union
 
 from ..settings import PID_FILE, USER
@@ -60,6 +61,8 @@ def wifi_reset():
     """Reset the Raspberry Pi's comitup settings, requires sudo."""
     LOGGER.info("Removing comitup connection config.")
     try_command("sudo comitup-cli d")
+    # exit so the comitup server can use the 80 port is needed.
+    sys.exit()
 
 
 @register
