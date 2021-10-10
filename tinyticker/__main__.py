@@ -88,8 +88,11 @@ Note:
     parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
     parser.add_argument(
         "--config",
-        help=f"Take values from config file: {CONFIG_FILE}",
-        action="store_true",
+        help=f"Take values from config file.",
+        nargs="?",
+        type=argparse.FileType("r"),
+        const=CONFIG_FILE,
+        default=False,
     )
     parser.add_argument(
         "--start-on-boot",
@@ -102,8 +105,12 @@ Note:
 def main():
     args = parse_args(sys.argv[1:])
     args = vars(args)
+
     if args["config"]:
-        # upadte the values if theyare not None
+        # if the config file is not present, write the default values
+        if not args["config"].is_file():
+            config.write_default(args["config"])
+        # upadte the values if they are not None
         # allows for using other args to set values not set in the config file
         args.update({k: v for k, v in config.read().items() if v is not None})
 

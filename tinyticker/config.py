@@ -23,25 +23,26 @@ DEFAULT = {
 }
 
 
-def read() -> dict:
-    if CONFIG_FILE.is_file():
+def read(config_file: Path = CONFIG_FILE) -> dict:
+    if config_file.is_file():
         LOGGER.debug("Reading config file.")
-        with open(CONFIG_FILE, "r") as config_file:
-            return json.load(config_file)
+        with open(CONFIG_FILE, "r") as fd:
+            return json.load(fd)
     else:
         LOGGER.debug("Fallback to default values.")
         return DEFAULT
 
 
-def write(config: dict) -> None:
+def write(config: dict, config_file: Path = CONFIG_FILE) -> None:
     LOGGER.debug("Writing config file.")
-    with open(CONFIG_FILE, "w") as config_file:
-        json.dump(config, config_file, indent=2)
+    with open(config_file, "w") as fd:
+        json.dump(config, fd, indent=2)
 
 
-# Write the default config
-if not CONFIG_FILE.is_file():
-    LOGGER.debug("No config file, creating default.")
+def write_default(config_file: Path = CONFIG_FILE) -> None:
+    LOGGER.debug("Creating default.")
+    if not config_file.parent.is_dir():
+        config_file.mkdir(parents=True)
     write(DEFAULT)
 
 
