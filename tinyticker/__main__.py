@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from typing import List
 
-from . import config, logger
+from . import config, logger, __version__
 from .config import DEFAULT, TYPES, start_on_boot
 from .display import Display
 from .settings import (
@@ -100,6 +100,12 @@ Note:
         "--start-on-boot",
         help="Create and enable the systemd service files, then exits. Will require sudo.",
         action="store_true",
+    )
+    parser.add_argument(
+        "--version",
+        help="Show the version and exit.",
+        action="version",
+        version="%(prog)s {version}".format(version=__version__),
     )
     return parser.parse_args(args)
 
