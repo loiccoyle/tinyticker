@@ -154,7 +154,6 @@ def parse_args(args: List[str]) -> argparse.Namespace:
 
 def main():
     args = parse_args(sys.argv[1:])
-    # refactor this with the other verbosity control
     if args.verbose > 0:
         set_verbosity(logger, args.verbose)
 
