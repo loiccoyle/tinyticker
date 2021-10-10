@@ -9,14 +9,13 @@ from typing import List
 from . import config, logger
 from .config import DEFAULT, TYPES, start_on_boot
 from .display import Display
-from .settings import CONFIG_FILE, PID_FILE, set_verbosity
+from .settings import (
+    CONFIG_FILE,
+    PID_FILE,
+    RawTextArgumentDefaultsHelpFormatter,
+    set_verbosity,
+)
 from .ticker import INTERVAL_LOOKBACKS, SYMBOL_TYPES, Ticker
-
-
-class RawTextArgumentDefaultsHelpFormatter(
-    argparse.RawTextHelpFormatter, argparse.ArgumentDefaultsHelpFormatter
-):
-    pass
 
 
 def parse_args(args: List[str]) -> argparse.Namespace:

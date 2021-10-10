@@ -7,7 +7,7 @@ from typing import List
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
 
 from .. import config as config_file
-from ..settings import CONFIG_FILE, set_verbosity
+from ..settings import CONFIG_FILE, RawTextArgumentDefaultsHelpFormatter, set_verbosity
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from . import logger
 from .command import COMMANDS
@@ -97,7 +97,10 @@ def create_app(config_file_path: Path):
 
 
 def parse_args(args: List[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="tinyticker web interface.")
+    parser = argparse.ArgumentParser(
+        description="tinyticker web interface.",
+        formatter_class=RawTextArgumentDefaultsHelpFormatter,
+    )
     parser.add_argument("-p", "--port", default=8000, type=int, help="Port number.")
     parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
     parser.add_argument("-c", "--config-file", help="Config file.", default=CONFIG_FILE)
