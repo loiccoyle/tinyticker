@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from typing import List
 
-from . import config, logger, __version__
+from . import __version__, config, logger
 from .config import DEFAULT, TYPES, start_on_boot
 from .display import Display
 from .settings import (
