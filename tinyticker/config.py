@@ -24,7 +24,11 @@ DEFAULT = {
 
 
 def read(config_file: Path = CONFIG_FILE) -> dict:
-    """Read the config file and return a dictionary."""
+    """Read the config file and return a dictionary.
+
+    Args:
+        config_file: path of the config file.
+    """
     if config_file.is_file():
         LOGGER.debug("Reading config file: %s", config_file)
         with open(config_file, "r") as fd:
@@ -35,14 +39,23 @@ def read(config_file: Path = CONFIG_FILE) -> dict:
 
 
 def write(config: dict, config_file: Path = CONFIG_FILE) -> None:
-    """Write the config file."""
+    """Write the config file.
+
+    Args:
+        config: dictionary containing the contents of the config.
+        config_file: path of the config file.
+    """
     LOGGER.debug("Writing config file: %s", config_file)
     with open(config_file, "w") as fd:
         json.dump(config, fd, indent=2)
 
 
 def write_default(config_file: Path = CONFIG_FILE) -> None:
-    """Write the default values to the config file."""
+    """Write the default values to the config file.
+
+    Args:
+        config_file: path of the config file.
+    """
     LOGGER.debug("Creating default config: %s", config_file)
     if not config_file.parent.is_dir():
         config_file.parent.mkdir(parents=True)
@@ -85,7 +98,11 @@ WantedBy=multi-user.target"""
 
 
 def start_on_boot(systemd_service_dir: Path = SERVICE_FILE_DIR) -> None:
-    """Create and enable the systemd service. Requires sudo."""
+    """Create and enable the systemd service. Requires sudo.
+
+    Args:
+        systemd_service_dir: folder location in which to place the unit file.
+    """
 
     def write_service(service_file: Path, content: str) -> None:
         """Helper function to write the service file."""
