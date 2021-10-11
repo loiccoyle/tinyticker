@@ -26,7 +26,7 @@ I highly recomend using [comitup](https://github.com/davesteele/comitup) to setu
 
 - Write the `comitup` [image](https://davesteele.github.io/comitup/latest/comitup-lite-img-latest.html) to your sd card
 - Boot up the RPi and setup the networking
-- ssh into your RPi, you'll probably want to change the password while your at it
+- ssh into your RPi, you'll probably want to change the password while you're at it
 - Install `pipx`: `python3 -m pip install --user pipx`
 - Install `tinyticker`: `pipx install tinyticker`
 - Setup `tinyticker` to start on boot: `tinyticker --start-on-boot`
