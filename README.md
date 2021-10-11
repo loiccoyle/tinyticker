@@ -1,6 +1,6 @@
-<h1 align="center">tinyticker</h5>
+<h1 align="center">🚀 tinyticker 🚀</h5>
 <h3 align="center"><img src="https://i.imgur.com/RjoIULL.png" width=500><img src="https://i.imgur.com/pZmFzAK.png" height=500 align=right></h3>
-<h5 align="center">🚀 size doesn't matter 🚀</h5>
+<h5 align="center">size doesn't matter</h5>
 <p align="center">
   <a href="https://pypi.org/project/tinyticker/"><img src="https://img.shields.io/pypi/v/tinyticker"></a>
   <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
