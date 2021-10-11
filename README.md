@@ -29,7 +29,7 @@ I highly recomend using [comitup](https://github.com/davesteele/comitup) to setu
 - ssh into your RPi, you'll probably want to change the password while you're at it
 - Install `pipx`: `python3 -m pip install --user pipx`
 - Install `tinyticker`: `pipx install tinyticker`
-- Setup `tinyticker` to start on boot: `tinyticker --start-on-boot`
+- Setup `tinyticker` to start on boot: `tinyticker --start-on-boot -vv`
   - this will write and enable two `systemd` unit files `tinyticker.service` and `tinyticker-web.service`
   - On boot, a qrcode for the `flask` app will be flashed on the display
 - Leave a star, reboot and HODL !
