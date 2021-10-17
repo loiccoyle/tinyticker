@@ -27,6 +27,8 @@ I highly recommend using [comitup](https://github.com/davesteele/comitup) to set
 - Write the `comitup` [image](https://davesteele.github.io/comitup/latest/comitup-lite-img-latest.html) to your sd card
 - Boot up the RPi and setup the networking
 - ssh into your RPi, you'll probably want to change the password while you're at it
+- Enable the [SPI interface](https://www.raspberrypi-spy.co.uk/2014/08/enabling-the-spi-interface-on-the-raspberry-pi/)
+- (Optional) rename the hostname of your RPi by editing the `/etc/hostname` and `/etc/hosts` file
 - Install `pipx`: `python3 -m pip install --user pipx`
 - Install `tinyticker`: `pipx install tinyticker`
 - Setup `tinyticker` to start on boot: `tinyticker --start-on-boot -vv`
