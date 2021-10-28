@@ -30,10 +30,14 @@
 import logging
 import time
 
-import RPi.GPIO as GPIO
 import spidev
 
 logger = logging.getLogger(__name__)
+
+try:
+    import RPi.GPIO as GPIO
+except RuntimeError:
+    logger.warning("Not on RPi, could not import RPI.GPIO. Display will not work.")
 
 
 class RaspberryPi:
