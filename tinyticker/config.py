@@ -45,6 +45,11 @@ def write(config: dict, config_file: Path = CONFIG_FILE) -> None:
         config: dictionary containing the contents of the config.
         config_file: path of the config file.
     """
+    config_dir = config_file.parent
+    if not config_dir.is_dir():
+        LOGGER.debug("Creating config dir: %s", config_dir)
+        config_dir.mkdir(parents=True)
+
     LOGGER.debug("Writing config file: %s", config_file)
     with open(config_file, "w") as fd:
         json.dump(config, fd, indent=2)
