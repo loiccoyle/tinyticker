@@ -7,7 +7,7 @@ import mplfinance as mpf
 import pandas as pd
 from PIL import Image
 
-from .waveshare_lib import CONFIG, EPD
+from .waveshare_lib import CONFIG, MODELS
 
 
 class Display:
@@ -19,12 +19,13 @@ class Display:
 
     def __init__(
         self,
+        model: str = "EPD_v2",
         flip: bool = False,
     ) -> None:
         self._log = logging.getLogger(__name__)
         self.previous_response = {}
         self.flip = flip
-        self.epd = EPD()
+        self.epd = MODELS[model].EPD()
         self.init_epd()
 
     def init_epd(self):

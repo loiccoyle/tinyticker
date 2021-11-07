@@ -8,8 +8,8 @@ from pathlib import Path
 import qrcode
 from PIL import Image
 
-from .waveshare_lib.epd2in13_V2 import EPD_HEIGHT, EPD_WIDTH
 from .utils import trim
+from .waveshare_lib.epd2in13_V2 import EPD_HEIGHT, EPD_WIDTH
 
 LOGGER = logging.getLogger(__name__)
 
@@ -138,8 +138,8 @@ def set_verbosity(logger: logging.Logger, verbosity: int) -> logging.Logger:
     return logger
 
 
-def generate_qrcode(port: int = 8000) -> Image.Image:
-    """Generate a qrcode poiting to the dashboard url.
+def generate_qrcode(epd_width: int, epd_height: int, port: int = 8000) -> Image.Image:
+    """Generate a qrcode pointing to the dashboard url.
 
     Args:
         port: the port number on which the dashboard is hosted.
@@ -150,7 +150,7 @@ def generate_qrcode(port: int = 8000) -> Image.Image:
     url = f"http://{socket.gethostname()}.local:{port}"
     qr = qrcode.make(url)
     qr = trim(qr)  # type: ignore
-    qr = qr.resize((EPD_WIDTH, EPD_WIDTH))
-    base = Image.new("1", (EPD_HEIGHT, EPD_WIDTH), 1)
+    qr = qr.resize((epd_width, epd_width))
+    base = Image.new("1", (epd_height, epd_width), 1)
     base.paste(qr, (base.size[0] // 2 - qr.size[0] // 2, 0))
     return base

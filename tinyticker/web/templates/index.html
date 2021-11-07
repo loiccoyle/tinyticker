@@ -24,6 +24,16 @@
                 <form class="uk-form-stacked" action="/config">
                     <div class="uk-grid uk-grid-small">
                         <div class="uk-width-1-1">
+                            <label class="uk-form-label" for="epd_model">ePaper display model</label>
+                            <select class="uk-select" id="epd_model" name="epd_model">
+                                {% for epd_model_option in epd_model_options %}
+                                {% if epd_model_option == epd_model %}
+                                <option value="{{epd_model_option}}" selected>{{epd_model_option}}</option>
+                                {% else %}
+                                <option value="{{epd_model_option}}">{{epd_model_option}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
                             <label class="uk-form-label" for="symbol_type">Symbol type</label>
                             <select class="uk-select" id="symbol_type" name="symbol_type">
                                 {% for symbol_type_option in symbol_type_options %}

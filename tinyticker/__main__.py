@@ -10,14 +10,10 @@ from typing import List
 from . import __version__, config, logger
 from .config import DEFAULT, TYPES
 from .display import Display
-from .settings import (
-    CONFIG_FILE,
-    PID_FILE,
-    start_on_boot,
-    set_verbosity,
-)
-from .utils import RawTextArgumentDefaultsHelpFormatter
+from .settings import CONFIG_FILE, PID_FILE, set_verbosity, start_on_boot
 from .ticker import INTERVAL_LOOKBACKS, SYMBOL_TYPES, Ticker
+from .utils import RawTextArgumentDefaultsHelpFormatter
+from .waveshare_lib import MODELS
 
 
 def parse_args(args: List[str]) -> argparse.Namespace:
@@ -29,6 +25,13 @@ Note:
     Make sure SPI is enabled on your RPi and the BCM2835 driver is installed.
 """,
         formatter_class=RawTextArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "--epd-model",
+        help="ePaper display model.",
+        type=str,
+        default="EPD_v2",
+        choices=MODELS.keys(),
     )
     parser.add_argument(
         "--symbol-type",
@@ -148,6 +151,7 @@ def main():
 
     display = Display(
         flip=args["flip"],
+        model=args["epd_model"],
     )
     ticker = Ticker(
         symbol_type=args["symbol_type"],
