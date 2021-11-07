@@ -79,7 +79,6 @@ class Display:
     def show_fig(self, fig: plt.Figure) -> None:
         """Show a `plt.Figure` on the display."""
         image = self.fig_to_image(fig)
-        image = image.convert("1")
         image = image.convert("1", dither=Image.NONE)
         self.show_image(image)
 
