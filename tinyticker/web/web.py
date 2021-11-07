@@ -58,7 +58,7 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
         for key, value in request.args.items():
             if key in ["api_key"] and value == "":
                 value = None
-            elif key in ["lookback", "wait_time"]:
+            elif key in ["lookback", "wait_time", "mav"]:
                 if value == "":
                     value = None
                 else:
