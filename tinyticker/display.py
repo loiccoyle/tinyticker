@@ -5,9 +5,10 @@ import matplotlib
 import matplotlib.pyplot as plt
 import mplfinance as mpf
 import pandas as pd
+import numpy as np
 from PIL import Image
 
-from .waveshare_lib import CONFIG, MODELS
+from .waveshare_lib import CONFIG, MODELS, HIGHLIGHTS
 
 
 class Display:
@@ -26,6 +27,7 @@ class Display:
         self.previous_response = {}
         self.flip = flip
         self.epd = MODELS[model].EPD()
+        self.has_highlight = HIGHLIGHTS[model]
         self.init_epd()
 
     def init_epd(self):
@@ -79,18 +81,34 @@ class Display:
     def show_fig(self, fig: plt.Figure) -> None:
         """Show a `plt.Figure` on the display."""
         image = self.fig_to_image(fig)
-        image = image.convert("1", dither=Image.NONE)
         self.show_image(image)
 
     def show_image(self, image: Image.Image) -> None:
         """Show a `PIL.Image.Image` on the display."""
+        highlight_image = None
+        if self.has_highlight and image.mode == "RGB":
+            # create an image with the pixels which are coloured
+            image_ar = np.array(image)
+            colored_pixels = (image_ar != image_ar[:, :, 0][:, :, None]).all(axis=-1)
+            highlight_image = np.ones_like(image_ar) * 255
+            highlight_image[colored_pixels] = [0, 0, 0]
+            highlight_image = Image.fromarray(highlight_image, mode="1")
+
+        if image.mode != "1":
+            image = image.convert("1", dither=Image.NONE)
         if self.flip:
             image = image.rotate(180)
         self._log.debug("Image size: %s", image.size)
         self._log.info("Wake up.")
         # I think this wakes it from sleep
         self.epd.init()
-        self.epd.display(self.epd.getbuffer(image))
+        if highlight_image is not None:
+            self.epd.display(
+                self.epd.getbuffer(image),
+                self.epd.getbuffer(highlight_image),
+            )
+        else:
+            self.epd.display(self.epd.getbuffer(image))
         self._log.info("Display sleep.")
         self.epd.sleep()
 
@@ -167,6 +185,7 @@ class Display:
             )
 
         fig.tight_layout(pad=0)
+        ax.grid(False)
         if show:
             self.show_fig(fig)
         return fig, ax
