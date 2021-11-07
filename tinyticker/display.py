@@ -80,6 +80,7 @@ class Display:
         """Show a `plt.Figure` on the display."""
         image = self.fig_to_image(fig)
         image = image.convert("1")
+        image = image.convert("1", dither=Image.NONE)
         self.show_image(image)
 
     def show_image(self, image: Image.Image) -> None:
@@ -146,7 +147,9 @@ class Display:
                 fontsize=10,
                 weight="bold",
                 bbox=dict(
-                    boxstyle="square,pad=0", facecolor="white", edgecolor="white"
+                    boxstyle="square,pad=0",
+                    facecolor="white",
+                    edgecolor="white",
                 ),
             )
         if sub_string is not None:
@@ -158,7 +161,9 @@ class Display:
                 fontsize=8,
                 weight="bold",
                 bbox=dict(
-                    boxstyle="square,pad=0", facecolor="white", edgecolor="white"
+                    boxstyle="square,pad=0",
+                    facecolor="white",
+                    edgecolor="white",
                 ),
             )
 
