@@ -29,7 +29,7 @@ After=networking.service
 
 [Service]
 Type=simple
-ExecStartPre={HOME_DIR}/.local/bin/tinyticker-web --port 80 --show-qrcode
+ExecStartPre={HOME_DIR}/.local/bin/tinyticker-web --port 80 --show-qrcode --config {CONFIG_FILE}
 ExecStart={HOME_DIR}/.local/bin/tinyticker --config {CONFIG_FILE} -vv
 Restart=on-failure
 RestartSec=30s
