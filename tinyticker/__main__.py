@@ -8,14 +8,15 @@ from pathlib import Path
 from typing import List
 
 from . import __version__, config, logger
-from .config import DEFAULT, TYPES, start_on_boot
+from .config import DEFAULT, TYPES
 from .display import Display
 from .settings import (
     CONFIG_FILE,
     PID_FILE,
-    RawTextArgumentDefaultsHelpFormatter,
+    start_on_boot,
     set_verbosity,
 )
+from .utils import RawTextArgumentDefaultsHelpFormatter
 from .ticker import INTERVAL_LOOKBACKS, SYMBOL_TYPES, Ticker
 
 
@@ -25,7 +26,7 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         description="""Raspberry Pi ticker using an ePaper display.
 
 Note:
-    Make sure SPI is enabled on your RPi.
+    Make sure SPI is enabled on your RPi and the BCM2835 driver is installed.
 """,
         formatter_class=RawTextArgumentDefaultsHelpFormatter,
     )
@@ -121,7 +122,7 @@ def main():
         # if the config file is not present, write the default values
         if not args["config"].is_file():
             config.write_default(args["config"])
-        # upadte the values if they are not None
+        # update the values if they are not None
         # allows for using other args to set values not set in the config file
         args.update(
             {k: v for k, v in config.read(args["config"]).items() if v is not None}

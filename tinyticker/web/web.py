@@ -9,10 +9,10 @@ from .. import config as cfg
 from ..display import Display
 from ..settings import (
     CONFIG_FILE,
-    RawTextArgumentDefaultsHelpFormatter,
     generate_qrcode,
     set_verbosity,
 )
+from ..utils import RawTextArgumentDefaultsHelpFormatter
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from . import logger
 from .command import COMMANDS, restart

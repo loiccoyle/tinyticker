@@ -1,14 +1,17 @@
-import argparse
 import getpass
 import logging
 import os
 import socket
+import subprocess
 from pathlib import Path
 
 import qrcode
-from PIL import Image, ImageChops
+from PIL import Image
 
 from .waveshare_lib.epd2in13_V2 import EPD_HEIGHT, EPD_WIDTH
+from .utils import trim
+
+LOGGER = logging.getLogger(__name__)
 
 USER = os.environ.get("SUDO_USER", getpass.getuser())
 HOME_DIR = Path(os.path.expanduser(f"~{USER}"))
@@ -20,10 +23,91 @@ TMP_DIR = Path("/tmp/tinyticker/")
 PID_FILE = TMP_DIR / "tinyticker_pid"
 
 
-class RawTextArgumentDefaultsHelpFormatter(
-    argparse.RawTextHelpFormatter, argparse.ArgumentDefaultsHelpFormatter
-):
-    pass
+SERVICE_FILE_DIR = Path("/etc/systemd/system/")
+TINYTICKER_SERVICE = f"""[Unit]
+Description=Raspberry Pi ticker on ePaper display.
+After=networking.service
+
+[Service]
+Type=simple
+ExecStartPre={HOME_DIR}/.local/bin/tinyticker-web --port 80 --show-qrcode
+ExecStart={HOME_DIR}/.local/bin/tinyticker --config {CONFIG_FILE} -vv
+Restart=on-failure
+RestartSec=30s
+StandardOutput=file:/tmp/tinyticker1.log
+StandardError=file:/tmp/tinyticker2.log
+
+[Install]
+WantedBy=multi-user.target"""
+
+# the user and group lines are required to be able to run the update command
+TINYTICKER_WEB_SERVICE = f"""[Unit]
+Description=Raspberry Pi ticker on epaper display, web interface.
+After=networking.service
+
+[Service]
+Type=simple
+User={USER}
+Group={USER}
+ExecStart=sh -c '! type comitup-cli || /usr/bin/sudo comitup-cli i | grep -q "CONNECTED" && /usr/bin/sudo {HOME_DIR}/.local/bin/tinyticker-web --port 80 --config {CONFIG_FILE} -vv'
+Restart=on-failure
+RestartSec=5s
+StandardOutput=file:/tmp/tinyticker-web1.log
+StandardError=file:/tmp/tinyticker-web2.log
+
+[Install]
+WantedBy=multi-user.target"""
+
+
+def start_on_boot(systemd_service_dir: Path = SERVICE_FILE_DIR) -> None:
+    """Create and enable the systemd service. Requires sudo.
+
+    Args:
+        systemd_service_dir: folder location in which to place the unit file.
+    """
+
+    def write_unit(unit_file: Path, content: str) -> None:
+        """Helper function to write the service file.
+
+        Args:
+            unit_file: unit file destination.
+            content: content to write into the unit file.
+        """
+        if unit_file.is_file():
+            LOGGER.warning("%s already exists, overwriting.", str(unit_file))
+        unit_file.write_text(content)
+
+    def enable_service(unit_name: str) -> None:
+        """Enable a systemd service.
+
+        Args:
+            unit_name: the name of the systemd unit.
+        """
+        try:
+            subprocess.check_output(
+                "systemctl daemon-reload",
+                stderr=subprocess.STDOUT,
+                shell=True,
+            )
+            output = subprocess.check_output(
+                f"systemctl enable {unit_name}",
+                stderr=subprocess.STDOUT,
+                shell=True,
+            )
+            if output:
+                LOGGER.info(output.decode("utf8"))
+        except subprocess.CalledProcessError:
+            LOGGER.error("Enabling service %s failed.", unit_name)
+            raise
+
+    tinyticker_service_file = systemd_service_dir / "tinyticker.service"
+    tinyticker_web_service_file = systemd_service_dir / "tinyticker-web.service"
+
+    write_unit(tinyticker_service_file, TINYTICKER_SERVICE)
+    write_unit(tinyticker_web_service_file, TINYTICKER_WEB_SERVICE)
+
+    enable_service(tinyticker_service_file.name)
+    enable_service(tinyticker_web_service_file.name)
 
 
 def set_verbosity(logger: logging.Logger, verbosity: int) -> logging.Logger:
@@ -70,22 +154,3 @@ def generate_qrcode(port: int = 8000) -> Image.Image:
     base = Image.new("1", (EPD_HEIGHT, EPD_WIDTH), 1)
     base.paste(qr, (base.size[0] // 2 - qr.size[0] // 2, 0))
     return base
-
-
-def trim(image: Image.Image) -> Image.Image:
-    """Trim white space.
-
-    Args:
-        image: Image to trim.
-
-    Returns:
-        Trimmed image.
-    """
-    bg = Image.new(image.mode, image.size, image.getpixel((0, 0)))  # type: ignore
-    diff = ImageChops.difference(image, bg)
-    diff = ImageChops.add(diff, diff, 2.0, -100)
-    bbox = diff.getbbox()
-    if bbox:
-        return image.crop(bbox)
-    else:
-        return image
