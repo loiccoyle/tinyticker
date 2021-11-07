@@ -150,6 +150,8 @@ class Display:
         fig, ax = self._plot()
         mc = mpf.make_marketcolors(up="k", down="white", edge="k", wick="k", ohlc="k")
         s = mpf.make_mpf_style(marketcolors=mc)
+        if "mav" in kwargs.keys() and kwargs["mav"] is None:
+            del kwargs["mav"]
         mpf.plot(
             historical,
             type=type,
