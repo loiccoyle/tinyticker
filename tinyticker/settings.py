@@ -9,7 +9,6 @@ import qrcode
 from PIL import Image
 
 from .utils import trim
-from .waveshare_lib.epd2in13_V2 import EPD_HEIGHT, EPD_WIDTH
 
 LOGGER = logging.getLogger(__name__)
 
