@@ -31,8 +31,8 @@ class Display:
     def init_epd(self):
         """Initialize the ePaper display module."""
         self._log.info("Init ePaper display.")
-        self.epd.init(self.epd.FULL_UPDATE)
-        self.epd.Clear(0xFF)
+        self.epd.init()
+        self.epd.Clear()
 
     @staticmethod
     def fig_to_image(fig: plt.Figure) -> Image.Image:
@@ -89,7 +89,7 @@ class Display:
         self._log.debug("Image size: %s", image.size)
         self._log.info("Wake up.")
         # I think this wakes it from sleep
-        self.epd.init(self.epd.FULL_UPDATE)
+        self.epd.init()
         self.epd.display(self.epd.getbuffer(image))
         self._log.info("Display sleep.")
         self.epd.sleep()
