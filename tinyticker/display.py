@@ -91,8 +91,8 @@ class Display:
             # create an image with the pixels which are coloured
             image_ar = np.array(image)
             colored_pixels = (image_ar != image_ar[:, :, 0][:, :, None]).all(axis=-1)
-            highlight_image = np.ones_like(image_ar) * 255
-            highlight_image[colored_pixels] = [0, 0, 0]
+            highlight_image = np.ones(image_ar.shape[:-1]) * 255
+            highlight_image[colored_pixels] = 0
             highlight_image = Image.fromarray(highlight_image, mode="1")
 
         if image.mode != "1":
