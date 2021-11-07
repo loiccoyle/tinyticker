@@ -90,10 +90,16 @@ class Display:
             self._log.info("Computing highlight pixels.")
             # create an image with the pixels which are coloured
             image_ar = np.array(image)
-            colored_pixels = (image_ar != image_ar[:, :, 0][:, :, None]).all(axis=-1)
-            highlight_image = np.ones(image_ar.shape[:-1]) * 255
+            colored_pixels = ~(image_ar == image_ar[:, :, 0][:, :, None]).all(axis=-1)
+            highlight_image = np.ones(image_ar.shape[:-1], dtype=image_ar.dtype) * 255
+            self._log.debug("Number of coloured pixels: %s", colored_pixels.sum())
             highlight_image[colored_pixels] = 0
-            highlight_image = Image.fromarray(highlight_image, mode="1")
+            # I think there is a bug with PIL, need to convert from "L"
+            # https://stackoverflow.com/questions/32159076/python-pil-bitmap-png-from-array-with-mode-1
+            highlight_image = Image.fromarray(highlight_image, mode="L").convert("1", dither=Image.NONE)
+            if self.flip:
+                highlight_image = highlight_image.rotate(180)
+            self._log.debug("Highlight image size: %s", highlight_image.size)
 
         if image.mode != "1":
             image = image.convert("1", dither=Image.NONE)
@@ -140,13 +146,14 @@ class Display:
             The `plt.Figure` and `plt.Axes` of the plot.
         """
         fig, ax = self._plot()
+        mc = mpf.make_marketcolors(up="k", down='white', edge="k", wick="k", ohlc="k")
+        s = mpf.make_mpf_style(marketcolors=mc)
         mpf.plot(
             historical,
             type=type,
             ax=ax,
-            update_width_config={"candle_linewidth": 1.5},
-            style="classic",
-            linecolor="k",
+            update_width_config={"line_width": 1},
+            style=s,
             **kwargs,
         )
         # Fall back to using the last closing price
