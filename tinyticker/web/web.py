@@ -159,13 +159,17 @@ def main():
 
     if args.show_qrcode:
         logger.info("Generating qrcode.")
-        epd_model = MODELS[{**cfg.DEFAULT, **cfg.read(args.config)}["epd_model"]]
+        config = {**cfg.DEFAULT, **cfg.read(args.config)}
+        epd_module = MODELS[config["epd_model"]]
         qrcode = generate_qrcode(
-            epd_model.EPD_WIDTH,
-            epd_model.EPD_HEIGHT,
+            epd_module.EPD_WIDTH,
+            epd_module.EPD_HEIGHT,
             args.port,
         )
-        display = Display()
+        display = Display(
+            model=config["epd_model"],
+            flip=config["flip"],
+        )
         logger.info("Displaying qrcode.")
         display.show_image(qrcode)
         del display
