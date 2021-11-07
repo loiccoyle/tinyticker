@@ -90,8 +90,19 @@ Note:
         help="Flip the display.",
         action="store_true",
     )
-
-    parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
+    parser.add_argument(
+        "--moving-average",
+        help="Display a moving average.",
+        type=int,
+        dest="mav",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help="Verbosity.",
+        action="count",
+        default=0,
+    )
     parser.add_argument(
         "--config",
         help=f"Take values from config file.",
@@ -197,6 +208,7 @@ def main():
                     top_string=f"{args['symbol']}: $",
                     sub_string=f"{len(response['historical'])}x{args['interval']}",
                     type=args["type"],
+                    mav=args["mav"],
                     show=True,
                 )
         except Exception as exc:

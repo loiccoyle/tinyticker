@@ -18,6 +18,7 @@ DEFAULT = {
     "wait_time": None,
     "flip": False,
     "type": "candlestick",
+    "mav": None,
 }
 
 
