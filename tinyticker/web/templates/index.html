@@ -82,6 +82,7 @@
                             {% else %}
                             <input class="uk-textarea" inputmode="numeric" id="wait_time" name="wait_time" min="1" value="{{wait_time}}">
                             {%endif%}
+                            <label class="uk-form-label" for="mav">Moving average</label>
                             {% if mav is none %}
                             <input class="uk-textarea" inputmode="numeric" id="mav" name="mav" min="1" placeholder="3">
                             {% else %}
