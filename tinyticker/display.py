@@ -87,6 +87,7 @@ class Display:
         """Show a `PIL.Image.Image` on the display."""
         highlight_image = None
         if self.has_highlight and image.mode == "RGB":
+            self._log.info("Computing highlight pixels.")
             # create an image with the pixels which are coloured
             image_ar = np.array(image)
             colored_pixels = (image_ar != image_ar[:, :, 0][:, :, None]).all(axis=-1)
