@@ -148,7 +148,7 @@ class Display:
             The `plt.Figure` and `plt.Axes` of the plot.
         """
         fig, ax = self._plot()
-        mc = mpf.make_marketcolors(up="k", down="white", edge="k", wick="k", ohlc="k")
+        mc = mpf.make_marketcolors(up="white", down="k", edge="k", wick="k", ohlc="k")
         s = mpf.make_mpf_style(marketcolors=mc)
         # remove Nones, it doesn't play well with mplfinance
         kwargs = {key: value for key, value in kwargs.items() if value is not None}
