@@ -6,7 +6,7 @@
   <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
 </p>
 
-`tinyticker` uses a Raspberry Pi zero W and a small ePaper display to periodically display stock or crypto price.
+`tinyticker` uses a Raspberry Pi zero W and a small ePaper display to periodically display a stock or crypto chart.
 
 A `flask` web interface is created to set the ticker options and control the Raspberry Pi.
 
@@ -16,8 +16,10 @@ A `flask` web interface is created to set the ticker options and control the Ras
 
 Shopping list:
 
-- [Raspberry Pi Zero W](https://www.raspberrypi.com/products/raspberry-pi-zero-w/)
-- [Waveshare ePaper 2.13in V2 two color](https://www.amazon.com/s?k=waveshare+epaper+2.13inch)
+- [Raspberry Pi Zero WH](https://www.adafruit.com/product/3708)
+- One of these ePaper displays:
+  - [Waveshare ePaper 2.13in V2 Black & White](https://www.waveshare.com/product/raspberry-pi/displays/e-paper/2.13inch-e-paper-hat.htm)
+  - [Waveshare ePaper 2.13in Black, White & Red](https://www.waveshare.com/product/raspberry-pi/displays/e-paper/2.13inch-e-paper-hat-b.htm)
 - A micro sd card
 
 ## Recommended setup
