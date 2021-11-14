@@ -160,10 +160,11 @@ def main():
     if args.show_qrcode:
         logger.info("Generating qrcode.")
         config = {**cfg.DEFAULT, **cfg.read(args.config)}
-        epd_module = MODELS[config["epd_model"]].module
+        epd_model = MODELS[config["epd_model"]]
         qrcode = generate_qrcode(
-            epd_module.EPD_WIDTH,
-            epd_module.EPD_HEIGHT,
+            epd_model.width,
+            epd_model.height,
+
             args.port,
         )
         display = Display(

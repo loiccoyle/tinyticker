@@ -28,7 +28,7 @@ class Display:
         self.previous_response = {}
         self.flip = flip
         self.model = MODELS[model]
-        self.epd = self.model.module.EPD()  # type: ignore
+        self.epd = self.model.class_()
         self.init_epd()
 
     def init_epd(self):
