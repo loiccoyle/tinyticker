@@ -4,11 +4,12 @@ from typing import Optional, Tuple
 import matplotlib
 import matplotlib.pyplot as plt
 import mplfinance as mpf
-import pandas as pd
 import numpy as np
+import pandas as pd
 from PIL import Image
 
-from .waveshare_lib import CONFIG, MODELS, HIGHLIGHTS
+from .waveshare_lib import CONFIG
+from .waveshare_lib.models import MODELS
 
 
 class Display:
@@ -26,8 +27,8 @@ class Display:
         self._log = logging.getLogger(__name__)
         self.previous_response = {}
         self.flip = flip
-        self.epd = MODELS[model].EPD()
-        self.has_highlight = HIGHLIGHTS[model]
+        self.model = MODELS[model]
+        self.epd = self.model.module.EPD()  # type: ignore
         self.init_epd()
 
     def init_epd(self):
@@ -86,7 +87,7 @@ class Display:
     def show_image(self, image: Image.Image) -> None:
         """Show a `PIL.Image.Image` on the display."""
         highlight_image = None
-        if self.has_highlight and image.mode == "RGB":
+        if self.model.has_highlight and image.mode == "RGB":
             self._log.info("Computing highlight pixels.")
             # create an image with the pixels which are coloured
             image_ar = np.array(image)

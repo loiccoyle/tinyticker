@@ -13,7 +13,7 @@ from .display import Display
 from .settings import CONFIG_FILE, PID_FILE, set_verbosity, start_on_boot
 from .ticker import INTERVAL_LOOKBACKS, SYMBOL_TYPES, Ticker
 from .utils import RawTextArgumentDefaultsHelpFormatter
-from .waveshare_lib import MODELS
+from .waveshare_lib.models import MODELS
 
 
 def parse_args(args: List[str]) -> argparse.Namespace:

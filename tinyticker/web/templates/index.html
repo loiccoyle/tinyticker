@@ -27,10 +27,10 @@
                             <label class="uk-form-label" for="epd_model">ePaper display model</label>
                             <select class="uk-select" id="epd_model" name="epd_model">
                                 {% for epd_model_option in epd_model_options %}
-                                {% if epd_model_option == epd_model %}
-                                <option value="{{epd_model_option}}" selected>{{epd_model_option}}</option>
+                                {% if epd_model_option.name == epd_model %}
+                                <option value="{{epd_model_option.name}}" selected>{{epd_model_option.desc}}</option>
                                 {% else %}
-                                <option value="{{epd_model_option}}">{{epd_model_option}}</option>
+                                <option value="{{epd_model_option.name}}">{{epd_model_option.desc}}</option>
                                 {% endif %}
                                 {% endfor %}
                             </select>

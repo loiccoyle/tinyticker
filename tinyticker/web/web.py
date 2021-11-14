@@ -10,7 +10,7 @@ from ..display import Display
 from ..settings import CONFIG_FILE, generate_qrcode, set_verbosity
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from ..utils import RawTextArgumentDefaultsHelpFormatter
-from ..waveshare_lib import MODELS
+from ..waveshare_lib.models import MODELS
 from . import logger
 from .command import COMMANDS, restart
 
@@ -47,7 +47,7 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
             interval_lookbacks=INTERVAL_LOOKBACKS,
             interval_wait_times=INTERVAL_WAIT_TIMES,
             interval_options=INTERVAL_LOOKBACKS.keys(),
-            epd_model_options=MODELS.keys(),
+            epd_model_options=MODELS,
             **config,
         )
 
