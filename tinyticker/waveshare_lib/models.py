@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from types import Callable
+from typing import Callable
 
 from . import epd2in13_V2, epd2in13b_V3
 
