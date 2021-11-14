@@ -47,7 +47,7 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
             interval_lookbacks=INTERVAL_LOOKBACKS,
             interval_wait_times=INTERVAL_WAIT_TIMES,
             interval_options=INTERVAL_LOOKBACKS.keys(),
-            epd_model_options=MODELS,
+            epd_model_options=MODELS.values(),
             **config,
         )
 
@@ -160,7 +160,7 @@ def main():
     if args.show_qrcode:
         logger.info("Generating qrcode.")
         config = {**cfg.DEFAULT, **cfg.read(args.config)}
-        epd_module = MODELS[config["epd_model"]]
+        epd_module = MODELS[config["epd_model"]].module
         qrcode = generate_qrcode(
             epd_module.EPD_WIDTH,
             epd_module.EPD_HEIGHT,
