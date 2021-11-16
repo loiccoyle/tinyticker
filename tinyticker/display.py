@@ -48,7 +48,8 @@ class Display:
             fig.canvas.tostring_rgb(),
         )
 
-    def _plot(self) -> Tuple[plt.Figure, plt.Axes]:
+    def _create_fig_ax(self) -> Tuple[plt.Figure, plt.Axes]:
+        """Create the matplotlib figure and axes used to plot the chart."""
         dpi = plt.rcParams.get("figure.dpi", 96)
         px = 1 / dpi
         self._log.debug("Plot width: %s", self.epd.width)
@@ -68,12 +69,12 @@ class Display:
         Args:
             text: Text on the plot.
             show: Display the figure on the display.
-            **kwargs: Passed to ax.text.
+            **kwargs: Passed to `ax.text`.
 
         Returns:
             The `plt.Figure` and `plt.Axes` with the text.
         """
-        fig, ax = self._plot()
+        fig, ax = self._create_fig_ax()
         ax.text(0, 0, text, ha="center", va="center", wrap=True, **kwargs)
         if show:
             self.show_fig(fig)
@@ -132,7 +133,7 @@ class Display:
         type: str = "candle",
         **kwargs,
     ) -> Tuple[plt.Figure, plt.Axes]:
-        """Plot crypto chart.
+        """Plot symbol chart.
 
         Args:
             historical: API response, `pd.DataFrame` containing the historical
@@ -148,9 +149,15 @@ class Display:
         Returns:
             The `plt.Figure` and `plt.Axes` of the plot.
         """
-        fig, ax = self._plot()
-        mc = mpf.make_marketcolors(up="white", down="k", edge="k", wick="k", ohlc="k")
-        s = mpf.make_mpf_style(marketcolors=mc)
+        fig, ax = self._create_fig_ax()
+        marketcolors = mpf.make_marketcolors(
+            up="white", down="k", edge="k", wick="k", ohlc="k"
+        )
+        if self.model.has_highlight:
+            mavcolors = ["r"]
+        else:
+            mavcolors = ["k"]
+        s = mpf.make_mpf_style(marketcolors=marketcolors, mavcolors=mavcolors)
         # remove Nones, it doesn't play well with mplfinance
         kwargs = {key: value for key, value in kwargs.items() if value is not None}
         mpf.plot(
