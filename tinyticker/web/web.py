@@ -1,7 +1,9 @@
 import argparse
 import sys
 from pathlib import Path
+from socket import timeout
 from typing import List
+from urllib.error import HTTPError, URLError
 
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
 
@@ -9,7 +11,7 @@ from .. import config as cfg
 from ..display import Display
 from ..settings import CONFIG_FILE, generate_qrcode, set_verbosity
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
-from ..utils import RawTextArgumentDefaultsHelpFormatter
+from ..utils import RawTextArgumentDefaultsHelpFormatter, check_for_update
 from ..waveshare_lib.models import MODELS
 from . import logger
 from .command import COMMANDS, restart
@@ -38,16 +40,27 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
     @app.route("/")
     def index():
         config = {**cfg.DEFAULT, **cfg.read(config_file)}
+        commands = sorted(COMMANDS.keys())
+        # remove the update command as we treat it separately
+        command.remove("update")
+        # TODO: performing this query on the server will reduce responsiveness
+        try:
+            update_available = check_for_update(timeout=1)
+            logger.info("Update available: %s", update_available)
+        except (HTTPError, URLError, timeout):
+            update_available = False
+            logger.warning("Update check failed", exc_info=True)
         return render_template(
             "index.html",
             cfg=config_file,
-            commands=COMMANDS.keys(),
+            commands=commands,
             type_options=cfg.TYPES,
             symbol_type_options=SYMBOL_TYPES,
             interval_lookbacks=INTERVAL_LOOKBACKS,
             interval_wait_times=INTERVAL_WAIT_TIMES,
             interval_options=INTERVAL_LOOKBACKS.keys(),
             epd_model_options=MODELS.values(),
+            update_available=update_available,
             **config,
         )
 
@@ -79,6 +92,7 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
         logger.debug("/command url args: %s", request.args)
         command = request.args.get("command")
         if command:
+            # call the registered command function
             COMMANDS.get(command, lambda: None)()
 
         return redirect("/", code=302)
@@ -164,7 +178,6 @@ def main():
         qrcode = generate_qrcode(
             epd_model.width,
             epd_model.height,
-
             args.port,
         )
         display = Display(

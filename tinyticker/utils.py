@@ -1,6 +1,11 @@
 import argparse
+import json
+from urllib.request import urlopen
 
+from packaging.version import Version
 from PIL import Image, ImageChops
+
+from . import __version__
 
 
 def trim(image: Image.Image) -> Image.Image:
@@ -26,3 +31,18 @@ class RawTextArgumentDefaultsHelpFormatter(
     argparse.RawTextHelpFormatter, argparse.ArgumentDefaultsHelpFormatter
 ):
     pass
+
+
+def check_for_update(**kwargs) -> bool:
+    """Query the pypy index, returns True if an update is available.
+
+    Returns:
+        True if an update is available, False otherwise.
+    """
+    url = "https://pypi.python.org/pypi/{package}/json"
+    response = json.loads(
+        urlopen(url.format(package="tinyticker"), **kwargs).read().decode("utf8")
+    )
+    pypy_version = Version(response["info"]["version"])
+    current_version = Version(__version__)
+    return pypy_version > current_version
