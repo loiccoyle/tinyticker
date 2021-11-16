@@ -36,6 +36,9 @@ class RawTextArgumentDefaultsHelpFormatter(
 def check_for_update(**kwargs) -> bool:
     """Query the pypy index, returns True if an update is available.
 
+    Args:
+        **kwargs: passed to `urllib.request.urlopen`.
+
     Returns:
         True if an update is available, False otherwise.
     """
