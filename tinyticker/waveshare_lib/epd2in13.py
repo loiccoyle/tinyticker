@@ -41,10 +41,10 @@ logger = logging.getLogger(__name__)
 
 class EPD:
     def __init__(self):
-        self.reset_pin = epdconfig.RST_PIN
-        self.dc_pin = epdconfig.DC_PIN
-        self.busy_pin = epdconfig.BUSY_PIN
-        self.cs_pin = epdconfig.CS_PIN
+        self.reset_pin = CONFIG.RST_PIN
+        self.dc_pin = CONFIG.DC_PIN
+        self.busy_pin = CONFIG.BUSY_PIN
+        self.cs_pin = CONFIG.CS_PIN
         self.width = EPD_WIDTH
         self.height = EPD_HEIGHT
 
