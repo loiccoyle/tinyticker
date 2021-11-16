@@ -7,6 +7,7 @@ from urllib.error import HTTPError, URLError
 
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
 
+from .. import __version__
 from .. import config as cfg
 from ..display import Display
 from ..settings import CONFIG_FILE, generate_qrcode, set_verbosity
@@ -61,6 +62,7 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
             interval_options=INTERVAL_LOOKBACKS.keys(),
             epd_model_options=MODELS.values(),
             update_available=update_available,
+            version=__version__,
             **config,
         )
 
