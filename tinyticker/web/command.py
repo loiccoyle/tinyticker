@@ -68,5 +68,5 @@ def update() -> None:
     """Update tinyticker."""
     LOGGER.info("Updating tinyticker.")
     try_command(
-        f"sudo -i -u {USER} type pipx > /dev/null && pipx upgrade tinyticker || pip install --upgrade tinyticker"
+        f"sudo -i -u {USER} -- type pipx > /dev/null && pipx upgrade tinyticker || pip install --upgrade tinyticker"
     )
