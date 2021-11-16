@@ -21,7 +21,9 @@
             <div class="uk-width-1-1 uk-text-center">
                 <p class="uk-text-large">🥳 Update available 🥳</p>
             </div>
-            <button type="submit" name="command" value="update" class="uk-button uk-button-primary uk-width-expand uk-margin-small-bottom">Update</button>
+            <form class="uk-form-stacked" action="/command">
+                <button type="submit" name="command" value="update" class="uk-button uk-button-primary uk-width-expand uk-margin-small-bottom">Update</button>
+            </form>
             {% endif %}
             <div class="uk-width-large">
                 <p class="uk-text-large">Config</p>
