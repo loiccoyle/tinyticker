@@ -18,8 +18,9 @@ Shopping list:
 
 - [Raspberry Pi Zero WH](https://www.adafruit.com/product/3708)
 - One of these ePaper displays:
-  - [Waveshare ePaper 2.13in V2 Black & White](https://www.waveshare.com/product/raspberry-pi/displays/e-paper/2.13inch-e-paper-hat.htm)
-  - [Waveshare ePaper 2.13in Black, White & Red](https://www.waveshare.com/product/raspberry-pi/displays/e-paper/2.13inch-e-paper-hat-b.htm)
+  - [Waveshare ePaper 2.13in Black & White](https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT)
+  - [Waveshare ePaper 2.13in Black, White & Red](<https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT_(B)>)
+  - [Waveshare ePaper 2.13in Black, White & Yellow](<https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT_(C)>) (untested)
 - A micro sd card
 
 ## Recommended setup
@@ -33,36 +34,11 @@ I highly recommend using [comitup](https://github.com/davesteele/comitup) to set
 - (Optional) rename the hostname of your RPi by editing the `/etc/hostname` and `/etc/hosts` file
 - (Optional) rename the Wifi AP name by editing the `/etc/comitup.conf` file
 - Install `pipx`: `python3 -m pip install --user pipx`
+- Install dependency requirements: `sudo apt install libatlas-base-dev libopenjp2-7 libtiff5 libxml2-dev libxslt1-dev`
 - Install `tinyticker`: `pipx install tinyticker`
 - Setup `tinyticker` to start on boot: `tinyticker --start-on-boot -vv`
-  - this will write and enable two `systemd` unit files `tinyticker.service` and `tinyticker-web.service`
+  - This will write and enable two `systemd` unit files `tinyticker.service` and `tinyticker-web.service`
   - On boot, a qrcode for the `flask` app will be flashed on the display
 - Leave a star, reboot and HODL !
 
 Note: the Raspberry Pi zero isn't very fast so be patient :)
-
-### Gotchas
-
-If you get the following error when installing `numpy`:
-
-```
-libf77blas.so.3: cannot open shared object file: No such file or directory
-```
-
-Install the missing library<sup>[ref](https://numpy.org/devdocs/user/troubleshooting-importerror.html#raspberry-pi)</sup>:
-
-```
-sudo apt-get install libatlas-base-dev
-```
-
-If `pillow` (PIL) complains then your missing some libraries, try:
-
-```
-sudo apt install libopenjp2-7 libtiff5
-```
-
-If `lxml` complains:
-
-```
-sudo apt install libxml2-dev libxslt1-dev
-```
