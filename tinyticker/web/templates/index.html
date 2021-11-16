@@ -24,6 +24,16 @@
                 <form class="uk-form-stacked" action="/config">
                     <div class="uk-grid uk-grid-small">
                         <div class="uk-width-1-1">
+                            <label class="uk-form-label" for="epd_model">ePaper display model</label>
+                            <select class="uk-select" id="epd_model" name="epd_model">
+                                {% for epd_model_option in epd_model_options %}
+                                {% if epd_model_option.name == epd_model %}
+                                <option value="{{epd_model_option.name}}" selected>{{epd_model_option.desc}}</option>
+                                {% else %}
+                                <option value="{{epd_model_option.name}}">{{epd_model_option.desc}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
                             <label class="uk-form-label" for="symbol_type">Symbol type</label>
                             <select class="uk-select" id="symbol_type" name="symbol_type">
                                 {% for symbol_type_option in symbol_type_options %}
@@ -71,6 +81,12 @@
                             <input class="uk-textarea" inputmode="numeric" id="wait_time" name="wait_time" min="1" placeholder="{{interval_wait_times[interval]}}">
                             {% else %}
                             <input class="uk-textarea" inputmode="numeric" id="wait_time" name="wait_time" min="1" value="{{wait_time}}">
+                            {%endif%}
+                            <label class="uk-form-label" for="mav">Moving average</label>
+                            {% if mav is none %}
+                            <input class="uk-textarea" inputmode="numeric" id="mav" name="mav" min="1" placeholder="3">
+                            {% else %}
+                            <input class="uk-textarea" inputmode="numeric" id="mav" name="mav" min="1" value="{{mav}}">
                             {%endif%}
                             <label class="uk-form-label" for="flip">Flip <input class="uk-checkbox" type="checkbox" id="flip" name="flip" {% if flip | default(False) %}checked{% endif %}></label>
                         </div>

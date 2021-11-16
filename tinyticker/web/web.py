@@ -7,13 +7,10 @@ from flask import Flask, abort, redirect, render_template, request, send_from_di
 
 from .. import config as cfg
 from ..display import Display
-from ..settings import (
-    CONFIG_FILE,
-    RawTextArgumentDefaultsHelpFormatter,
-    generate_qrcode,
-    set_verbosity,
-)
+from ..settings import CONFIG_FILE, generate_qrcode, set_verbosity
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
+from ..utils import RawTextArgumentDefaultsHelpFormatter
+from ..waveshare_lib.models import MODELS
 from . import logger
 from .command import COMMANDS, restart
 
@@ -50,6 +47,7 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
             interval_lookbacks=INTERVAL_LOOKBACKS,
             interval_wait_times=INTERVAL_WAIT_TIMES,
             interval_options=INTERVAL_LOOKBACKS.keys(),
+            epd_model_options=MODELS.values(),
             **config,
         )
 
@@ -60,7 +58,7 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
         for key, value in request.args.items():
             if key in ["api_key"] and value == "":
                 value = None
-            elif key in ["lookback", "wait_time"]:
+            elif key in ["lookback", "wait_time", "mav"]:
                 if value == "":
                     value = None
                 else:
@@ -161,8 +159,18 @@ def main():
 
     if args.show_qrcode:
         logger.info("Generating qrcode.")
-        qrcode = generate_qrcode(args.port)
-        display = Display()
+        config = {**cfg.DEFAULT, **cfg.read(args.config)}
+        epd_model = MODELS[config["epd_model"]]
+        qrcode = generate_qrcode(
+            epd_model.width,
+            epd_model.height,
+
+            args.port,
+        )
+        display = Display(
+            model=config["epd_model"],
+            flip=config["flip"],
+        )
         logger.info("Displaying qrcode.")
         display.show_image(qrcode)
         del display

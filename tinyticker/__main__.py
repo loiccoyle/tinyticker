@@ -8,15 +8,12 @@ from pathlib import Path
 from typing import List
 
 from . import __version__, config, logger
-from .config import DEFAULT, TYPES, start_on_boot
+from .config import DEFAULT, TYPES
 from .display import Display
-from .settings import (
-    CONFIG_FILE,
-    PID_FILE,
-    RawTextArgumentDefaultsHelpFormatter,
-    set_verbosity,
-)
+from .settings import CONFIG_FILE, PID_FILE, set_verbosity, start_on_boot
 from .ticker import INTERVAL_LOOKBACKS, SYMBOL_TYPES, Ticker
+from .utils import RawTextArgumentDefaultsHelpFormatter
+from .waveshare_lib.models import MODELS
 
 
 def parse_args(args: List[str]) -> argparse.Namespace:
@@ -25,9 +22,16 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         description="""Raspberry Pi ticker using an ePaper display.
 
 Note:
-    Make sure SPI is enabled on your RPi.
+    Make sure SPI is enabled on your RPi and the BCM2835 driver is installed.
 """,
         formatter_class=RawTextArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "--epd-model",
+        help="ePaper display model.",
+        type=str,
+        default="EPD_v2",
+        choices=MODELS.keys(),
     )
     parser.add_argument(
         "--symbol-type",
@@ -86,8 +90,19 @@ Note:
         help="Flip the display.",
         action="store_true",
     )
-
-    parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
+    parser.add_argument(
+        "--moving-average",
+        help="Display a moving average.",
+        type=int,
+        dest="mav",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help="Verbosity.",
+        action="count",
+        default=0,
+    )
     parser.add_argument(
         "--config",
         help=f"Take values from config file.",
@@ -121,7 +136,7 @@ def main():
         # if the config file is not present, write the default values
         if not args["config"].is_file():
             config.write_default(args["config"])
-        # upadte the values if they are not None
+        # update the values if they are not None
         # allows for using other args to set values not set in the config file
         args.update(
             {k: v for k, v in config.read(args["config"]).items() if v is not None}
@@ -147,6 +162,7 @@ def main():
 
     display = Display(
         flip=args["flip"],
+        model=args["epd_model"],
     )
     ticker = Ticker(
         symbol_type=args["symbol_type"],
@@ -192,6 +208,7 @@ def main():
                     top_string=f"{args['symbol']}: $",
                     sub_string=f"{len(response['historical'])}x{args['interval']}",
                     type=args["type"],
+                    mav=args["mav"],
                     show=True,
                 )
         except Exception as exc:
