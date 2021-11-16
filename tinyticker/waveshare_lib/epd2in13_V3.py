@@ -207,7 +207,7 @@ class EPD:
         0x41,
         0x00,
         0x32,
-        0x36
+        0x36,
     ]
 
     lut_full_update = [

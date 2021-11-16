@@ -264,7 +264,7 @@ class EPD:
         for j in range(0, self.height):
             self.SetCursor(0, j)
             self.send_command(0x24)
-            for i in range(0, linewidth):
+            for _ in range(0, linewidth):
                 self.send_data(color)
         self.TurnOnDisplay()
 
