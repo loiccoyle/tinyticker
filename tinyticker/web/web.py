@@ -42,7 +42,7 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
         config = {**cfg.DEFAULT, **cfg.read(config_file)}
         commands = sorted(COMMANDS.keys())
         # remove the update command as we treat it separately
-        command.remove("update")
+        commands.remove("update")
         # TODO: performing this query on the server will reduce responsiveness
         try:
             update_available = check_for_update(timeout=1)
