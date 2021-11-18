@@ -67,4 +67,6 @@ def wifi_reset() -> None:
 def update() -> None:
     """Update tinyticker."""
     LOGGER.info("Updating tinyticker.")
-    try_command(f"sudo -i -u {USER} pipx upgrade tinyticker")
+    try_command(
+        f"sudo -i -u {USER} -- sh -c \"type pipx > /dev/null && pipx upgrade tinyticker || pip install --upgrade tinyticker\""
+    )
