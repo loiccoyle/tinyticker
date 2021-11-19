@@ -214,3 +214,7 @@ def main():
         except Exception as exc:
             logger.error(exc, stack_info=True)
             display.text("Wooops something broke :(", show=True, weight="bold")
+
+
+if __name__ == "__main__":
+    main()
