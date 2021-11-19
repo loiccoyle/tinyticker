@@ -24,6 +24,7 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         The parsed arguments.
     """
     parser = argparse.ArgumentParser(
+        prog="tinyticker-web",
         description="tinyticker web interface.",
         formatter_class=RawTextArgumentDefaultsHelpFormatter,
     )

@@ -19,6 +19,7 @@ from .waveshare_lib.models import MODELS
 def parse_args(args: List[str]) -> argparse.Namespace:
     """Parse the command line arguments."""
     parser = argparse.ArgumentParser(
+        prog="tinyticker",
         description="""Raspberry Pi ticker using an ePaper display.
 
 Note:
