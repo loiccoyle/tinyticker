@@ -26,15 +26,30 @@ SERVICE_FILE_DIR = Path("/etc/systemd/system/")
 TINYTICKER_SERVICE = f"""[Unit]
 Description=Raspberry Pi ticker on ePaper display.
 After=networking.service
+After=tinyticker-qrcode.service
 
 [Service]
 Type=simple
-ExecStartPre={HOME_DIR}/.local/bin/tinyticker-web --port 80 --show-qrcode --config {CONFIG_FILE}
 ExecStart={HOME_DIR}/.local/bin/tinyticker --config {CONFIG_FILE} -vv
 Restart=on-failure
 RestartSec=30s
 StandardOutput=file:/tmp/tinyticker1.log
 StandardError=file:/tmp/tinyticker2.log
+
+[Install]
+WantedBy=multi-user.target"""
+
+TINYTICKER_QR_SERVICE = f"""[Unit]
+Description=Raspberry Pi ticker on ePaper display, qrcode.
+After=networking.service
+
+[Service]
+Type=oneshot
+ExecStart={HOME_DIR}/.local/bin/tinyticker-web --port 80 --show-qrcode --config {CONFIG_FILE}
+Restart=on-failure
+RestartSec=30s
+StandardOutput=file:/tmp/tinyticker1-qrcode.log
+StandardError=file:/tmp/tinyticker2-qrcode.log
 
 [Install]
 WantedBy=multi-user.target"""
@@ -101,12 +116,15 @@ def start_on_boot(systemd_service_dir: Path = SERVICE_FILE_DIR) -> None:
 
     tinyticker_service_file = systemd_service_dir / "tinyticker.service"
     tinyticker_web_service_file = systemd_service_dir / "tinyticker-web.service"
+    tinyticker_qrcode_service_file = systemd_service_dir / "tinyticker-qrcode.service"
 
     write_unit(tinyticker_service_file, TINYTICKER_SERVICE)
     write_unit(tinyticker_web_service_file, TINYTICKER_WEB_SERVICE)
+    write_unit(tinyticker_qrcode_service_file, TINYTICKER_QR_SERVICE)
 
     enable_service(tinyticker_service_file.name)
     enable_service(tinyticker_web_service_file.name)
+    enable_service(tinyticker_qrcode_service_file.name)
 
 
 def set_verbosity(logger: logging.Logger, verbosity: int) -> logging.Logger:
