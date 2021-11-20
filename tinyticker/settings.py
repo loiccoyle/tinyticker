@@ -114,17 +114,20 @@ def start_on_boot(systemd_service_dir: Path = SERVICE_FILE_DIR) -> None:
             LOGGER.error("Enabling service %s failed.", unit_name)
             raise
 
-    tinyticker_service_file = systemd_service_dir / "tinyticker.service"
-    tinyticker_web_service_file = systemd_service_dir / "tinyticker-web.service"
-    tinyticker_qrcode_service_file = systemd_service_dir / "tinyticker-qrcode.service"
-
-    write_unit(tinyticker_service_file, TINYTICKER_SERVICE)
-    write_unit(tinyticker_web_service_file, TINYTICKER_WEB_SERVICE)
-    write_unit(tinyticker_qrcode_service_file, TINYTICKER_QR_SERVICE)
-
-    enable_service(tinyticker_service_file.name)
-    enable_service(tinyticker_web_service_file.name)
-    enable_service(tinyticker_qrcode_service_file.name)
+    for unit_file, contents in zip(
+        [
+            systemd_service_dir / "tinyticker.service",
+            systemd_service_dir / "tinyticker-web.service",
+            systemd_service_dir / "tinyticker-qrcode.service",
+        ],
+        [
+            TINYTICKER_SERVICE,
+            TINYTICKER_WEB_SERVICE,
+            TINYTICKER_QR_SERVICE,
+        ],
+    ):
+        write_unit(unit_file, contents)
+        enable_service(unit_file.name)
 
 
 def set_verbosity(logger: logging.Logger, verbosity: int) -> logging.Logger:
