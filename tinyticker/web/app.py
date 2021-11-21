@@ -8,7 +8,7 @@ from flask import Flask, abort, redirect, render_template, request, send_from_di
 
 from .. import __version__
 from .. import config as cfg
-from ..settings import CONFIG_FILE
+from ..settings import CONFIG_FILE, LOG_DIR
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from ..utils import check_for_update
 from ..waveshare_lib.models import MODELS
@@ -65,6 +65,10 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
             **config,
         )
 
+    @app.route("/logfiles")
+    def logs():
+        return render_template("logfiles.html", log_files=["tinyticker1.log", "tinyticker2.log"])
+
     @app.route("/config")
     def config():
         logger.debug("/config url args: %s", request.args)
@@ -84,7 +88,6 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
             config["flip"] = False
         logger.debug("config dict: %s", config)
         cfg.write(config, config_file)
-        # restart
         restart()
         return redirect("/", code=302)
 
@@ -95,13 +98,19 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
         if command:
             # call the registered command function
             COMMANDS.get(command, lambda: None)()
-
         return redirect("/", code=302)
 
     @app.route("/img/favicon.ico")
     def favicon():
         logger.info("Returning 404 for favicon request")
         abort(404)
+
+    @app.route("/log/<log_name>")
+    def send_log(log_name):
+        try:
+            return send_from_directory(LOG_DIR, log_name)
+        except FileNotFoundError:
+            abort(404)
 
     @app.route("/img/<path:path>")
     def send_image(path):
