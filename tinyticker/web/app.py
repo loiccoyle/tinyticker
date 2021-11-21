@@ -31,6 +31,10 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
         The flask application.
     """
     app = Flask(__name__, template_folder=TEMPLATE_PATH)
+    commands = sorted(COMMANDS.keys())
+    # remove the update command as we treat it separately
+    commands.remove("update")
+    log_files = sorted([path.name for path in LOG_DIR.glob("tinyticker*.log")])
 
     @app.after_request
     def add_header(response):
@@ -40,9 +44,6 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
     @app.route("/")
     def index():
         config = {**cfg.DEFAULT, **cfg.read(config_file)}
-        commands = sorted(COMMANDS.keys())
-        # remove the update command as we treat it separately
-        commands.remove("update")
         # TODO: performing this query on the server will reduce responsiveness
         try:
             update_available = check_for_update(timeout=1)
@@ -67,7 +68,6 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
 
     @app.route("/logfiles")
     def logs():
-        log_files = sorted([path.name for path in LOG_DIR.glob("tinyticker*.log")])
         return render_template("logfiles.html", log_files=log_files)
 
     @app.route("/config")
@@ -106,11 +106,13 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
         logger.info("Returning 404 for favicon request")
         abort(404)
 
-    @app.route("/log/<log_name>")
-    def send_log(log_name):
+    @app.route("/get-log/<log_file_name>")
+    def send_log(log_file_name):
+        if log_file_name not in log_files:
+            abort(404)
         try:
-            logger.info("Loading log file %s", LOG_DIR / log_name)
-            return send_from_directory(LOG_DIR, log_name)
+            logger.info("Loading log file %s", LOG_DIR / log_file_name)
+            return send_from_directory(LOG_DIR, log_file_name)
         except FileNotFoundError:
             abort(404)
 
