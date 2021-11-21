@@ -15,13 +15,16 @@
     <div class="uk-flex uk-flex-center uk-flex-middle">
       <div class="uk-width-large">
         <div class="uk-width-1-1 uk-text-center">
-          <p class="uk-text-large">🚀 TinyTicker Log files 🚀</p>
+          <p class="uk-text-large">🚀 TinyTicker Log Files 🚀</p>
         </div>
-        {% for log_file in log_files %}
-        <p>
-          <a href="/log/{{log_file}}">{{log_file}}</a>
-        </p>
-        {% endfor %}
+        <p class="uk-text-large">Log files:</p>
+        <ul class="uk-list uk-list-square">
+          {% for log_file in log_files %}
+          <li>
+            <a href="/log/{{log_file}}">{{log_file}}</a>
+          </li>
+          {% endfor %}
+        </ul>
       </div>
     </div>
   </body>
