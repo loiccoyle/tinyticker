@@ -19,6 +19,7 @@ CONFIG_DIR = HOME_DIR / ".config" / "tinyticker"
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
 TMP_DIR = Path("/tmp/tinyticker/")
+LOG_DIR = Path("/var/log")
 PID_FILE = TMP_DIR / "tinyticker_pid"
 
 
@@ -33,8 +34,8 @@ Type=simple
 ExecStart={HOME_DIR}/.local/bin/tinyticker --config {CONFIG_FILE} -vv
 Restart=on-failure
 RestartSec=30s
-StandardOutput=file:/var/log/tinyticker1.log
-StandardError=file:/var/log/tinyticker2.log
+StandardOutput=file:{LOG_DIR}/tinyticker1.log
+StandardError=file:{LOG_DIR}/tinyticker2.log
 
 [Install]
 WantedBy=multi-user.target"""
@@ -48,8 +49,8 @@ Type=oneshot
 ExecStart={HOME_DIR}/.local/bin/tinyticker-web --port 80 --show-qrcode --config {CONFIG_FILE}
 Restart=on-failure
 RestartSec=30s
-StandardOutput=file:/var/log/tinyticker1-qrcode.log
-StandardError=file:/var/log/tinyticker2-qrcode.log
+StandardOutput=file:{LOG_DIR}/tinyticker-qrcode1.log
+StandardError=file:{LOG_DIR}/tinyticker-qrcode2.log
 
 [Install]
 WantedBy=multi-user.target"""
@@ -66,8 +67,8 @@ Group={USER}
 ExecStart=sh -c '! type comitup-cli || /usr/bin/sudo comitup-cli i | grep -q "CONNECTED" && /usr/bin/sudo {HOME_DIR}/.local/bin/tinyticker-web --port 80 --config {CONFIG_FILE} -vv'
 Restart=on-failure
 RestartSec=5s
-StandardOutput=file:/var/log/tinyticker-web1.log
-StandardError=file:/var/log/tinyticker-web2.log
+StandardOutput=file:{LOG_DIR}/tinyticker-web1.log
+StandardError=file:{LOG_DIR}/tinyticker-web2.log
 
 [Install]
 WantedBy=multi-user.target"""
