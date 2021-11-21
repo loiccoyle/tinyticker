@@ -101,10 +101,10 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
             COMMANDS.get(command, lambda: None)()
         return redirect("/", code=302)
 
-    @app.route("/img/favicon.ico")
-    def favicon():
-        logger.info("Returning 404 for favicon request")
-        abort(404)
+    # @app.route("/img/favicon.ico")
+    # def favicon():
+    #     logger.info("Returning 404 for favicon request")
+    #     abort(404)
 
     @app.route("/get-log/<log_file_name>")
     def send_log(log_file_name):
