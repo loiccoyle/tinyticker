@@ -67,7 +67,8 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
 
     @app.route("/logfiles")
     def logs():
-        return render_template("logfiles.html", log_files=["tinyticker1.log", "tinyticker2.log"])
+        log_files = list(LOG_DIR.glob("tinyticker*.log"))
+        return render_template("logfiles.html", log_files=log_files)
 
     @app.route("/config")
     def config():
