@@ -108,6 +108,7 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
     @app.route("/log/<log_name>")
     def send_log(log_name):
         try:
+            logger.info("Loading log file %s", LOG_DIR / log_name)
             return send_from_directory(LOG_DIR, log_name)
         except FileNotFoundError:
             abort(404)
