@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TinyTicker - Log Files</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+    <!-- CSS FILES -->
+    <link rel="stylesheet" type="text/css" href="css/uikit.min.css" />
+    <!-- JS FILES -->
+    <script src="js/uikit.min.js"></script>
+    <script src="js/uikit-icons.min.js"></script>
+  </head>
+  <body class="uk-height-1-1 uk-margin uk-padding-small">
+    <div class="uk-flex uk-flex-center uk-flex-middle">
+      <div class="uk-width-large">
+        <div class="uk-width-1-1 uk-text-center">
+          <p class="uk-text-large">🚀 TinyTicker Log Files 🚀</p>
+        </div>
+        <p class="uk-text-large">Log files:</p>
+        <ul class="uk-list uk-list-square">
+          {% for log_file in log_files %}
+          <li>
+            <a href="/get-log/{{log_file}}">{{log_file}}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>

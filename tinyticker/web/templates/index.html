@@ -1,124 +1,126 @@
 <!DOCTYPE html>
 <html lang="en" class="uk-height-1-1">
-<head>
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TinyTicker</title>
-    <link rel="icon" href="img/favicon.ico">
+    <title>TinyTicker - Dashboard</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
     <!-- CSS FILES -->
     <link rel="stylesheet" type="text/css" href="css/uikit.min.css">
     <!-- JS FILES -->
     <script src="js/uikit.min.js"></script>
     <script src="js/uikit-icons.min.js"></script>
-</head>
-<body class="uk-height-1-1 uk-margin uk-padding-small">
+  </head>
+  <body class="uk-height-1-1 uk-margin uk-padding-small">
     <div class="uk-flex uk-flex-center uk-flex-middle">
-        <div class="uk-width-large">
-            <div class="uk-width-1-1 uk-text-center">
-                <p class="uk-text-large">🚀 TinyTicker Dashboard 🚀</p>
-            </div>
-            {% if update_available %}
-            <div class="uk-alert uk-padding-small uk-margin-small">
-                <div class="uk-width-1-1 uk-text-center">
-                    <p class="uk-text-large">🥳 Update available 🥳</p>
-                </div>
-                <form class="uk-form-stacked" action="/command">
-                    <button type="submit" name="command" value="update" class="uk-button uk-button-primary uk-width-expand uk-margin-small-bottom">Update</button>
-                </form>
-            </div>
-            {% endif %}
-            <div class="uk-width-large">
-                <p class="uk-text-large">Config</p>
-                <p class="uk-text-small">Location: <code>{{config_file | default("~/.config/tinyticker/config.json")}}</code></p>
-                <form class="uk-form-stacked" action="/config">
-                    <div class="uk-grid uk-grid-small">
-                        <div class="uk-width-1-1">
-                            <label class="uk-form-label" for="epd_model">ePaper display model</label>
-                            <select class="uk-select" id="epd_model" name="epd_model">
-                                {% for epd_model_option in epd_model_options %}
-                                {% if epd_model_option.name == epd_model %}
-                                <option value="{{epd_model_option.name}}" selected>{{epd_model_option.desc}}</option>
-                                {% else %}
-                                <option value="{{epd_model_option.name}}">{{epd_model_option.desc}}</option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-                            <label class="uk-form-label" for="symbol_type">Symbol type</label>
-                            <select class="uk-select" id="symbol_type" name="symbol_type">
-                                {% for symbol_type_option in symbol_type_options %}
-                                {% if symbol_type_option == symbol_type %}
-                                <option value="{{symbol_type_option}}" selected>{{symbol_type_option}}</option>
-                                {% else %}
-                                <option value="{{symbol_type_option}}">{{symbol_type_option}}</option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-                            <label class="uk-form-label" for="api_key"><a href="https://min-api.cryptocompare.com/pricing">CryptoCompare</a> API key</label>
-                            <input class="uk-textarea" type="text" id="api_key" name="api_key" {% if api_key %} value="{{api_key}}" {% endif %}>
-                            <label class="uk-form-label" for="symbol">Symbol</label>
-                            <input class="uk-textarea" type="text" id="symbol" name="symbol" value="{{symbol}}">
-                            <label class="uk-form-label" for="interval">Interval</label>
-                            <select class="uk-select" id="interval" name="interval">
-                                {% for interval_option in interval_options %}
-                                {% if interval_option == interval %}
-                                <option value="{{interval_option}}" selected>{{interval_option}}</option>
-                                {% else %}
-                                <option value="{{interval_option}}">{{interval_option}}</option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-                            <label class="uk-form-label" for="type">Plot type</label>
-                            <select class="uk-select" id="type" name="type">
-                                {% for type_option in type_options %}
-                                {% if type_option == type%}
-                                <option value="{{type_option}}" selected>{{type_option}}</option>
-                                {% else %}
-                                <option value="{{type_option}}">{{type_option}}</option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-                            <label class="uk-form-label" for="lookback">Lookback</label>
-                            {% if lookback is none %}
-                            {# If the look back is None then it hasn't been set so use the default lookback for the interval #}
-                            <input class="uk-textarea" inputmode="numeric" id="lookback" name="lookback" min="1" placeholder="{{interval_lookbacks[interval]}}">
-                            {% else %}
-                            <input class="uk-textarea" inputmode="numeric" id="lookback" name="lookback" min="1" value="{{lookback}}">
-                            {%endif%}
-                            <label class="uk-form-label" for="wait_time">Wait time</label>
-                            {% if wait_time is none %}
-                            {# If the wait_time is None then it hasn't been set so use the default wait_time for the interval #}
-                            <input class="uk-textarea" inputmode="numeric" id="wait_time" name="wait_time" min="1" placeholder="{{interval_wait_times[interval]}}">
-                            {% else %}
-                            <input class="uk-textarea" inputmode="numeric" id="wait_time" name="wait_time" min="1" value="{{wait_time}}">
-                            {%endif%}
-                            <label class="uk-form-label" for="mav">Moving average</label>
-                            {% if mav is none %}
-                            <input class="uk-textarea" inputmode="numeric" id="mav" name="mav" min="1" placeholder="3">
-                            {% else %}
-                            <input class="uk-textarea" inputmode="numeric" id="mav" name="mav" min="1" value="{{mav}}">
-                            {%endif%}
-                            <label class="uk-form-label" for="flip">Flip <input class="uk-checkbox" type="checkbox" id="flip" name="flip" {% if flip | default(False) %}checked{% endif %}></label>
-                        </div>
-                        <div class="uk-width-1-1 uk-margin">
-                            <button type="submit" value="submit" class="uk-button uk-button-primary uk-width-expand">Apply</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="uk-width-large uk-margin">
-                <div class="uk-width-1-1">
-                    <p class="uk-text-large">Command</p>
-                    <form class="uk-form-stacked" action="/command">
-                        {% for command in commands %}
-                        <button type="submit" name="command" value="{{command}}" class="uk-button uk-button-primary uk-width-expand uk-margin-small-bottom">{{command.title()}}</button>
-                        {% endfor %}
-                    </form>
-                </div>
-            </div>
+      <div class="uk-width-large">
+        <div class="uk-width-1-1 uk-text-center">
+          <p class="uk-text-large">🚀 TinyTicker Dashboard 🚀</p>
         </div>
+        {% if update_available %}
+        <div class="uk-alert uk-padding-small uk-margin-small">
+          <div class="uk-width-1-1 uk-text-center">
+            <p class="uk-text-large">🥳 Update available 🥳</p>
+          </div>
+          <form class="uk-form-stacked" action="/command">
+            <button type="submit" name="command" value="update" class="uk-button uk-button-primary uk-width-expand uk-margin-small-bottom">Update</button>
+          </form>
+        </div>
+        {% endif %}
+        <div class="uk-width-large">
+          <p class="uk-text-large">Config</p>
+          <p class="uk-text-small">Location: <code>{{config_file | default("~/.config/tinyticker/config.json")}}</code></p>
+          <form class="uk-form-stacked" action="/config">
+            <div class="uk-grid uk-grid-small">
+              <div class="uk-width-1-1">
+                <label class="uk-form-label" for="epd_model">ePaper display model</label>
+                <select class="uk-select" id="epd_model" name="epd_model">
+                  {% for epd_model_option in epd_model_options %}
+                  {% if epd_model_option.name == epd_model %}
+                  <option value="{{epd_model_option.name}}" selected>{{epd_model_option.desc}}</option>
+                  {% else %}
+                  <option value="{{epd_model_option.name}}">{{epd_model_option.desc}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+                <label class="uk-form-label" for="symbol_type">Symbol type</label>
+                <select class="uk-select" id="symbol_type" name="symbol_type">
+                  {% for symbol_type_option in symbol_type_options %}
+                  {% if symbol_type_option == symbol_type %}
+                  <option value="{{symbol_type_option}}" selected>{{symbol_type_option}}</option>
+                  {% else %}
+                  <option value="{{symbol_type_option}}">{{symbol_type_option}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+                <label class="uk-form-label" for="api_key"><a href="https://min-api.cryptocompare.com/pricing">CryptoCompare</a> API key</label>
+                <input class="uk-textarea" type="text" id="api_key" name="api_key" {% if api_key %} value="{{api_key}}" {% endif %}>
+                <label class="uk-form-label" for="symbol">Symbol</label>
+                <input class="uk-textarea" type="text" id="symbol" name="symbol" value="{{symbol}}">
+                <label class="uk-form-label" for="interval">Interval</label>
+                <select class="uk-select" id="interval" name="interval">
+                  {% for interval_option in interval_options %}
+                  {% if interval_option == interval %}
+                  <option value="{{interval_option}}" selected>{{interval_option}}</option>
+                  {% else %}
+                  <option value="{{interval_option}}">{{interval_option}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+                <label class="uk-form-label" for="type">Plot type</label>
+                <select class="uk-select" id="type" name="type">
+                  {% for type_option in type_options %}
+                  {% if type_option == type%}
+                  <option value="{{type_option}}" selected>{{type_option}}</option>
+                  {% else %}
+                  <option value="{{type_option}}">{{type_option}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+                <label class="uk-form-label" for="lookback">Lookback</label>
+                {% if lookback is none %}
+                {# If the look back is None then it hasn't been set so use the default lookback for the interval #}
+                <input class="uk-textarea" inputmode="numeric" id="lookback" name="lookback" min="1" placeholder="{{interval_lookbacks[interval]}}">
+                {% else %}
+                <input class="uk-textarea" inputmode="numeric" id="lookback" name="lookback" min="1" value="{{lookback}}">
+                {%endif%}
+                <label class="uk-form-label" for="wait_time">Wait time</label>
+                {% if wait_time is none %}
+                {# If the wait_time is None then it hasn't been set so use the default wait_time for the interval #}
+                <input class="uk-textarea" inputmode="numeric" id="wait_time" name="wait_time" min="1" placeholder="{{interval_wait_times[interval]}}">
+                {% else %}
+                <input class="uk-textarea" inputmode="numeric" id="wait_time" name="wait_time" min="1" value="{{wait_time}}">
+                {%endif%}
+                <label class="uk-form-label" for="mav">Moving average</label>
+                {% if mav is none %}
+                <input class="uk-textarea" inputmode="numeric" id="mav" name="mav" min="1" placeholder="3">
+                {% else %}
+                <input class="uk-textarea" inputmode="numeric" id="mav" name="mav" min="1" value="{{mav}}">
+                {%endif%}
+                <label class="uk-form-label" for="flip">Flip <input class="uk-checkbox" type="checkbox" id="flip" name="flip" {% if flip | default(False) %}checked{% endif %}></label>
+              </div>
+              <div class="uk-width-1-1 uk-margin">
+                <button type="submit" value="submit" class="uk-button uk-button-primary uk-width-expand">Apply</button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="uk-width-large uk-margin">
+          <div class="uk-width-1-1">
+            <p class="uk-text-large">Command</p>
+            <form class="uk-form-stacked" action="/command">
+              {% for command in commands %}
+              <button type="submit" name="command" value="{{command}}" class="uk-button uk-button-primary uk-width-expand uk-margin-small-bottom">{{command.title()}}</button>
+              {% endfor %}
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="uk-text-center uk-position-small">
-        <span class="uk-text-small uk-text-muted">TinyTicker v{{version}} Dashboard - <span uk-icon="github"></span><a href="https://github.com/loiccoyle/tinyticker" title="tinyticker" target="_blank" data-uk-tooltip>TinyTicker</a></span>
+      <span class="uk-text-small uk-text-muted">TinyTicker v{{version}} - <span uk-icon="github"></span><a href="https://github.com/loiccoyle/tinyticker" title="tinyticker" target="_blank" data-uk-tooltip>TinyTicker</a> - <span uk-icon="file-text"></span><a href="/logfiles" title="log files" target="_blank" data-uk-tooltip>Log files</a></span>
     </div>
-</body>
+  </body>
 </html>

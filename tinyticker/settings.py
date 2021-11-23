@@ -19,6 +19,7 @@ CONFIG_DIR = HOME_DIR / ".config" / "tinyticker"
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
 TMP_DIR = Path("/tmp/tinyticker/")
+LOG_DIR = Path("/var/log")
 PID_FILE = TMP_DIR / "tinyticker_pid"
 
 
@@ -26,15 +27,30 @@ SERVICE_FILE_DIR = Path("/etc/systemd/system/")
 TINYTICKER_SERVICE = f"""[Unit]
 Description=Raspberry Pi ticker on ePaper display.
 After=networking.service
+After=tinyticker-qrcode.service
 
 [Service]
 Type=simple
-ExecStartPre={HOME_DIR}/.local/bin/tinyticker-web --port 80 --show-qrcode --config {CONFIG_FILE}
 ExecStart={HOME_DIR}/.local/bin/tinyticker --config {CONFIG_FILE} -vv
 Restart=on-failure
 RestartSec=30s
-StandardOutput=file:/tmp/tinyticker1.log
-StandardError=file:/tmp/tinyticker2.log
+StandardOutput=file:{LOG_DIR}/tinyticker1.log
+StandardError=file:{LOG_DIR}/tinyticker2.log
+
+[Install]
+WantedBy=multi-user.target"""
+
+TINYTICKER_QR_SERVICE = f"""[Unit]
+Description=Raspberry Pi ticker on ePaper display, qrcode.
+After=networking.service
+
+[Service]
+Type=oneshot
+ExecStart={HOME_DIR}/.local/bin/tinyticker-web --port 80 --show-qrcode --config {CONFIG_FILE}
+Restart=on-failure
+RestartSec=30s
+StandardOutput=file:{LOG_DIR}/tinyticker-qrcode1.log
+StandardError=file:{LOG_DIR}/tinyticker-qrcode2.log
 
 [Install]
 WantedBy=multi-user.target"""
@@ -51,8 +67,8 @@ Group={USER}
 ExecStart=sh -c '! type comitup-cli || /usr/bin/sudo comitup-cli i | grep -q "CONNECTED" && /usr/bin/sudo {HOME_DIR}/.local/bin/tinyticker-web --port 80 --config {CONFIG_FILE} -vv'
 Restart=on-failure
 RestartSec=5s
-StandardOutput=file:/tmp/tinyticker-web1.log
-StandardError=file:/tmp/tinyticker-web2.log
+StandardOutput=file:{LOG_DIR}/tinyticker-web1.log
+StandardError=file:{LOG_DIR}/tinyticker-web2.log
 
 [Install]
 WantedBy=multi-user.target"""
@@ -99,14 +115,20 @@ def start_on_boot(systemd_service_dir: Path = SERVICE_FILE_DIR) -> None:
             LOGGER.error("Enabling service %s failed.", unit_name)
             raise
 
-    tinyticker_service_file = systemd_service_dir / "tinyticker.service"
-    tinyticker_web_service_file = systemd_service_dir / "tinyticker-web.service"
-
-    write_unit(tinyticker_service_file, TINYTICKER_SERVICE)
-    write_unit(tinyticker_web_service_file, TINYTICKER_WEB_SERVICE)
-
-    enable_service(tinyticker_service_file.name)
-    enable_service(tinyticker_web_service_file.name)
+    for unit_file, contents in zip(
+        [
+            systemd_service_dir / "tinyticker.service",
+            systemd_service_dir / "tinyticker-web.service",
+            systemd_service_dir / "tinyticker-qrcode.service",
+        ],
+        [
+            TINYTICKER_SERVICE,
+            TINYTICKER_WEB_SERVICE,
+            TINYTICKER_QR_SERVICE,
+        ],
+    ):
+        write_unit(unit_file, contents)
+        enable_service(unit_file.name)
 
 
 def set_verbosity(logger: logging.Logger, verbosity: int) -> logging.Logger:

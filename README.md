@@ -20,7 +20,7 @@ Shopping list:
 - One of these ePaper displays:
   - [Waveshare ePaper 2.13in Black & White](https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT)
   - [Waveshare ePaper 2.13in Black, White & Red](<https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT_(B)>)
-  - [Waveshare ePaper 2.13in Black, White & Yellow](<https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT_(C)>) (untested)
+  - [Waveshare ePaper 2.13in Black, White & Yellow](<https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT_(C)>)
 - A micro sd card
 
 ## Recommended setup
@@ -37,7 +37,7 @@ I highly recommend using [comitup](https://github.com/davesteele/comitup) to set
 - Install dependency requirements: `sudo apt install libatlas-base-dev libopenjp2-7 libtiff5 libxml2-dev libxslt1-dev`
 - Install `tinyticker`: `pipx install tinyticker`
 - Setup `tinyticker` to start on boot: `tinyticker --start-on-boot -vv`
-  - This will write and enable two `systemd` unit files `tinyticker.service` and `tinyticker-web.service`
+  - This will write and enable 3 `systemd` unit files `tinyticker.service`, `tinyticker-qrcode.service` and `tinyticker-web.service`.
   - On boot, a qrcode for the `flask` app will be flashed on the display
 - Leave a star, reboot and HODL !
 
