@@ -34,7 +34,7 @@ MODELS = [
     EPDModel(
         name="EPD_v3",
         class_=epd2in13_V3.EPD,
-        desc="Black, White 2.13 inch V3",
+        desc="Black and White 2.13 inch V3",
         has_highlight=False,
         width=epd2in13_V3.EPD_WIDTH,
         height=epd2in13_V3.EPD_HEIGHT,
