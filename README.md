@@ -34,9 +34,13 @@ I highly recommend using [comitup](https://github.com/davesteele/comitup) to set
 - (Optional) rename the hostname of your RPi by editing the `/etc/hostname` and `/etc/hosts` file
 - (Optional) rename the Wifi AP name by editing the `/etc/comitup.conf` file
 - Install the `BCM2835` driver:
-  - `curl http://www.airspayce.com/mikem/bcm2835/bcm2835-1.60.tar.gz | tar xzv`
-  - `cd bcm2835-1.60/`
-  - `./configure && make && make install`
+  ```sh
+  curl http://www.airspayce.com/mikem/bcm2835/bcm2835-1.60.tar.gz | tar xzv
+  cd bcm2835-1.60/
+  ./configure
+  make
+  make install
+  ```
 - Install `pipx` depdencies: `sudo apt install python3-pip python3-venv`
 - Install `pipx`: `python3 -m pip install --user pipx`
 - Install dependency requirements: `sudo apt install libatlas-base-dev libopenjp2-7 libtiff5 libxml2-dev libxslt1-dev`
