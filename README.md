@@ -41,11 +41,26 @@ I highly recommend using [comitup](https://github.com/davesteele/comitup) to set
   make
   make install
   ```
-- Install `pipx` depdencies: `sudo apt install python3-pip python3-venv`
-- Install `pipx`: `python3 -m pip install --user pipx`
-- Install dependency requirements: `sudo apt install libatlas-base-dev libopenjp2-7 libtiff5 libxml2-dev libxslt1-dev`
-- Install `tinyticker`: `FCLAGS=-fcommon pipx install tinyticker` (the `CFLAGS` variable is required for `RPi.GPIO` to install).
-- Setup `tinyticker` to start on boot: `tinyticker --start-on-boot -vv`
+- Install `pipx` depdencies:
+  ```sh
+  sudo apt install python3-pip python3-venv
+  ```
+- Install `pipx`:
+  ```sh
+  python3 -m pip install --user pipx
+  ```
+- Install dependency requirements:
+  ```sh
+  sudo apt install libatlas-base-dev libopenjp2-7 libtiff5 libxml2-dev libxslt1-dev
+  ```
+- Install `tinyticker` (the `CFLAGS` variable is required for `RPi.GPIO` to install):
+  ```sh
+  FCLAGS=-fcommon pipx install tinyticker
+  ```
+- Setup `tinyticker` to start on boot:
+  ```sh
+  tinyticker --start-on-boot -vv
+  ```
   - This will write and enable 3 `systemd` unit files `tinyticker.service`, `tinyticker-qrcode.service` and `tinyticker-web.service`.
   - On boot, a qrcode linking to the `flask` app will be flashed on the display
 - Leave a star, reboot and HODL !
