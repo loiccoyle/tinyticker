@@ -48,14 +48,28 @@ class Display:
             fig.canvas.tostring_rgb(),
         )
 
-    def _create_fig_ax(self, n_axes: int = 1) -> Tuple[plt.Figure, np.ndarray]:
-        """Create the matplotlib figure and axes used to plot the chart."""
+    def _create_fig_ax(
+        self, n_axes: int = 1, **kwargs
+    ) -> Tuple[plt.Figure, np.ndarray]:
+        """Create the matplotlib figure and axes used to plot the chart.
+
+        Args:
+            n_axes: the number of subplot axes to create.
+            **kwargs: passed to `plt.subplots`.
+
+        Returns:
+            The `plt.Figure` and an array of `plt.Axes`.
+        """
         dpi = plt.rcParams.get("figure.dpi", 96)
         px = 1 / dpi
         self._log.debug("Plot width: %s", self.epd.width)
         self._log.debug("Plot height: %s", self.epd.height)
         fig, axes = plt.subplots(
-            n_axes, 1, figsize=(self.epd.height * px, self.epd.width * px), sharex=True
+            n_axes,
+            1,
+            figsize=(self.epd.height * px, self.epd.width * px),
+            sharex=True,
+            **kwargs,
         )
         if not isinstance(axes, np.ndarray):
             axes = np.array(axes)
@@ -162,15 +176,13 @@ class Display:
             The `plt.Figure` and `plt.Axes` of the plot.
         """
         if volume:
-            n_axes = 2
-        else:
-            n_axes = 1
-        fig, axes = self._create_fig_ax(n_axes=n_axes)
-        ax = axes[0]
-        if volume:
+            fig, axes = self._create_fig_ax(
+                n_axes=2, gridspec_kw={"height_ratios": [3, 1]}
+            )
             volume_ax = axes[1]
         else:
-            volume_ax = None
+            fig, axes = self._create_fig_ax(n_axes=1)
+        ax = axes[0]
 
         marketcolors = mpf.make_marketcolors(
             up="white",
