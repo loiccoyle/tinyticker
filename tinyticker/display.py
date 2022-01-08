@@ -173,7 +173,12 @@ class Display:
             volume_ax = None
 
         marketcolors = mpf.make_marketcolors(
-            up="white", down="k", edge="k", wick="k", ohlc="k"
+            up="white",
+            down="k",
+            edge="k",
+            wick="k",
+            ohlc="k",
+            volume="inherit",
         )
         if self.model.has_highlight:
             mavcolors = ["r"]
@@ -185,7 +190,7 @@ class Display:
         mpf.plot(
             historical,
             type=type,
-            ax=axes,
+            ax=ax,
             update_width_config={"line_width": 1},
             style=s,
             volume=volume_ax,
