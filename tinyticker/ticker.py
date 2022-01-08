@@ -118,6 +118,7 @@ def get_cryptocompare(
                 "High": "max",
                 "Low": "min",
                 "Close": "last",
+                "Volume": "sum",
             }
         )
         historical.index = historical_index[::scale_factor]

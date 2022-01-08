@@ -48,23 +48,27 @@ class Display:
             fig.canvas.tostring_rgb(),
         )
 
-    def _create_fig_ax(self) -> Tuple[plt.Figure, plt.Axes]:
+    def _create_fig_ax(self, n_axes: int = 1) -> Tuple[plt.Figure, np.ndarray]:
         """Create the matplotlib figure and axes used to plot the chart."""
         dpi = plt.rcParams.get("figure.dpi", 96)
         px = 1 / dpi
         self._log.debug("Plot width: %s", self.epd.width)
         self._log.debug("Plot height: %s", self.epd.height)
-        fig, ax = plt.subplots(figsize=(self.epd.height * px, self.epd.width * px))
+        fig, axes = plt.subplots(
+            n_axes, 1, figsize=(self.epd.height * px, self.epd.width * px)
+        )
+        if not isinstance(axes, np.ndarray):
+            axes = np.array(axes)
         fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
         fig.set_dpi(dpi)
-        ax = self._strip_ax(ax)
-        return fig, ax
+        for ax in axes:
+            self._strip_ax(ax)
+        return fig, axes
 
-    def _strip_ax(self, ax: plt.Axes) -> plt.Axes:
+    def _strip_ax(self, ax: plt.Axes) -> None:
         """Strip all visuals from `plt.Axes` object."""
         ax.axis("off")
         ax.margins(0, 0)
-        return ax
 
     def text(
         self, text: str, show: bool = False, **kwargs
@@ -79,7 +83,8 @@ class Display:
         Returns:
             The `plt.Figure` and `plt.Axes` with the text.
         """
-        fig, ax = self._create_fig_ax()
+        fig, ax = self._create_fig_ax(n_axes=1)
+        ax = ax[0]
         ax.text(0, 0, text, ha="center", va="center", wrap=True, **kwargs)
         if show:
             self.show_fig(fig)
@@ -156,10 +161,14 @@ class Display:
         Returns:
             The `plt.Figure` and `plt.Axes` of the plot.
         """
-        fig, ax = self._create_fig_ax()
         if volume:
-            volume_ax = fig.add_subplot(2, 1, 2)
-            volume_ax = self._strip_ax(volume_ax)
+            n_axes = 2
+        else:
+            n_axes = 1
+        fig, axes = self._create_fig_ax(n_axes=n_axes)
+        ax = axes[0]
+        if volume:
+            volume_ax = axes[1]
         else:
             volume_ax = None
 
@@ -176,7 +185,7 @@ class Display:
         mpf.plot(
             historical,
             type=type,
-            ax=ax,
+            ax=axes,
             update_width_config={"line_width": 1},
             style=s,
             volume=volume_ax,
