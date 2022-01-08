@@ -211,6 +211,7 @@ def main():
                     type=args["type"],
                     mav=args["mav"],
                     show=True,
+                    volume=True,
                 )
         except Exception as exc:
             logger.error(exc, stack_info=True)
