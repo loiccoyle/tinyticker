@@ -55,7 +55,7 @@ class Display:
         self._log.debug("Plot width: %s", self.epd.width)
         self._log.debug("Plot height: %s", self.epd.height)
         fig, axes = plt.subplots(
-            n_axes, 1, figsize=(self.epd.height * px, self.epd.width * px)
+            n_axes, 1, figsize=(self.epd.height * px, self.epd.width * px), sharex=True
         )
         if not isinstance(axes, np.ndarray):
             axes = np.array(axes)
@@ -174,11 +174,11 @@ class Display:
 
         marketcolors = mpf.make_marketcolors(
             up="white",
-            down="k",
-            edge="k",
-            wick="k",
-            ohlc="k",
-            volume="inherit",
+            down="black",
+            edge="black",
+            wick="black",
+            ohlc="black",
+            volume="black",
         )
         if self.model.has_highlight:
             mavcolors = ["r"]
