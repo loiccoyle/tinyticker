@@ -72,7 +72,7 @@ class Display:
             **kwargs,
         )
         if not isinstance(axes, np.ndarray):
-            axes = np.array(axes)
+            axes = np.array([axes])
         fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
         fig.set_dpi(dpi)
         for ax in axes:
