@@ -17,6 +17,7 @@ DEFAULT = {
     "lookback": None,
     "wait_time": None,
     "flip": False,
+    "volume": False,
     "type": "candlestick",
     "mav": None,
 }
