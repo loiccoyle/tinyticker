@@ -57,9 +57,14 @@ class Display:
         fig, ax = plt.subplots(figsize=(self.epd.height * px, self.epd.width * px))
         fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
         fig.set_dpi(dpi)
+        ax = self._strip_ax(ax)
+        return fig, ax
+
+    def _strip_ax(self, ax: plt.Axes) -> plt.Axes:
+        """Strip all visuals from `plt.Axes` object."""
         ax.axis("off")
         ax.margins(0, 0)
-        return fig, ax
+        return ax
 
     def text(
         self, text: str, show: bool = False, **kwargs
@@ -131,6 +136,7 @@ class Display:
         sub_string: Optional[str] = None,
         show: bool = False,
         type: str = "candle",
+        volume: bool = False,
         **kwargs,
     ) -> Tuple[plt.Figure, plt.Axes]:
         """Plot symbol chart.
@@ -144,12 +150,19 @@ class Display:
             sub_string: Contents of a smaller text box bollow top_string.
             show: display the plot on the ePaper display.
             type: the chart type, see `mpfinance.plot`.
+            volume: also plot the volume bar plot information.
             **kwargs: passed to `mpfinance.plot`.
 
         Returns:
             The `plt.Figure` and `plt.Axes` of the plot.
         """
         fig, ax = self._create_fig_ax()
+        if volume:
+            volume_ax = fig.add_subplot(2, 1, 2)
+            volume_ax = self._strip_ax(volume_ax)
+        else:
+            volume_ax = None
+
         marketcolors = mpf.make_marketcolors(
             up="white", down="k", edge="k", wick="k", ohlc="k"
         )
@@ -166,6 +179,7 @@ class Display:
             ax=ax,
             update_width_config={"line_width": 1},
             style=s,
+            volume=volume_ax,
             **kwargs,
         )
         # Fall back to using the last closing price
