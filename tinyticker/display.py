@@ -182,7 +182,7 @@ class Display:
             volume_ax = axes[1]
         else:
             fig, axes = self._create_fig_ax(n_axes=1)
-            volume_ax = None
+            volume_ax = False
         ax = axes[0]
 
         marketcolors = mpf.make_marketcolors(
