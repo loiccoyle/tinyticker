@@ -94,13 +94,18 @@ def get_cryptocompare(
     LOGGER.debug("crypto historical data columns: %s", historical.columns)
     historical.set_index("time", inplace=True)
     historical.index = pd.to_datetime(historical.index, unit="s")  # type: ignore
-    # drop volume info, not used
     historical.drop(
-        columns=["volumeto", "volumefrom", "conversionType", "conversionSymbol"],
+        columns=["volumeto", "conversionType", "conversionSymbol"],
         inplace=True,
     )
     historical.rename(
-        columns={"high": "High", "close": "Close", "low": "Low", "open": "Open"},
+        columns={
+            "high": "High",
+            "close": "Close",
+            "low": "Low",
+            "open": "Open",
+            "volumefrom": "Volume",
+        },
         inplace=True,
     )
     if crypto_interval_dt != interval_dt:
@@ -113,6 +118,7 @@ def get_cryptocompare(
                 "High": "max",
                 "Low": "min",
                 "Close": "last",
+                "Volume": "sum",
             }
         )
         historical.index = historical_index[::scale_factor]

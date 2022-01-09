@@ -86,6 +86,11 @@ Note:
         choices=TYPES,
     )
     parser.add_argument(
+        "--volume",
+        help="Plot the volume bar plot.",
+        action="store_true",
+    )
+    parser.add_argument(
         "-f",
         "--flip",
         help="Flip the display.",
@@ -211,6 +216,7 @@ def main():
                     type=args["type"],
                     mav=args["mav"],
                     show=True,
+                    volume=args["volume"],
                 )
         except Exception as exc:
             logger.error(exc, stack_info=True)

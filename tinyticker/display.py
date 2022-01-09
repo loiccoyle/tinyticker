@@ -48,18 +48,41 @@ class Display:
             fig.canvas.tostring_rgb(),
         )
 
-    def _create_fig_ax(self) -> Tuple[plt.Figure, plt.Axes]:
-        """Create the matplotlib figure and axes used to plot the chart."""
+    def _create_fig_ax(
+        self, n_axes: int = 1, **kwargs
+    ) -> Tuple[plt.Figure, np.ndarray]:
+        """Create the matplotlib figure and axes used to plot the chart.
+
+        Args:
+            n_axes: the number of subplot axes to create.
+            **kwargs: passed to `plt.subplots`.
+
+        Returns:
+            The `plt.Figure` and an array of `plt.Axes`.
+        """
         dpi = plt.rcParams.get("figure.dpi", 96)
         px = 1 / dpi
         self._log.debug("Plot width: %s", self.epd.width)
         self._log.debug("Plot height: %s", self.epd.height)
-        fig, ax = plt.subplots(figsize=(self.epd.height * px, self.epd.width * px))
+        fig, axes = plt.subplots(
+            n_axes,
+            1,
+            figsize=(self.epd.height * px, self.epd.width * px),
+            sharex=True,
+            **kwargs,
+        )
+        if not isinstance(axes, np.ndarray):
+            axes = np.array([axes])
         fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
         fig.set_dpi(dpi)
+        for ax in axes:
+            self._strip_ax(ax)
+        return fig, axes
+
+    def _strip_ax(self, ax: plt.Axes) -> None:
+        """Strip all visuals from `plt.Axes` object."""
         ax.axis("off")
         ax.margins(0, 0)
-        return fig, ax
 
     def text(
         self, text: str, show: bool = False, **kwargs
@@ -74,7 +97,8 @@ class Display:
         Returns:
             The `plt.Figure` and `plt.Axes` with the text.
         """
-        fig, ax = self._create_fig_ax()
+        fig, ax = self._create_fig_ax(n_axes=1)
+        ax = ax[0]
         ax.text(0, 0, text, ha="center", va="center", wrap=True, **kwargs)
         if show:
             self.show_fig(fig)
@@ -131,6 +155,7 @@ class Display:
         sub_string: Optional[str] = None,
         show: bool = False,
         type: str = "candle",
+        volume: bool = False,
         **kwargs,
     ) -> Tuple[plt.Figure, plt.Axes]:
         """Plot symbol chart.
@@ -144,14 +169,29 @@ class Display:
             sub_string: Contents of a smaller text box bollow top_string.
             show: display the plot on the ePaper display.
             type: the chart type, see `mpfinance.plot`.
+            volume: also plot the volume bar plot information.
             **kwargs: passed to `mpfinance.plot`.
 
         Returns:
             The `plt.Figure` and `plt.Axes` of the plot.
         """
-        fig, ax = self._create_fig_ax()
+        if volume:
+            fig, axes = self._create_fig_ax(
+                n_axes=2, gridspec_kw={"height_ratios": [3, 1]}
+            )
+            volume_ax = axes[1]
+        else:
+            fig, axes = self._create_fig_ax(n_axes=1)
+            volume_ax = False
+        ax = axes[0]
+
         marketcolors = mpf.make_marketcolors(
-            up="white", down="k", edge="k", wick="k", ohlc="k"
+            up="white",
+            down="black",
+            edge="black",
+            wick="black",
+            ohlc="black",
+            volume="black",
         )
         if self.model.has_highlight:
             mavcolors = ["r"]
@@ -166,6 +206,7 @@ class Display:
             ax=ax,
             update_width_config={"line_width": 1},
             style=s,
+            volume=volume_ax,
             **kwargs,
         )
         # Fall back to using the last closing price
