@@ -1,11 +1,12 @@
 import argparse
 import atexit
+import multiprocessing
 import os
 import signal
 import subprocess
 import sys
 from pathlib import Path
-from typing import List
+from typing import Any, Dict, List
 
 from . import __version__, config, logger
 from .config import DEFAULT, TYPES
@@ -131,45 +132,44 @@ Note:
     return parser.parse_args(args)
 
 
-def main():
-    args = parse_args(sys.argv[1:])
-    args = vars(args)
-
-    if args["verbose"] > 0:
-        set_verbosity(logger, args["verbose"])
-
+def load_config_values(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Update the args dictionary with values found in the config file."""
     if args["config"]:
-        # if the config file is not present, write the default values
-        if not args["config"].is_file():
-            config.write_default(args["config"])
         # update the values if they are not None
         # allows for using other args to set values not set in the config file
         args.update(
             {k: v for k, v in config.read(args["config"]).items() if v is not None}
         )
+    return args
 
-    if args["start_on_boot"]:
-        logger.info("Creating and enabling systemd unit files.")
 
-        if os.geteuid() == 0:
-            start_on_boot()
-        else:
-            logger.info("No sudo access, trying with sudo.")
-            subprocess.check_call(["sudo", sys.executable] + sys.argv)
-        sys.exit()
+def start_ticker_process(args: Dict[str, Any]) -> multiprocessing.Process:
+    """Create and start the ticker process.
 
-    pid = os.getpid()
-    logger.info("PID: %s", pid)
-    if not PID_FILE.parent.is_dir():
-        PID_FILE.parent.mkdir(parents=True, exist_ok=True)
-    PID_FILE.write_text(str(pid))
+    Args:
+        args: dictionary containing the arguments.
 
-    logger.debug("Args: %s", args)
+    Returns:
+        The ticker process.
+    """
+    # Update the args in case the config file was changed.
+    args = load_config_values(args)
+    tick_process = multiprocessing.Process(target=start_ticker, args=(args,))
+    tick_process.start()
+    return tick_process
 
+
+def start_ticker(args: Dict[str, Any]) -> None:
+    """Start ticking.
+
+    Args:
+        args: dictionary containing the arguments.
+    """
     display = Display(
         flip=args["flip"],
         model=args["epd_model"],
     )
+
     ticker = Ticker(
         symbol_type=args["symbol_type"],
         api_key=args["api_key"],
@@ -179,26 +179,10 @@ def main():
         wait_time=args["wait_time"],
     )
 
-    #  setup signal handlers
-    def cleanup(display: Display):
-        logger.info("Exiting.")
-        if PID_FILE.is_file():
-            PID_FILE.unlink()
-        del display
-
-    atexit.register(cleanup, display)
-
-    def restart(*_) -> None:
-        logger.info("Restarting.")
-        os.execv(sys.argv[0], sys.argv)
-
-    signal.signal(signal.SIGUSR1, restart)
-
     for response in ticker.tick():
         try:
             if response["historical"] is None or response["historical"].empty:
                 error_str = f"No data in lookback range: {ticker.lookback}x{args['interval']} :("
-                logger.debug(error_str)
                 display.text(
                     error_str,
                     show=True,
@@ -221,6 +205,69 @@ def main():
         except Exception as exc:
             logger.error(exc, stack_info=True)
             display.text("Wooops something broke :(", show=True, weight="bold")
+
+
+def main():
+    args = parse_args(sys.argv[1:])
+    # convert to dict
+    args = vars(args)
+
+    if args["verbose"] > 0:
+        set_verbosity(logger, args["verbose"])
+
+    if args["config"]:
+        # if the config file is not present, write the default values
+        if not args["config"].is_file():
+            config.write_default(args["config"])
+        # update args with config values
+        args = load_config_values(args)
+
+    if args["start_on_boot"]:
+        logger.info("Creating and enabling systemd unit files.")
+
+        if os.geteuid() == 0:  # sudo
+            start_on_boot()
+        else:
+            logger.info("No sudo access, trying with sudo.")
+            subprocess.check_call(["sudo", sys.executable] + sys.argv)
+        sys.exit()
+
+    # write the process pid to file.
+    pid = os.getpid()
+    logger.info("PID file: %s", PID_FILE)
+    logger.info("PID: %s", pid)
+    if not PID_FILE.parent.is_dir():
+        PID_FILE.parent.mkdir(parents=True, exist_ok=True)
+    PID_FILE.write_text(str(pid))
+
+    logger.debug("Args: %s", args)
+
+    #  setup signal handlers
+    def restart(*_) -> None:
+        """Restart both the ticker and the main thread."""
+        logger.info("Restarting.")
+        os.execv(sys.argv[0], sys.argv)
+
+    signal.signal(signal.SIGUSR1, restart)
+
+    def refresh(*_) -> None:
+        """Kill and restart the ticker process."""
+        logger.info("Refreshing ticker process.")
+        tick_process.terminate()
+        start_ticker_process(args)
+
+    signal.signal(signal.SIGUSR2, refresh)
+
+    def cleanup():
+        """Remove the PID file on exit."""
+        logger.info("Exiting.")
+        if PID_FILE.is_file():
+            PID_FILE.unlink()
+
+    atexit.register(cleanup)
+
+    # start ticking
+    tick_process = start_ticker_process(args)
 
 
 if __name__ == "__main__":
