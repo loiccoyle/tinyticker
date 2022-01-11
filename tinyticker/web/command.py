@@ -49,6 +49,18 @@ def restart() -> None:
 
 
 @register
+def refresh() -> None:
+    """Refresh tinyticker's ticker process, using the SIGUSR2 signal."""
+    if PID_FILE.is_file():
+        LOGGER.info("Sending SIGUSR2 to tinyticker.")
+        with open(PID_FILE, "r") as pid_file:
+            pid = int(pid_file.readline())
+        os.kill(pid, signal.SIGUSR2)
+    else:
+        LOGGER.info("tinyticker is not runnning.")
+
+
+@register
 def reboot() -> None:
     """Reboot the Raspberry Pi, requires sudo."""
     LOGGER.info("Rebooting.")
@@ -68,5 +80,5 @@ def update() -> None:
     """Update tinyticker."""
     LOGGER.info("Updating tinyticker.")
     try_command(
-        f"sudo -i -u {USER} -- sh -c \"type pipx > /dev/null && pipx upgrade tinyticker || pip install --upgrade tinyticker\""
+        f'sudo -i -u {USER} -- sh -c "type pipx > /dev/null && pipx upgrade tinyticker || pip install --upgrade tinyticker"'
     )

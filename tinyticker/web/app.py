@@ -12,7 +12,7 @@ from ..settings import CONFIG_FILE, LOG_DIR
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from ..utils import check_for_update
 from ..waveshare_lib.models import MODELS
-from .command import COMMANDS, restart
+from .command import COMMANDS, refresh
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +89,7 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
             config["flip"] = False
         logger.debug("config dict: %s", config)
         cfg.write(config, config_file)
-        restart()
+        refresh()
         return redirect("/", code=302)
 
     @app.route("/command")
