@@ -47,6 +47,7 @@ def restart() -> None:
     else:
         LOGGER.info("tinyticker is not runnning.")
 
+
 @register
 def refresh() -> None:
     """Refresh tinyticker's ticker process, using the SIGUSR2 signal."""
@@ -57,6 +58,7 @@ def refresh() -> None:
         os.kill(pid, signal.SIGUSR2)
     else:
         LOGGER.info("tinyticker is not runnning.")
+
 
 @register
 def reboot() -> None:
@@ -78,5 +80,5 @@ def update() -> None:
     """Update tinyticker."""
     LOGGER.info("Updating tinyticker.")
     try_command(
-        f"sudo -i -u {USER} -- sh -c \"type pipx > /dev/null && pipx upgrade tinyticker || pip install --upgrade tinyticker\""
+        f'sudo -i -u {USER} -- sh -c "type pipx > /dev/null && pipx upgrade tinyticker || pip install --upgrade tinyticker"'
     )

@@ -6,8 +6,8 @@ import signal
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
 from time import sleep
+from typing import Any, Dict, List
 
 from . import __version__, config, logger
 from .config import DEFAULT, TYPES
@@ -167,7 +167,7 @@ def start_ticker(args: Dict[str, Any]) -> None:
     logger.info("Starting ticker process")
     # Update the args in case the config file was changed.
     args = load_config_values(args)
-     
+
     display = Display(
         flip=args["flip"],
         model=args["epd_model"],
