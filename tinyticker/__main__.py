@@ -7,6 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Dict, List
+from time import sleep
 
 from . import __version__, config, logger
 from .config import DEFAULT, TYPES
@@ -152,8 +153,6 @@ def start_ticker_process(args: Dict[str, Any]) -> multiprocessing.Process:
     Returns:
         The ticker process.
     """
-    # Update the args in case the config file was changed.
-    args = load_config_values(args)
     tick_process = multiprocessing.Process(target=start_ticker, args=(args,))
     tick_process.start()
     return tick_process
@@ -165,6 +164,10 @@ def start_ticker(args: Dict[str, Any]) -> None:
     Args:
         args: dictionary containing the arguments.
     """
+    logger.info("Starting ticker process")
+    # Update the args in case the config file was changed.
+    args = load_config_values(args)
+     
     display = Display(
         flip=args["flip"],
         model=args["epd_model"],
@@ -251,10 +254,11 @@ def main():
     signal.signal(signal.SIGUSR1, restart)
 
     def refresh(*_) -> None:
-        """Kill and restart the ticker process."""
+        """Kill the ticker process, it gets restarted in the main thread."""
         logger.info("Refreshing ticker process.")
-        tick_process.terminate()
-        start_ticker_process(args)
+        tick_process.kill()
+        tick_process.join()
+        tick_process.close()
 
     signal.signal(signal.SIGUSR2, refresh)
 
@@ -268,6 +272,11 @@ def main():
 
     # start ticking
     tick_process = start_ticker_process(args)
+    while True:
+        if tick_process._closed or not tick_process.is_alive():
+            tick_process = start_ticker_process(args)
+        else:
+            sleep(1)
 
 
 if __name__ == "__main__":
