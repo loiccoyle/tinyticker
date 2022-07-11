@@ -418,7 +418,7 @@ watchdog = ["watchdog"]
 
 [[package]]
 name = "yfinance"
-version = "0.1.73"
+version = "0.1.74"
 description = "Download market data from Yahoo! Finance API"
 category = "main"
 optional = false
@@ -881,8 +881,8 @@ werkzeug = [
     {file = "Werkzeug-2.1.2.tar.gz", hash = "sha256:1ce08e8093ed67d638d63879fd1ba3735817f7a80de3674d293f5984f25fb6e6"},
 ]
 yfinance = [
-    {file = "yfinance-0.1.73-py2.py3-none-any.whl", hash = "sha256:6af58d05f6b7b1f2e24feb49e2136be7cbe631fe1ceae4d597b75fbb6a7ef2a1"},
-    {file = "yfinance-0.1.73.tar.gz", hash = "sha256:818d653fb945d1a2f58a57902e28e3aae2f5934e3dd42314894e298af428ee4f"},
+    {file = "yfinance-0.1.74-py2.py3-none-any.whl", hash = "sha256:56312ed20ba282db8bd5e6a01b6fc1bb894017eaa1b2dc7dc46db5a7917e6a67"},
+    {file = "yfinance-0.1.74.tar.gz", hash = "sha256:a0c29f9c9ed3595749d0cd19acf65f96f20e4376084795497f53cd8b263b54c7"},
 ]
 zipp = [
     {file = "zipp-3.8.0-py3-none-any.whl", hash = "sha256:c4f6e5bbf48e74f7a38e7cc5b0480ff42b0ae5178957d564d18932525d5cf099"},
