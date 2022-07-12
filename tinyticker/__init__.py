@@ -8,4 +8,4 @@ logger = logging.getLogger(__name__)
 
 logger.addHandler(logging.NullHandler())
 
-__version__ = "0.1.8"
+__version__ = "0.1.9"
