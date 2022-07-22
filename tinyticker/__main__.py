@@ -12,7 +12,7 @@ from typing import Any, Dict, List
 from . import __version__, config, logger
 from .config import DEFAULT, TYPES
 from .display import Display
-from .settings import CONFIG_FILE, PID_FILE, set_verbosity, start_on_boot
+from .settings import CONFIG_FILE, PID_FILE, set_verbosity
 from .ticker import INTERVAL_LOOKBACKS, SYMBOL_TYPES, Ticker
 from .utils import RawTextArgumentDefaultsHelpFormatter
 from .waveshare_lib.models import MODELS
@@ -120,11 +120,6 @@ Note:
         default=None,
     )
     parser.add_argument(
-        "--start-on-boot",
-        help="Create and enable the systemd service files, then exits. Will require sudo.",
-        action="store_true",
-    )
-    parser.add_argument(
         "--version",
         help="Show the version and exit.",
         action="version",
@@ -224,16 +219,6 @@ def main():
             config.write_default(args["config"])
         # update args with config values
         args = load_config_values(args)
-
-    if args["start_on_boot"]:
-        logger.info("Creating and enabling systemd unit files.")
-
-        if os.geteuid() == 0:  # sudo
-            start_on_boot()
-        else:
-            logger.info("No sudo access, trying with sudo.")
-            subprocess.check_call(["sudo", sys.executable] + sys.argv)
-        sys.exit()
 
     # write the process pid to file.
     pid = os.getpid()

@@ -4,7 +4,7 @@ import signal
 import subprocess
 from typing import Callable, List, Union
 
-from ..settings import PID_FILE, USER
+from ..settings import PID_FILE
 
 LOGGER = logging.getLogger(__name__)
 COMMANDS = {}
@@ -80,5 +80,5 @@ def update() -> None:
     """Update tinyticker."""
     LOGGER.info("Updating tinyticker.")
     try_command(
-        f'sudo -i -u {USER} -- sh -c "type pipx > /dev/null && pipx upgrade tinyticker || pip install --upgrade tinyticker"'
+        'sh -c "type pipx > /dev/null && pipx upgrade tinyticker || pip install --upgrade tinyticker"'
     )
