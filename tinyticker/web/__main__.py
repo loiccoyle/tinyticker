@@ -6,7 +6,7 @@ from typing import List
 
 from .. import config as cfg
 from ..display import Display
-from ..settings import CONFIG_FILE, generate_qrcode, set_verbosity
+from ..settings import CONFIG_FILE, LOG_DIR, generate_qrcode, set_verbosity
 from ..utils import RawTextArgumentDefaultsHelpFormatter
 from ..waveshare_lib.models import MODELS
 from .app import create_app
@@ -55,6 +55,12 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         help="Display a qrcode containing the URL of the dashboard and exit.",
         action="store_true",
     )
+    parser.add_argument(
+        "--log-dir",
+        help="Directory containing tinyticker's log files.",
+        type=Path,
+        default=LOG_DIR,
+    )
     return parser.parse_args(args)
 
 
@@ -64,6 +70,9 @@ def main():
         set_verbosity(logger, args.verbose)
 
     logger.debug("Args: %s", args)
+
+    if not args.log_dir.is_dir():
+        args.log_dir.mkdir(parents=True)
 
     if args.show_qrcode:
         logger.info("Generating qrcode.")
@@ -84,7 +93,7 @@ def main():
         sys.exit()
 
     logger.info("Starting tinyticker-web")
-    app = create_app(args.config)
+    app = create_app(config_file=args.config, log_dir=args.log_dir)
     app.run(host="0.0.0.0", port=args.port, debug=False, threaded=True)
     logger.info("Stopping tinyticker-web")
 

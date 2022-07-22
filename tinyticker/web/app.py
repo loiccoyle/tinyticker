@@ -21,7 +21,7 @@ TEMPLATE_PATH = str(Path(__file__).parent / "templates")
 INTERVAL_WAIT_TIMES = {k: v.value * 1e-9 for k, v in INTERVAL_TIMEDELTAS.items()}  # type: ignore
 
 
-def create_app(config_file: Path = CONFIG_FILE) -> Flask:
+def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flask:
     """Create the flask app.
 
     Args:
@@ -34,7 +34,7 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
     commands = sorted(COMMANDS.keys())
     # remove the update command as we treat it separately
     commands.remove("update")
-    log_files = sorted([path.name for path in LOG_DIR.glob("tinyticker*.log")])
+    log_files = sorted([path.name for path in log_dir.glob("*.log")])
 
     @app.after_request
     def add_header(response):
@@ -111,8 +111,8 @@ def create_app(config_file: Path = CONFIG_FILE) -> Flask:
         if log_file_name not in log_files:
             abort(404)
         try:
-            logger.info("Loading log file %s", LOG_DIR / log_file_name)
-            return send_from_directory(LOG_DIR, log_file_name)
+            logger.info("Loading log file %s", log_dir / log_file_name)
+            return send_from_directory(log_dir, log_file_name)
         except FileNotFoundError:
             abort(404)
 
