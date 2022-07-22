@@ -57,7 +57,7 @@ I highly recommend using [comitup](https://github.com/davesteele/comitup) to set
   ```sh
   pip install tinyticker
   ```
-- To setup `tinyticker` to start on boot, copy over the [`systemd` unit files](./files) and enable them.
+- To setup `tinyticker` to start on boot, copy over the [`systemd` unit files](./systemd) and enable them.
 - On boot, a qrcode linking to the `flask` app will be flashed on the display
 - Leave a star, reboot and HODL !
 
