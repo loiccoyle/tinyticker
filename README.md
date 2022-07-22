@@ -25,6 +25,10 @@ Shopping list:
 
 ## Recommended setup
 
+Flash the latest iso from [tinyticker-images](https://github.com/loiccoyle/tinyticker-images) onto a SD card and you should be good to go.
+
+## Manual setup
+
 I highly recommend using [comitup](https://github.com/davesteele/comitup) to setup the networking on your RPi.
 
 - Write the `comitup` [image](https://davesteele.github.io/comitup/latest/comitup-lite-img-latest.html) to your sd card
@@ -41,13 +45,9 @@ I highly recommend using [comitup](https://github.com/davesteele/comitup) to set
   make
   make install
   ```
-- Install `pipx` depdencies:
+- Install `pip`:
   ```sh
-  sudo apt install python3-pip python3-venv
-  ```
-- Install `pipx`:
-  ```sh
-  python3 -m pip install --user pipx
+  sudo apt install python3-pip
   ```
 - Install dependency requirements:
   ```sh
@@ -55,14 +55,10 @@ I highly recommend using [comitup](https://github.com/davesteele/comitup) to set
   ```
 - Install `tinyticker` (the `CFLAGS` variable is required for `RPi.GPIO` to install):
   ```sh
-  FCLAGS=-fcommon pipx install tinyticker
+  pip install tinyticker
   ```
-- Setup `tinyticker` to start on boot:
-  ```sh
-  tinyticker --start-on-boot -vv
-  ```
-  - This will write and enable 3 `systemd` unit files `tinyticker.service`, `tinyticker-qrcode.service` and `tinyticker-web.service`.
-  - On boot, a qrcode linking to the `flask` app will be flashed on the display
+- To setup `tinyticker` to start on boot, copy over the [`systemd` unit files](./files) and enable them.
+- On boot, a qrcode linking to the `flask` app will be flashed on the display
 - Leave a star, reboot and HODL !
 
 Note: the Raspberry Pi zero isn't very fast so be patient :)
