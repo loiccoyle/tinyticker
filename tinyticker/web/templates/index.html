@@ -32,6 +32,12 @@
         <div class="uk-width-large">
           <p class="uk-text-large">Config</p>
           <p class="uk-text-small">Location: <code>{{config_file | default("~/.config/tinyticker/config.json")}}</code></p>
+          <form action="/set_hostname">
+            <label class="uk-form-label" for="hostname">Hostname: </label>
+            <input class="uk-input uk-form-width-medium" type="text" id="hostname" name="hostname" value="{{hostname}}">
+            <input class="uk-button-small" type="submit" value="Set & Reboot">
+          </form>
+          <hr>
           <form class="uk-form-stacked" action="/config">
             <div class="uk-grid uk-grid-small">
               <div class="uk-width-1-1">
@@ -56,9 +62,9 @@
                   {% endfor %}
                 </select>
                 <label class="uk-form-label" for="api_key"><a href="https://min-api.cryptocompare.com/pricing">CryptoCompare</a> API key</label>
-                <input class="uk-textarea" type="text" id="api_key" name="api_key" {% if api_key %} value="{{api_key}}" {% endif %}>
+                <input class="uk-input" type="text" id="api_key" name="api_key" {% if api_key %} value="{{api_key}}" {% endif %}>
                 <label class="uk-form-label" for="symbol">Symbol</label>
-                <input class="uk-textarea" type="text" id="symbol" name="symbol" value="{{symbol}}">
+                <input class="uk-input" type="text" id="symbol" name="symbol" value="{{symbol}}">
                 <label class="uk-form-label" for="interval">Interval</label>
                 <select class="uk-select" id="interval" name="interval">
                   {% for interval_option in interval_options %}
@@ -82,22 +88,22 @@
                 <label class="uk-form-label" for="lookback">Lookback</label>
                 {% if lookback is none %}
                 {# If the look back is None then it hasn't been set so use the default lookback for the interval #}
-                <input class="uk-textarea" inputmode="numeric" id="lookback" name="lookback" min="1" placeholder="{{interval_lookbacks[interval]}}">
+                <input class="uk-input" inputmode="numeric" id="lookback" name="lookback" min="1" placeholder="{{interval_lookbacks[interval]}}">
                 {% else %}
-                <input class="uk-textarea" inputmode="numeric" id="lookback" name="lookback" min="1" value="{{lookback}}">
+                <input class="uk-input" inputmode="numeric" id="lookback" name="lookback" min="1" value="{{lookback}}">
                 {%endif%}
                 <label class="uk-form-label" for="wait_time">Wait time</label>
                 {% if wait_time is none %}
                 {# If the wait_time is None then it hasn't been set so use the default wait_time for the interval #}
-                <input class="uk-textarea" inputmode="numeric" id="wait_time" name="wait_time" min="1" placeholder="{{interval_wait_times[interval]}}">
+                <input class="uk-input" inputmode="numeric" id="wait_time" name="wait_time" min="1" placeholder="{{interval_wait_times[interval]}}">
                 {% else %}
-                <input class="uk-textarea" inputmode="numeric" id="wait_time" name="wait_time" min="1" value="{{wait_time}}">
+                <input class="uk-input" inputmode="numeric" id="wait_time" name="wait_time" min="1" value="{{wait_time}}">
                 {%endif%}
                 <label class="uk-form-label" for="mav">Moving average</label>
                 {% if mav is none %}
-                <input class="uk-textarea" inputmode="numeric" id="mav" name="mav" min="1" placeholder="3">
+                <input class="uk-input" inputmode="numeric" id="mav" name="mav" min="1" placeholder="3">
                 {% else %}
-                <input class="uk-textarea" inputmode="numeric" id="mav" name="mav" min="1" value="{{mav}}">
+                <input class="uk-input" inputmode="numeric" id="mav" name="mav" min="1" value="{{mav}}">
                 {%endif%}
                 <label class="uk-form-label" for="flip">Flip <input class="uk-checkbox" type="checkbox" id="flip" name="flip" {% if flip | default(False) %}checked{% endif %}></label>
                 <label class="uk-form-label" for="volume">Volume <input class="uk-checkbox" type="checkbox" id="volume" name="volume" {% if volume| default(False) %}checked{% endif %}></label>

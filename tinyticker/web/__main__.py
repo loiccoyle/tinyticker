@@ -10,6 +10,7 @@ from ..settings import CONFIG_FILE, LOG_DIR, generate_qrcode, set_verbosity
 from ..utils import RawTextArgumentDefaultsHelpFormatter
 from ..waveshare_lib.models import MODELS
 from .app import create_app
+from .app import logger as logger_app
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,7 @@ def main():
     args = parse_args(sys.argv[1:])
     if args.verbose > 0:
         set_verbosity(logger, args.verbose)
+        set_verbosity(logger_app, args.verbose)
 
     logger.debug("Args: %s", args)
 
