@@ -1,6 +1,7 @@
 import logging
 import socket
 import subprocess
+import sys
 from pathlib import Path
 from socket import timeout
 from urllib.error import HTTPError, URLError
