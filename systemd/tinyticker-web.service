@@ -5,11 +5,11 @@ After=networking.service
 [Service]
 Type=simple
 ExecStartPre=/usr/bin/mkdir -p /home/tinyticker/.local/share/tinyticker
-ExecStart=sh -c '! type comitup-cli || comitup-cli i | grep -q "CONNECTED" && /home/tinyticker/.local/bin/tinyticker-web --port 80 --config /home/tinyticker/.config/tinyticker/config.json --log-dir /home/tinyticker/.local/share/tinyticker -vv'
+ExecStart=sh -c '! type comitup-cli || comitup-cli i | grep -q "CONNECTED" && /home/tinyticker/.local/bin/tinyticker-web --port 80 --config /home/tinyticker/.config/tinyticker/config.json --log-dir /home/tinyticker/ -vv'
 Restart=on-failure
 RestartSec=5s
-StandardOutput=file:/home/tinyticker/.local/share/tinyticker/tinyticker-web-out.log
-StandardError=file:/home/tinyticker/.local/share/tinyticker/tinyticker-web-err.log
+StandardOutput=file:/home/tinyticker/tinyticker-web-out.log
+StandardError=file:/home/tinyticker/tinyticker-web-err.log
 
 [Install]
 WantedBy=default.target
