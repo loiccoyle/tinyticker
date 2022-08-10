@@ -1,4 +1,6 @@
 import logging
+import socket
+import subprocess
 import sys
 from pathlib import Path
 from socket import timeout
@@ -12,7 +14,7 @@ from ..settings import CONFIG_FILE, LOG_DIR
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from ..utils import check_for_update
 from ..waveshare_lib.models import MODELS
-from .command import COMMANDS, refresh
+from .command import COMMANDS, reboot, refresh
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +37,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
     # remove the update command as we treat it separately
     commands.remove("update")
     log_files = sorted([path.name for path in log_dir.glob("*.log")])
+    hostname = socket.gethostname()
 
     @app.after_request
     def add_header(response):
@@ -54,6 +57,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         return render_template(
             "index.html",
             cfg=config_file,
+            hostname=hostname,
             commands=commands,
             type_options=cfg.TYPES,
             symbol_type_options=SYMBOL_TYPES,
@@ -99,6 +103,20 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         if command:
             # call the registered command function
             COMMANDS.get(command, lambda: None)()
+        return redirect("/", code=302)
+
+    @app.route("/set_hostname")
+    def set_hostname():
+        logger.debug("/host_rename url args: %s", request.args)
+        hostname = request.args.get("hostname")
+        if hostname:
+            subprocess.Popen(f"sudo echo '{hostname}' > /etc/hostname")
+            subprocess.Popen(f"sudo echo '127.0.0.1\t{hostname}' > /etc/hosts")
+            if Path("/etc/comitup.conf").exists():
+                subprocess.Popen(
+                    f"sudo sed -i 's/^ap_name:/\1 {hostname}' /etc/comitup.conf"
+                )
+            reboot()
         return redirect("/", code=302)
 
     # @app.route("/img/favicon.ico")
