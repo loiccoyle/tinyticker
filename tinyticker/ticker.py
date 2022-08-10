@@ -12,15 +12,15 @@ CRYPTO_CURRENCY = "USD"
 SYMBOL_TYPES = ["crypto", "stock"]
 
 YFINANCE_NON_STANDARD_INTERVALS = {
-    "1wk": pd.Timedelta("7d"),
-    "1mo": pd.Timedelta("30d"),
-    "3mo": pd.Timedelta("90d"),
+    "1wk": pd.to_timedelta("7d"),
+    "1mo": pd.to_timedelta("30d"),
+    "3mo": pd.to_timedelta("90d"),
 }
 
 INTERVAL_TIMEDELTAS = {
     interval: YFINANCE_NON_STANDARD_INTERVALS[interval]
     if interval in YFINANCE_NON_STANDARD_INTERVALS
-    else pd.Timedelta(interval)
+    else pd.to_timedelta(interval)
     for interval in [
         "1m",
         "2m",
@@ -53,9 +53,9 @@ INTERVAL_LOOKBACKS = {
 }
 
 CRYPTO_INTERVAL_TIMEDELTAS = {
-    "minute": pd.Timedelta("1m"),
-    "hour": pd.Timedelta("1h"),
-    "day": pd.Timedelta("1d"),
+    "minute": pd.to_timedelta("1m"),
+    "hour": pd.to_timedelta("1h"),
+    "day": pd.to_timedelta("1d"),
 }
 
 
@@ -126,11 +126,11 @@ def get_cryptocompare(
     if len(historical) > lookback:
         historical = historical.iloc[len(historical) - lookback :]
     LOGGER.debug("crypto historical length pruned: %s", len(historical))
-    return historical
+    return historical  # type: ignore
 
 
 class Ticker:
-    """Query the CryptoCompare API.
+    """Price information fetcher.
 
     Args:
         symbol_type: Either "crypto" or "stock".
@@ -165,7 +165,8 @@ class Ticker:
         if self.symbol_type == "crypto" and api_key is None:
             raise ValueError("No API key provided.")
         self.api_key = api_key
-        cryptocompare.cryptocompare._set_api_key_parameter(self.api_key)
+        if self.api_key is not None:
+            cryptocompare.cryptocompare._set_api_key_parameter(self.api_key)
         self.symbol = symbol
         if lookback is None:
             self._log.debug("lookback None")
@@ -175,7 +176,7 @@ class Ticker:
             self.lookback = lookback  # type: int
         self._log.debug("lookback: %s", self.lookback)
         if wait_time is None:
-            self.wait_time = self._interval_dt.value * 1e-9  # type: ignore
+            self.wait_time = int(self._interval_dt.value * 1e-9)
         else:
             self.wait_time = wait_time  # type: int
         self._log.debug("wait_time: %s", self.wait_time)
@@ -197,14 +198,14 @@ class Ticker:
     def _tick_stock(self) -> dict:
         self._log.info("Stock tick.")
         end = pd.to_datetime("now")
-        start = end - self._interval_dt * (self.lookback - 1)  # type: ignore
+        start = end - self._interval_dt * (self.lookback - 1)
         self._log.debug("interval: %s", self.interval)
         self._log.debug("self.lookback: %s", self.lookback)
         self._log.debug("start: %s", start)
         self._log.debug("end: %s", end)
         current_price_data = yfinance.download(
             self.symbol,
-            start=end - pd.Timedelta("2m"),  # type: ignore
+            start=end - pd.to_timedelta("2m"),
             end=end,
             interval="1m",
         )  # type: pd.DataFrame

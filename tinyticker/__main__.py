@@ -3,7 +3,6 @@ import atexit
 import multiprocessing
 import os
 import signal
-import subprocess
 import sys
 from pathlib import Path
 from time import sleep
@@ -258,7 +257,7 @@ def main():
     # start ticking
     tick_process = start_ticker_process(args)
     while True:
-        if tick_process._closed or not tick_process.is_alive():
+        if tick_process._closed or not tick_process.is_alive():  # type: ignore
             tick_process = start_ticker_process(args)
         else:
             sleep(1)
