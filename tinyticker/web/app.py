@@ -110,22 +110,15 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         logger.debug("/host_rename url args: %s", request.args)
         hostname = request.args.get("hostname")
         if hostname:
+            subprocess.Popen("sudo echo {hostname} > /etc/hostname", shell=True)
             subprocess.Popen(
-                ["sudo", "echo", hostname, ">", "/etc/hostname"], shell=True
-            )
-            subprocess.Popen(
-                ["sudo", "echo", f"127.0.0.1\t{hostname}", ">", "/etc/hosts"],
+                f"sudo echo 127.0.0.1\t{hostname} > /etc/hosts",
                 shell=True,
             )
             if Path("/etc/comitup.conf").exists():
                 subprocess.Popen(
-                    [
-                        "sudo",
-                        "sed",
-                        "-i",
-                        f"s/^ap_name:/\1 {hostname}",
-                        "/etc/comitup.conf",
-                    ], shell=True
+                    "sudo sed -i 's/^ap_name:/\1 {hostname}/' /etc/comitup.conf",
+                    shell=True,
                 )
             # reboot()
         return redirect("/", code=302)
