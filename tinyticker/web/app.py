@@ -1,7 +1,6 @@
 import logging
 import socket
 import subprocess
-import sys
 from pathlib import Path
 from socket import timeout
 from urllib.error import HTTPError, URLError
@@ -110,11 +109,19 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         logger.debug("/host_rename url args: %s", request.args)
         hostname = request.args.get("hostname")
         if hostname:
-            subprocess.Popen(f"sudo echo '{hostname}' > /etc/hostname")
-            subprocess.Popen(f"sudo echo '127.0.0.1\t{hostname}' > /etc/hosts")
+            subprocess.Popen(["sudo", "echo", hostname, ">", "/etc/hostname"])
+            subprocess.Popen(
+                ["sudo", "echo", f"127.0.0.1\t{hostname}", ">", "/etc/hosts"]
+            )
             if Path("/etc/comitup.conf").exists():
                 subprocess.Popen(
-                    f"sudo sed -i 's/^ap_name:/\1 {hostname}' /etc/comitup.conf"
+                    [
+                        "sudo",
+                        "sed",
+                        "-i",
+                        f"s/^ap_name:/\1 {hostname}",
+                        "/etc/comitup.conf",
+                    ]
                 )
             reboot()
         return redirect("/", code=302)
