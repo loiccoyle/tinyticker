@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title></title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="/dist/output.css" rel="stylesheet" />
+  </head>
+  <body class="bg-slate-300">
+    <div class="p-10 max-w-4xl mx-auto">
+      <div class="grid place-items-center py-10 relative">
+        <div class="flex items-center gap-1">
+          <div
+            class="flex-none shadow-sm rounded-full bg-slate-900 p-2 inline-block aspect-square text-6xl"
+          >
+            🚀
+          </div>
+          <div class="flex-auto text-slate-900">
+            <div class="text-6xl font-mono">TinyTicker</div>
+            <div class="text-4xl font-mono">
+              A tiny e-Paper financial ticker
+            </div>
+          </div>
+        </div>
+        <div class="absolute right-1 px-10 border-0 top-4">
+          <ul>
+            <li class="pb-1">
+              <a
+                class="group flex items-center text-cyan-900 hover:text-cyan-600"
+                href="https://github.com/loiccoyle/tinyticker"
+              >
+                <div class="grow">Github</div>
+                <div
+                  class="ml-4 flex-none rounded-md bg-slate-900 group-hover:bg-violet-700 text-slate-400"
+                >
+                  <svg
+                    viewBox="0 0 16 16"
+                    class="w-6 h-6 p-1"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+                    ></path>
+                  </svg>
+                </div>
+              </a>
+            </li>
+            <li class="pb-1">
+              <a
+                class="group flex items-center text-cyan-900 hover:text-cyan-600"
+                href="https://github.com/loiccoyle/tinyticker-images/raw/main/Tinyticker-lite-img.zip"
+              >
+                <div class="grow">Image file</div>
+                <div
+                  class="ml-4 rounded-md bg-slate-900 group-hover:bg-violet-700 text-slate-200"
+                >
+                  <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="m6 9 6-3 6 3v6l-6 3-6-3V9Z"
+                      class="fill-indigo-100 group-hover:fill-indigo-200 dark:fill-slate-400"
+                    ></path>
+                    <path
+                      d="m6 9 6 3v7l-6-3V9Z"
+                      class="fill-indigo-300 group-hover:fill-indigo-400 dark:group-hover:fill-indigo-300 dark:fill-slate-500"
+                    ></path>
+                    <path
+                      d="m18 9-6 3v7l6-3V9Z"
+                      class="fill-indigo-400 group-hover:fill-indigo-500 dark:group-hover:fill-indigo-400 dark:fill-slate-600"
+                    ></path>
+                  </svg>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-col gap-4 text-lg text-justify bg-slate-400 p-4 rounded-xl ring-slate-700 ring-1 shadow-sm"
+      >
+        <div class="flex-1">
+          <div
+            class="flex gap-4 bg-slate-800 p-2 rounded-xl text-slate-100 shadow-md mb-4 ring-1 ring-inset"
+          >
+            <div
+              class="flex-none shadow-sm p-2 place-self-center text-slate-300 rounded-lg bg-slate-900"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                class="w-16"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07Z"
+                />
+              </svg>
+            </div>
+            <div class="flex-1 py-2 pr-2">
+              <h1 class="text-lg pb-2 font-semibold">TinyTicker</h1>
+              <p class="text-md text-slate-300">
+                Use a Raspberry Pi Zero W and an e-Paper display to show stock &
+                crypto price data.
+              </p>
+            </div>
+          </div>
+          <div
+            class="flex gap-4 bg-slate-800 p-2 rounded-xl text-slate-100 shadow-md mb-4 ring-1 ring-inset"
+          >
+            <div
+              class="flex-none shadow-sm rounded-full bg-slate-900 p-2 aspect-square place-self-center text-slate-300"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                class="w-16"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M15.384 6.115a.485.485 0 0 0-.047-.736A12.444 12.444 0 0 0 8 3C5.259 3 2.723 3.882.663 5.379a.485.485 0 0 0-.048.736.518.518 0 0 0 .668.05A11.448 11.448 0 0 1 8 4c2.507 0 4.827.802 6.716 2.164.205.148.49.13.668-.049z"
+                />
+                <path
+                  d="M13.229 8.271a.482.482 0 0 0-.063-.745A9.455 9.455 0 0 0 8 6c-1.905 0-3.68.56-5.166 1.526a.48.48 0 0 0-.063.745.525.525 0 0 0 .652.065A8.46 8.46 0 0 1 8 7a8.46 8.46 0 0 1 4.576 1.336c.206.132.48.108.653-.065zm-2.183 2.183c.226-.226.185-.605-.1-.75A6.473 6.473 0 0 0 8 9c-1.06 0-2.062.254-2.946.704-.285.145-.326.524-.1.75l.015.015c.16.16.407.19.611.09A5.478 5.478 0 0 1 8 10c.868 0 1.69.201 2.42.56.203.1.45.07.61-.091l.016-.015zM9.06 12.44c.196-.196.198-.52-.04-.66A1.99 1.99 0 0 0 8 11.5a1.99 1.99 0 0 0-1.02.28c-.238.14-.236.464-.04.66l.706.706a.5.5 0 0 0 .707 0l.707-.707z"
+                />
+              </svg>
+            </div>
+            <div class="flex-1 py-2 pr-2">
+              <h1 class="text-lg pb-2 font-semibold">Easy Networking</h1>
+              <p class="text-md text-slate-300">
+                Use
+                <a
+                  class="text-cyan-600 hover:text-cyan-500"
+                  href="http://davesteele.github.io/comitup/"
+                  >Comitup</a
+                >
+                to bootstrap the wifi connection seamlessly with no tedious
+                ssh-ing necessary.
+              </p>
+            </div>
+          </div>
+          <div
+            class="flex gap-4 bg-slate-800 p-2 mb-4 rounded-xl text-slate-100 shadow-md ring-1 ring-inset"
+          >
+            <div
+              class="flex-none shadow-sm rounded-full bg-slate-900 p-2 aspect-square place-self-center text-slate-300"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                class="w-16"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M7 2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-1zM2 1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2zm0 8a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2H2zm.854-3.646a.5.5 0 0 1-.708 0l-1-1a.5.5 0 1 1 .708-.708l.646.647 1.646-1.647a.5.5 0 1 1 .708.708l-2 2zm0 8a.5.5 0 0 1-.708 0l-1-1a.5.5 0 0 1 .708-.708l.646.647 1.646-1.647a.5.5 0 0 1 .708.708l-2 2zM7 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-1zm0-5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"
+                />
+              </svg>
+            </div>
+            <div class="flex-1 py-2 pr-2">
+              <h1 class="text-lg pb-2 font-semibold">Web Dashboard</h1>
+              <p class="text-md text-slate-300">
+                A web based configuration dashboard runs on the Pi for on the
+                fly configuration.
+              </p>
+            </div>
+          </div>
+          <div
+            class="flex gap-4 bg-slate-800 p-2 m-y rounded-xl text-slate-100 shadow-md ring-1 ring-inset"
+          >
+            <div
+              class="flex-none shadow-sm rounded-full bg-slate-900 p-2 aspect-square place-self-center text-slate-300"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                class="w-16"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M6.5 7.5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v.938l.4 1.599a1 1 0 0 1-.416 1.074l-.93.62a1 1 0 0 1-1.109 0l-.93-.62a1 1 0 0 1-.415-1.074l.4-1.599V7.5zm2 0h-1v.938a1 1 0 0 1-.03.243l-.4 1.598.93.62.93-.62-.4-1.598a1 1 0 0 1-.03-.243V7.5z"
+                />
+                <path
+                  d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm5.5-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9v1H8v1h1v1H8v1h1v1H7.5V5h-1V4h1V3h-1V2h1V1z"
+                />
+              </svg>
+            </div>
+            <div class="flex-1 py-2 pr-2">
+              <h1 class="text-lg pb-2 font-semibold">Plug & Play</h1>
+              <p class="text-md text-slate-300">
+                A
+                <a
+                  class="text-cyan-600 hover:text-cyan-500"
+                  href="https://github.com/loiccoyle/tinyticker-images"
+                >
+                  disk image file
+                </a>
+                is provided for near plug and play setup.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="flex-1 bg-slate-300 rounded-xl p-2 shadow-md ring-1 ring-inset ring-indigo-500"
+        >
+          <div class="mb-4 flex gap-2 place-items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              class="w-10 h-10 p-1"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10.854 8.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708 0z"
+              />
+              <path
+                d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"
+              />
+            </svg>
+            <h1 class="text-2xl font-semibold underline decoration-indigo-500">
+              Hardware
+            </h1>
+          </div>
+
+          <p>
+            You'll need to get yourself a Raspberry Pi and a Waveshare e-Paper
+            display.
+          </p>
+          <ul class="pl-4 pt-4">
+            <li class="mb-4">
+              <h4 class="text-md leading-6 font-semibold mb-2 text-slate-800">
+                Raspberry Pi Zero with Wifi
+              </h4>
+              <div>
+                <p>
+                  Preferably one with the headers pre-attached to save yourself
+                  the headache of soldering them on yourself.
+                </p>
+              </div>
+            </li>
+            <li class="mb-4">
+              <h4 class="text-md leading-6 font-semibold mb-2 text-slate-800">
+                A compatible Waveshare display 2.13 inch display
+              </h4>
+              <div>
+                <p>TInyTicker supports a few Waveshare displays.</p>
+                <ul class="pl-6 space-y-3 pt-2">
+                  <li>
+                    <a
+                      class="text-cyan-800 hover:text-cyan-600"
+                      href="https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT"
+                    >
+                      Waveshare e-Paper 2.13in Black & White
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      class="text-cyan-800 hover:text-cyan-600"
+                      href="https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT_(B)"
+                    >
+                      Waveshare e-Paper 2.13in Black, White & Red
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      class="text-cyan-800 hover:text-cyan-600"
+                      href="https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT_(C)"
+                    >
+                      Waveshare e-Paper 2.13in Black, White & Yellow
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+            <li>
+              <h4 class="text-md leading-6 font-semibold mb-2 text-slate-800">
+                A micro SD card
+              </h4>
+              <div>
+                <p>I'd recommend one with at least 2GB of capacity.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div
+          class="flex-1 bg-slate-300 p-2 rounded-xl ring-1 ring-inset ring-pink-500 shadow-md"
+        >
+          <div class="flex mb-4 gap-2 place-items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              class="w-10 h-10 p-1"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M6 9a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3A.5.5 0 0 1 6 9zM3.854 4.146a.5.5 0 1 0-.708.708L4.793 6.5 3.146 8.146a.5.5 0 1 0 .708.708l2-2a.5.5 0 0 0 0-.708l-2-2z"
+              />
+              <path
+                d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2zm12 1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h12z"
+              />
+            </svg>
+            <h1 class="text-2xl font-semibold underline decoration-pink-500">
+              Software setup
+            </h1>
+          </div>
+          <p>
+            The easiest way to setup the software side, is to use the
+            <a
+              class="text-cyan-800 hover:text-cyan-600"
+              href="https://github.com/loiccoyle/tinyticker-images"
+            >
+              disk image file</a
+            >.
+          </p>
+
+          <ol class="relative space-y-2 pt-4">
+            <li class="pl-5">
+              <div class="mb-6">
+                <h4 class="text-md leading-6 font-semibold mb-2 text-slate-800">
+                  Download the image file.
+                </h4>
+                <p>
+                  Head on over to
+                  <a
+                    class="text-cyan-800 hover:text-cyan-600"
+                    href="https://github.com/loiccoyle/tinyticker-images"
+                  >
+                    <svg
+                      viewBox="0 0 16 16"
+                      class="w-4 h-4 inline-block"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+                      ></path></svg
+                    ><code>loiccoyle/tinyticker-images</code></a
+                  >
+                  and download the
+                  <a
+                    class="text-cyan-800 hover:text-cyan-600"
+                    href="https://github.com/loiccoyle/tinyticker-images/raw/main/Tinyticker-lite-img.zip"
+                  >
+                    <code>Tinyticker-lite-img.zip</code>
+                  </a>
+                  file.
+                </p>
+              </div>
+            </li>
+            <li class="pl-5">
+              <div class="mb-6">
+                <h4 class="text-md leading-6 font-semibold mb-2 text-slate-800">
+                  Write the image file to your SD card.
+                </h4>
+                <p>
+                  I recommend using
+                  <a
+                    class="text-cyan-800 hover:text-cyan-600"
+                    href="https://www.raspberrypi.com/software/#c-software-imager"
+                  >
+                    <code>Raspberry Pi Imager</code></a
+                  >
+                  to write the image file to the SD card. See the
+                  <a
+                    class="text-cyan-800 hover:text-cyan-600"
+                    href="https://www.youtube.com/watch?v=ntaXWS8Lk34"
+                    >tutorial video</a
+                  >
+                  if needed.
+                </p>
+              </div>
+            </li>
+            <li class="pl-5">
+              <div class="mb-6">
+                <h4 class="text-md leading-6 font-semibold mb-2 text-slate-800">
+                  Setup Wifi
+                </h4>
+                <p>
+                  On first boot <code>Comitup</code> will start a local
+                  <code class="underline decoration-pink-500 text-pink-800"
+                    >TinyTicker</code
+                  >
+                  wifi hotspot. Connect to it and select your wifi network.
+                </p>
+              </div>
+            </li>
+            <li class="pl-5">
+              <div>
+                <h4 class="text-md leading-6 font-semibold mb-2 text-slate-800">
+                  Configure TinyTicker
+                </h4>
+                <p>
+                  With wifi working, open
+                  <code class="underline decoration-pink-500 text-pink-800"
+                    >http://tinyticker.local</code
+                  >
+                  to access the configuration dashboard. Make sure you select
+                  the correct waveshare e-Paper display model for the screen to
+                  work properly.
+                </p>
+              </div>
+            </li>
+          </ol>
+        </div>
+        <div
+          class="flex-1 p-2 bg-slate-300 rounded-xl shadow-md ring-1 ring-inset ring-lime-500"
+        >
+          <div class="flex gap-2 mb-4 place-items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              class="w-10 h-10 p-1"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+              />
+              <path
+                d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
+              />
+            </svg>
+            <h1
+              class="text-2xl font-semibold underline decoration-lime-500"
+            >
+              Disk image info
+            </h1>
+          </div>
+
+          <p class="pb-2">
+            The provided disk image has
+            <span class="font-semibold">ssh enabled</span> and two preconfigured
+            users, one which handles the TinyTicker software and the default
+            <code>pi</code> user.
+          </p>
+          <div class="pl-5 mb-6">
+            <div class="flex gap-16 justify-center text-slate-100">
+              <div
+                class="flex-initial bg-slate-800 rounded-lg w-60 shadow-md text-sm ring-1 ring-inset"
+              >
+                <div class="p-2">
+                  <h1 class="text-lg text-center rounded-lg bg-slate-900 mb-2">
+                    Default
+                  </h1>
+                  <div class="flex gap-3">
+                    <div class="flex-none place-self-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-8"
+                        fill="currentColor"
+                        class="bi bi-person-circle"
+                        viewBox="0 0 16 16"
+                      >
+                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                        <path
+                          fill-rule="evenodd"
+                          d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"
+                        />
+                      </svg>
+                    </div>
+                    <div class="flex-auto">
+                      <p>Username: <code class="text-blue-400">pi</code></p>
+                      <p>
+                        Password: <code class="text-blue-400">raspberry</code>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="flex-initial bg-slate-800 rounded-lg w-60 shadow-md text-sm ring-1 ring-inset"
+              >
+                <div class="p-2">
+                  <h1 class="text-lg text-center rounded-lg bg-slate-900 mb-2">
+                    TinyTIcker
+                  </h1>
+                  <div class="flex gap-3">
+                    <div class="flex-none place-self-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="currentColor"
+                        class="w-8"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07Z"
+                        />
+                      </svg>
+                    </div>
+                    <div class="flex-auto">
+                      <p>
+                        Username: <code class="text-red-400">tinyticker</code>
+                      </p>
+                      <p>
+                        Password: <code class="text-red-400">tinyticker</code>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p>
+            <span class="font-semibold">Note:</span> It is highly recommended to
+            change the default passwords, especially for the
+            <code>pi</code> user.
+          </p>
+          <p>
+            For the full list of installed packages see the
+            <a
+              class="text-cyan-800 hover:text-cyan-600"
+              href="https://github.com/loiccoyle/tinyticker-images/raw/main/Tinyticker-lite.info"
+            >
+              <code>Tinyticker-lite.info</code></a
+            >
+            file.
+          </p>
+          <p>
+            On startup <code>systemd</code> is used to start the TinyTicker
+            ticker and web dashboard.
+          </p>
+          <div class="bg-slate-800 rounded-xl shadow-md ring-1 ring-inset m-2">
+            <div class="relative">
+              <pre
+                class="text-sm leading-6 text-slate-50 flex ligatures-none overflow-auto"
+              >
+              <code class="flex-none min-w-full p-5"><span class="flex"><svg viewBox="0 -9 3 24" aria-hidden="true" class="flex-none overflow-visible text-pink-400 w-auto h-6 mr-3"><path d="M0 0L3 3L0 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="flex-auto">ssh tinyticker@tinyticker.local</span></span><span class="flex"><svg viewBox="0 -9 3 24" aria-hidden="true" class="flex-none overflow-visible text-pink-400 w-auto h-6 mr-3"><path d="M0 0L3 3L0 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="flex-auto">systemctl status --user tinyticker</span></span><span class="flex"><svg viewBox="0 -9 3 24" aria-hidden="true" class="flex-none overflow-visible text-pink-400 w-auto h-6 mr-3"><path d="M0 0L3 3L0 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="flex-auto">systemctl status --user tinyticker-web</span></span></code>
+              </pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
