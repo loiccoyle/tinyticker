@@ -1,3 +1,3 @@
 live:
-	npx tailwindcss -o ./dist/output.css --watch &
+	npx tailwindcss -o style.css --watch &
 	npx live-server
