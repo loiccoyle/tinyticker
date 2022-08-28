@@ -85,7 +85,15 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
                 if value == "":
                     value = None
                 else:
-                    value = int(value)
+                    try:
+                        value = int(value)
+                    except ValueError:
+                        logger.warning(
+                            "Failed to convert %:%s to int.", key, value, exc_info=True
+                        )
+                        value = None
+                    if value == 0:
+                        value = None
             elif key == "flip":
                 value = True
             config[key] = value
