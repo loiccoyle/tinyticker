@@ -114,20 +114,25 @@ class Display:
         highlight_image = None
         if self.model.has_highlight and image.mode == "RGB":
             self._log.info("Computing highlight pixels.")
-            # create an image with the pixels which are coloured
             image_ar = np.array(image)
             colored_pixels = ~(image_ar == image_ar[:, :, 0][:, :, None]).all(axis=-1)
-            highlight_image = np.ones(image_ar.shape[:-1], dtype=image_ar.dtype) * 255
-            self._log.debug("Number of coloured pixels: %s", colored_pixels.sum())
-            highlight_image[colored_pixels] = 0
-            # I think there is a bug with PIL, need to convert from "L"
-            # https://stackoverflow.com/questions/32159076/python-pil-bitmap-png-from-array-with-mode-1
-            highlight_image = Image.fromarray(highlight_image, mode="L").convert(
-                "1", dither=Image.NONE
-            )
-            if self.flip:
-                highlight_image = highlight_image.rotate(180)
-            self._log.debug("Highlight image size: %s", highlight_image.size)
+            if colored_pixels.any():
+                self._log.debug("Number of coloured pixels: %s", colored_pixels.sum())
+                # create an image with the pixels which are coloured
+                highlight_image = (
+                    np.ones(image_ar.shape[:-1], dtype=image_ar.dtype) * 255
+                )
+                highlight_image[colored_pixels] = 0
+                # I think there is a bug with PIL, need to convert from "L"
+                # https://stackoverflow.com/questions/32159076/python-pil-bitmap-png-from-array-with-mode-1
+                highlight_image = Image.fromarray(highlight_image, mode="L").convert(
+                    "1", dither=Image.NONE
+                )
+                if self.flip:
+                    highlight_image = highlight_image.rotate(180)
+                self._log.debug("Highlight image size: %s", highlight_image.size)
+            else:
+                self._log.debug("No coloured pixels.")
 
         if image.mode != "1":
             image = image.convert("1", dither=Image.NONE)
