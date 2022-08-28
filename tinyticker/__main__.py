@@ -179,9 +179,8 @@ def start_ticker(args: Dict[str, Any]) -> None:
     for response in ticker.tick():
         try:
             if response["historical"] is None or response["historical"].empty:
-                error_str = f"No data in lookback range: {ticker.lookback}x{args['interval']} :("
                 display.text(
-                    error_str,
+                    f"No data for {ticker.symbol} in lookback range: {ticker.lookback}x{ticker.interval}",
                     show=True,
                     weight="bold",
                 )
@@ -192,8 +191,8 @@ def start_ticker(args: Dict[str, Any]) -> None:
                 display.plot(
                     response["historical"],
                     response["current_price"],
-                    top_string=f"{args['symbol']}: $",
-                    sub_string=f"{len(response['historical'])}x{args['interval']}",
+                    top_string=f"{ticker.symbol}: $",
+                    sub_string=f"{len(response['historical'])}x{ticker.interval}",
                     type=args["type"],
                     mav=args["mav"],
                     show=True,
@@ -201,7 +200,12 @@ def start_ticker(args: Dict[str, Any]) -> None:
                 )
         except Exception as exc:
             logger.error(exc, stack_info=True)
-            display.text("Wooops something broke :(", show=True, weight="bold")
+            display.text(
+                f"Whoops something broke:\n{exc}",
+                show=True,
+                weight="bold",
+                fontsize="small",
+            )
 
 
 def main():
