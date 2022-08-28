@@ -94,11 +94,12 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
                         value = None
                     if value == 0:
                         value = None
-            elif key == "flip":
+            elif key in ["flip", "volume"]:
                 value = True
             config[key] = value
-        if "flip" not in config:
-            config["flip"] = False
+        for key in ["flip", "volume"]:
+            if key not in config:
+                config[key] = False
         logger.debug("config dict: %s", config)
         cfg.write(config, config_file)
         refresh()
