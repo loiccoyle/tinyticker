@@ -145,3 +145,4 @@ static
 .vim
 notebooks
 assets/
+node_modules/
