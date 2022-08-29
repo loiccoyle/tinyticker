@@ -88,7 +88,7 @@ class RaspberryPi:
         GPIO.output(self.RST_PIN, 0)
         GPIO.output(self.DC_PIN, 0)
 
-        GPIO.cleanup()
+        GPIO.cleanup([self.RST_PIN, self.DC_PIN, self.CS_PIN, self.BUSY_PIN])
 
 
 CONFIG = RaspberryPi()

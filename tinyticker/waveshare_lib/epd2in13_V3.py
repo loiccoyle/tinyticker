@@ -4,8 +4,8 @@
 # * | Function    :   Electronic paper driver
 # * | Info        :
 # *----------------
-# * | This version:   V1.1
-# * | Date        :   2021-10-30
+# * | This version:   V1.2
+# * | Date        :   2022-08-9
 # # | Info        :   python demo
 # -----------------------------------------------------------------------------
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -372,7 +372,11 @@ class EPD:
         0x36,
     ]
 
-    # Hardware reset
+    """
+    function :Hardware reset
+    parameter:
+    """
+
     def reset(self):
         CONFIG.digital_write(self.reset_pin, 1)
         CONFIG.delay_ms(20)
@@ -381,11 +385,23 @@ class EPD:
         CONFIG.digital_write(self.reset_pin, 1)
         CONFIG.delay_ms(20)
 
+    """
+    function :send command
+    parameter:
+     command : Command register
+    """
+
     def send_command(self, command):
         CONFIG.digital_write(self.dc_pin, 0)
         CONFIG.digital_write(self.cs_pin, 0)
         CONFIG.spi_writebyte([command])
         CONFIG.digital_write(self.cs_pin, 1)
+
+    """
+    function :send data
+    parameter:
+     data : Write data
+    """
 
     def send_data(self, data):
         CONFIG.digital_write(self.dc_pin, 1)
@@ -393,11 +409,28 @@ class EPD:
         CONFIG.spi_writebyte([data])
         CONFIG.digital_write(self.cs_pin, 1)
 
+    # send a lot of data
+    def send_data2(self, data):
+        CONFIG.digital_write(self.dc_pin, 1)
+        CONFIG.digital_write(self.cs_pin, 0)
+        CONFIG.spi_writebyte2(data)
+        CONFIG.digital_write(self.cs_pin, 1)
+
+    """
+    function :Wait until the busy_pin goes LOW
+    parameter:
+    """
+
     def ReadBusy(self):
         logger.debug("e-Paper busy")
         while CONFIG.digital_read(self.busy_pin) == 1:  # 0: idle, 1: busy
             CONFIG.delay_ms(10)
         logger.debug("e-Paper busy release")
+
+    """
+    function : Turn On Display
+    parameter:
+    """
 
     def TurnOnDisplay(self):
         self.send_command(0x22)  # Display Update Control
@@ -405,11 +438,22 @@ class EPD:
         self.send_command(0x20)  # Activate Display Update Sequence
         self.ReadBusy()
 
+    """
+    function : Turn On Display Part
+    parameter:
+    """
+
     def TurnOnDisplayPart(self):
         self.send_command(0x22)  # Display Update Control
         self.send_data(0x0F)  # fast:0x0c, quality:0x0f, 0xcf
         self.send_command(0x20)  # Activate Display Update Sequence
         self.ReadBusy()
+
+    """
+    function : Set lut
+    parameter:
+        lut : lut data
+    """
 
     def Lut(self, lut):
         self.send_command(0x32)
@@ -417,21 +461,33 @@ class EPD:
             self.send_data(lut[i])
         self.ReadBusy()
 
+    """
+    function : Send lut data and configuration
+    parameter:
+        lut : lut data
+    """
+
     def SetLut(self, lut):
         self.Lut(lut)
         self.send_command(0x3F)
         self.send_data(lut[153])
-        self.send_command(0x03)
-        # gate voltage
+        self.send_command(0x03)  # gate voltage
         self.send_data(lut[154])
-        self.send_command(0x04)
-        # source voltage
+        self.send_command(0x04)  # source voltage
         self.send_data(lut[155])  # VSH
         self.send_data(lut[156])  # VSH2
         self.send_data(lut[157])  # VSL
-        self.send_command(0x2C)
-        # VCOM
+        self.send_command(0x2C)  # VCOM
         self.send_data(lut[158])
+
+    """
+    function : Setting the display window
+    parameter:
+        xstart : X-axis starting position
+        ystart : Y-axis starting position
+        xend : End position of X-axis
+        yend : End position of Y-axis
+    """
 
     def SetWindow(self, x_start, y_start, x_end, y_end):
         self.send_command(0x44)  # SET_RAM_X_ADDRESS_START_END_POSITION
@@ -445,6 +501,13 @@ class EPD:
         self.send_data(y_end & 0xFF)
         self.send_data((y_end >> 8) & 0xFF)
 
+    """
+    function : Set Cursor
+    parameter:
+        x : X-axis starting position
+        y : Y-axis starting position
+    """
+
     def SetCursor(self, x, y):
         self.send_command(0x4E)  # SET_RAM_X_ADDRESS_COUNTER
         # x point must be the multiple of 8 or the last 3 bits will be ignored
@@ -453,6 +516,11 @@ class EPD:
         self.send_command(0x4F)  # SET_RAM_Y_ADDRESS_COUNTER
         self.send_data(y & 0xFF)
         self.send_data((y >> 8) & 0xFF)
+
+    """
+    function : Initialize the e-Paper register
+    parameter:
+    """
 
     def init(self):
         if CONFIG.module_init() != 0:
@@ -490,6 +558,12 @@ class EPD:
         self.SetLut(self.lut_full_update)
         return 0
 
+    """
+    function : Display images
+    parameter:
+        image : Image data
+    """
+
     def getbuffer(self, image):
         img = image
         imwidth, imheight = img.size
@@ -511,6 +585,12 @@ class EPD:
         buf = bytearray(img.tobytes("raw"))
         return buf
 
+    """
+    function : Sends the image buffer in RAM to e-Paper and displays
+    parameter:
+        image : Image data
+    """
+
     def display(self, image):
         if self.width % 8 == 0:
             linewidth = int(self.width / 8)
@@ -522,6 +602,12 @@ class EPD:
             for i in range(0, linewidth):
                 self.send_data(image[i + j * linewidth])
         self.TurnOnDisplay()
+
+    """
+    function : Sends the image buffer in RAM to e-Paper and partial refresh
+    parameter:
+        image : Image data
+    """
 
     def displayPartial(self, image):
         if self.width % 8 == 0:
@@ -558,10 +644,17 @@ class EPD:
         self.SetCursor(0, 0)
 
         self.send_command(0x24)  # WRITE_RAM
-        for j in range(0, self.height):
-            for i in range(0, linewidth):
-                self.send_data(image[i + j * linewidth])
+        # for j in range(0, self.height):
+        #     for i in range(0, linewidth):
+        #         self.send_data(image[i + j * linewidth])
+        self.send_data2(image)
         self.TurnOnDisplayPart()
+
+    """
+    function : Refresh a base image
+    parameter:
+        image : Image data
+    """
 
     def displayPartBaseImage(self, image):
         if self.width % 8 == 0:
@@ -570,17 +663,18 @@ class EPD:
             linewidth = int(self.width / 8) + 1
 
         self.send_command(0x24)
-        for j in range(0, self.height):
-            for i in range(0, linewidth):
-                self.send_data(image[i + j * linewidth])
+        self.send_data2(image)
 
         self.send_command(0x26)
-        for j in range(0, self.height):
-            for i in range(0, linewidth):
-                self.send_data(image[i + j * linewidth])
+        self.send_data2(image)
         self.TurnOnDisplay()
 
-    def Clear(self, color=0xFF):
+    """
+    function : Clear screen
+    parameter:
+    """
+
+    def Clear(self, color):
         if self.width % 8 == 0:
             linewidth = int(self.width / 8)
         else:
@@ -588,11 +682,13 @@ class EPD:
         # logger.debug(linewidth)
 
         self.send_command(0x24)
-        for _ in range(0, self.height):
-            for _ in range(0, linewidth):
-                self.send_data(color)
-
+        self.send_data2([color] * int(self.height * linewidth))
         self.TurnOnDisplay()
+
+    """
+    function : Enter sleep mode
+    parameter:
+    """
 
     def sleep(self):
         self.send_command(0x10)  # enter deep sleep

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Callable
 
-from . import epd2in13, epd2in13_V2, epd2in13_V3, epd2in13b_V3, epd2in13bc
+from . import epd2in13, epd2in13_V2, epd2in13_V3, epd2in13b_V3, epd2in13b_V4, epd2in13bc
 
 
 @dataclass
@@ -46,6 +46,14 @@ MODELS = [
         has_highlight=True,
         width=epd2in13b_V3.EPD_WIDTH,
         height=epd2in13b_V3.EPD_HEIGHT,
+    ),
+    EPDModel(
+        name="EPDb_v4",
+        class_=epd2in13b_V4.EPD,
+        desc="Black, White and Red 2.13 inch V4",
+        has_highlight=True,
+        width=epd2in13b_V4.EPD_WIDTH,
+        height=epd2in13b_V4.EPD_HEIGHT,
     ),
     EPDModel(
         name="EPDbc",
