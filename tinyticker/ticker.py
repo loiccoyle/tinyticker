@@ -1,7 +1,7 @@
 import logging
 import time
 from datetime import datetime
-from typing import Iterator, Optional
+from typing import Callable, Dict, Iterator, List, Optional
 
 import cryptocompare
 import pandas as pd
@@ -130,7 +130,7 @@ def get_cryptocompare(
 
 
 class Ticker:
-    """Price information fetcher.
+    """Price data fetcher.
 
     Args:
         symbol_type: Either "crypto" or "stock".
@@ -180,12 +180,21 @@ class Ticker:
         else:
             self.wait_time = wait_time  # type: int
         self._log.debug("wait_time: %s", self.wait_time)
+        self._symbol_type_map: Dict[str, Callable] = {
+            "cyrpto": self._tick_crypto,
+            "stock": self._tick_stock,
+        }
+
+    @property
+    def single_tick(self) -> Callable:
+        """Perform a single tick."""
+        return self._symbol_type_map[self.symbol_type]
 
     def _tick_crypto(self) -> dict:
         """Query the crypto API.
 
         Returns:
-            Iterator which returns the cryptocompare API's historical and current price data.
+            Dictionary containing the cryptocompare API's historical and current price data.
         """
         self._log.info("Crypto tick.")
         historical = get_cryptocompare(self.symbol, self._interval_dt, self.lookback)
@@ -224,15 +233,27 @@ class Ticker:
         }
 
     def tick(self) -> Iterator[dict]:
-        if self.symbol_type == "crypto":
-            tick_method = self._tick_crypto
-        elif self.symbol_type == "stock":
-            tick_method = self._tick_stock
-        else:
-            raise ValueError(f"'symbol_type' not in {SYMBOL_TYPES}")
+        """Tick forever.
 
+        Returns:
+            Iterator over the price data.
+        """
         while True:
             self._log.info("Ticker start.")
-            yield tick_method()
+            yield self.single_tick()
             self._log.debug("Sleeping %i s", self.wait_time)
             time.sleep(self.wait_time)
+
+
+class Sequencer:
+    def __init__(self, tickers: List[Ticker]):
+        """Runs multiple tickers."""
+        if len(tickers) == 0:
+            raise ValueError("No tickers provided.")
+        self.tickers = tickers
+
+    def start(self):
+        while True:
+            for ticker in self.tickers:
+                ticker.single_tick()
+                time.sleep(ticker.wait_time)
