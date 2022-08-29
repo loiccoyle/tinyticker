@@ -51,6 +51,8 @@
                   {% endif %}
                   {% endfor %}
                 </select>
+                <label class="uk-form-label" for="api_key"><a href="https://min-api.cryptocompare.com/pricing">CryptoCompare</a> API key</label>
+                <input class="uk-input" type="text" id="api_key" name="api_key" {% if api_key %} value="{{api_key}}" {% endif %}>
                 <label class="uk-form-label" for="symbol_type">Symbol type</label>
                 <select class="uk-select" id="symbol_type" name="symbol_type">
                   {% for symbol_type_option in symbol_type_options %}
@@ -61,8 +63,6 @@
                   {% endif %}
                   {% endfor %}
                 </select>
-                <label class="uk-form-label" for="api_key"><a href="https://min-api.cryptocompare.com/pricing">CryptoCompare</a> API key</label>
-                <input class="uk-input" type="text" id="api_key" name="api_key" {% if api_key %} value="{{api_key}}" {% endif %}>
                 <label class="uk-form-label" for="symbol">Symbol</label>
                 <input class="uk-input" type="text" id="symbol" name="symbol" value="{{symbol}}">
                 <label class="uk-form-label" for="interval">Interval</label>
