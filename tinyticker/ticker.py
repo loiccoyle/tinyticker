@@ -181,7 +181,7 @@ class Ticker:
             self.wait_time = wait_time  # type: int
         self._log.debug("wait_time: %s", self.wait_time)
         self._symbol_type_map: Dict[str, Callable] = {
-            "cyrpto": self._tick_crypto,
+            "crypto": self._tick_crypto,
             "stock": self._tick_stock,
         }
 
