@@ -245,15 +245,15 @@ class Ticker:
             time.sleep(self.wait_time)
 
 
-class Sequencer:
+class Sequence:
     def __init__(self, tickers: List[Ticker]):
         """Runs multiple tickers."""
         if len(tickers) == 0:
             raise ValueError("No tickers provided.")
         self.tickers = tickers
 
-    def start(self):
+    def start(self) -> Iterator[dict]:
         while True:
             for ticker in self.tickers:
-                ticker.single_tick()
+                yield ticker.single_tick()
                 time.sleep(ticker.wait_time)
