@@ -247,6 +247,9 @@ class Ticker:
             self._log.debug("Sleeping %i s", self.wait_time)
             time.sleep(self.wait_time)
 
+    def __str__(self) -> str:
+        return f"Ticker\t{self.symbol_type}\t{self.symbol}\t{self.lookback}x{self.interval}\t{self.wait_time}s"
+
 
 class Sequence:
     def __init__(self, tickers: List[Ticker]):
@@ -260,3 +263,6 @@ class Sequence:
             for ticker in self.tickers:
                 yield (ticker, ticker.single_tick())
                 time.sleep(ticker.wait_time)
+
+    def __str__(self):
+        return "Sequence \n" + "\n".join([ticker.__str__() for ticker in self.tickers])

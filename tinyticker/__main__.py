@@ -168,6 +168,7 @@ def start_ticker(config_file: Path) -> None:
             for ticker_kwargs in args["tickers"]
         ]
     )
+    logger.debug(sequence)
 
     # ticker = Ticker(
     #     symbol_type=args["symbol_type"],
