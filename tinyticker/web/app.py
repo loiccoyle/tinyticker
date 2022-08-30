@@ -4,6 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 from socket import timeout
+from typing import Optional
 from urllib.error import HTTPError, URLError
 
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
@@ -21,6 +22,20 @@ logger = logging.getLogger(__name__)
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
 
 INTERVAL_WAIT_TIMES = {k: v.value * 1e-9 for k, v in INTERVAL_TIMEDELTAS.items()}
+
+
+def no_empty_str(data: str) -> Optional[str]:
+    if data == "":
+        return None
+    return data
+
+
+def str_to_bool(data: str) -> Optional[bool]:
+    if data == "1":
+        return True
+    elif data == "0":
+        return False
+    return None
 
 
 def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flask:
@@ -78,29 +93,23 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
     def config():
         logger.debug("/config url args: %s", request.args)
         config = {}
-        for key, value in request.args.items():
-            if key in ["api_key"] and value == "":
-                value = None
-            elif key in ["lookback", "wait_time", "mav"]:
-                if value == "":
-                    value = None
-                else:
-                    try:
-                        value = int(value)
-                    except ValueError:
-                        logger.warning(
-                            "Failed to convert %:%s to int.", key, value, exc_info=True
-                        )
-                        value = None
-                    if value == 0:
-                        value = None
-            elif key in ["flip", "volume"]:
-                value = True
-            config[key] = value
-        for key in ["flip", "volume"]:
-            if key not in config:
-                config[key] = False
-        logger.debug("config dict: %s", config)
+        config["api_key"] = request.args.get("api_key", type=no_empty_str)
+        config["flip"] = request.args.get("flip", default=False, type=bool)
+        config["epd_model"] = request.args.get("epd_model")
+        # ticker_args = cfg.DEFAULT["tickers"].keys()
+        tickers = {}
+        tickers["symbol"] = request.args.getlist("symbol")
+        tickers["symbol_type"] = request.args.getlist("symbol_type")
+        tickers["type"] = request.args.getlist("type")
+        tickers["interval"] = request.args.getlist("interval")
+        tickers["lookback"] = request.args.getlist("lookback", type=no_empty_str)
+        tickers["wait_time"] = request.args.getlist("wait_time", type=no_empty_str)
+        tickers["mav"] = request.args.getlist("mav", type=no_empty_str)
+        tickers["volume"] = request.args.getlist("volume", type=str_to_bool)
+
+        # invert the ticker dict dict of list to list of dict
+        config["tickers"] = [dict(zip(tickers, t)) for t in zip(*tickers.values())]
+        logger.debug(config)
         cfg.write(config, config_file)
         refresh()
         return redirect("/", code=302)

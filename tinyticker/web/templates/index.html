@@ -43,70 +43,75 @@
               <div class="uk-width-1-1">
                 <label class="uk-form-label" for="epd_model">ePaper display model</label>
                 <select class="uk-select" id="epd_model" name="epd_model">
-                  {% for epd_model_option in epd_model_options %}
-                  {% if epd_model_option.name == epd_model %}
+                  {%- for epd_model_option in epd_model_options %}
+                  {%- if epd_model_option.name == epd_model %}
                   <option value="{{epd_model_option.name}}" selected>{{epd_model_option.desc}}</option>
-                  {% else %}
+                  {%- else %}
                   <option value="{{epd_model_option.name}}">{{epd_model_option.desc}}</option>
-                  {% endif %}
-                  {% endfor %}
+                  {%- endif %}
+                  {%- endfor %}
                 </select>
                 <label class="uk-form-label" for="api_key"><a href="https://min-api.cryptocompare.com/pricing">CryptoCompare</a> API key</label>
                 <input class="uk-input" type="text" id="api_key" name="api_key" {% if api_key %} value="{{api_key}}" {% endif %}>
-                <label class="uk-form-label" for="symbol_type">Symbol type</label>
-                <select class="uk-select" id="symbol_type" name="symbol_type">
-                  {% for symbol_type_option in symbol_type_options %}
-                  {% if symbol_type_option == symbol_type %}
-                  <option value="{{symbol_type_option}}" selected>{{symbol_type_option}}</option>
-                  {% else %}
-                  <option value="{{symbol_type_option}}">{{symbol_type_option}}</option>
-                  {% endif %}
-                  {% endfor %}
-                </select>
-                <label class="uk-form-label" for="symbol">Symbol</label>
-                <input class="uk-input" type="text" id="symbol" name="symbol" value="{{symbol}}">
-                <label class="uk-form-label" for="interval">Interval</label>
-                <select class="uk-select" id="interval" name="interval">
-                  {% for interval_option in interval_options %}
-                  {% if interval_option == interval %}
-                  <option value="{{interval_option}}" selected>{{interval_option}}</option>
-                  {% else %}
-                  <option value="{{interval_option}}">{{interval_option}}</option>
-                  {% endif %}
-                  {% endfor %}
-                </select>
-                <label class="uk-form-label" for="type">Plot type</label>
-                <select class="uk-select" id="type" name="type">
-                  {% for type_option in type_options %}
-                  {% if type_option == type%}
-                  <option value="{{type_option}}" selected>{{type_option}}</option>
-                  {% else %}
-                  <option value="{{type_option}}">{{type_option}}</option>
-                  {% endif %}
-                  {% endfor %}
-                </select>
-                <label class="uk-form-label" for="lookback">Lookback</label>
-                {% if lookback is none %}
-                {# If the look back is None then it hasn't been set so use the default lookback for the interval #}
-                <input class="uk-input" inputmode="numeric" id="lookback" name="lookback" min="1" placeholder="{{interval_lookbacks[interval]}}">
-                {% else %}
-                <input class="uk-input" inputmode="numeric" id="lookback" name="lookback" min="1" value="{{lookback}}">
-                {%endif%}
-                <label class="uk-form-label" for="wait_time">Wait time</label>
-                {% if wait_time is none %}
-                {# If the wait_time is None then it hasn't been set so use the default wait_time for the interval #}
-                <input class="uk-input" inputmode="numeric" id="wait_time" name="wait_time" min="1" placeholder="{{interval_wait_times[interval]}}">
-                {% else %}
-                <input class="uk-input" inputmode="numeric" id="wait_time" name="wait_time" min="1" value="{{wait_time}}">
-                {%endif%}
-                <label class="uk-form-label" for="mav">Moving average</label>
-                {% if mav is none %}
-                <input class="uk-input" inputmode="numeric" id="mav" name="mav" min="1" placeholder="3">
-                {% else %}
-                <input class="uk-input" inputmode="numeric" id="mav" name="mav" min="1" value="{{mav}}">
-                {%endif%}
                 <label class="uk-form-label" for="flip">Flip <input class="uk-checkbox" type="checkbox" id="flip" name="flip" {% if flip | default(False) %}checked{% endif %}></label>
-                <label class="uk-form-label" for="volume">Volume <input class="uk-checkbox" type="checkbox" id="volume" name="volume" {% if volume| default(False) %}checked{% endif %}></label>
+                {%- for ticker in tickers %}
+                <div class="ticker">
+                  <label class="uk-form-label" for="symbol_type">Symbol type</label>
+                  <select class="uk-select" id="symbol_type" name="symbol_type">
+                    {%- for symbol_type_option in symbol_type_options %}
+                    {%- if symbol_type_option == ticker.symbol_type %}
+                    <option value="{{symbol_type_option}}" selected>{{symbol_type_option}}</option>
+                    {%- else %}
+                    <option value="{{symbol_type_option}}">{{symbol_type_option}}</option>
+                    {%- endif %}
+                    {%- endfor %}
+                  </select>
+                  <label class="uk-form-label" for="symbol">Symbol</label>
+                  <input class="uk-input" type="text" id="symbol" name="symbol" value="{{ticker.symbol}}">
+                  <label class="uk-form-label" for="interval">Interval</label>
+                  <select class="uk-select" id="interval" name="interval">
+                    {%- for interval_option in interval_options %}
+                    {%- if interval_option == ticker.interval %}
+                    <option value="{{interval_option}}" selected>{{interval_option}}</option>
+                    {%- else %}
+                    <option value="{{interval_option}}">{{interval_option}}</option>
+                    {%- endif %}
+                    {%- endfor %}
+                  </select>
+                  <label class="uk-form-label" for="type">Plot type</label>
+                  <select class="uk-select" id="type" name="type">
+                    {%- for type_option in type_options %}
+                    {%- if type_option == ticker.type %}
+                    <option value="{{type_option}}" selected>{{type_option}}</option>
+                    {%- else %}
+                    <option value="{{type_option}}">{{type_option}}</option>
+                    {%- endif %}
+                    {%- endfor %}
+                  </select>
+                  <label class="uk-form-label" for="lookback">Lookback</label>
+                  {%- if ticker.lookback is none %}
+                  {#- If the look back is None then it hasn't been set so use the default lookback for the interval #}
+                  <input class="uk-input" inputmode="numeric" id="lookback" name="lookback" min="1" placeholder="{{interval_lookbacks[ticker.interval]}}">
+                  {%- else %}
+                  <input class="uk-input" inputmode="numeric" id="lookback" name="lookback" min="1" value="{{ticker.lookback}}">
+                  {%- endif %}
+                  <label class="uk-form-label" for="wait_time">Wait time</label>
+                  {%- if ticker.wait_time is none %}
+                  {#- If the wait_time is None then it hasn't been set so use the default wait_time for the interval #}
+                  <input class="uk-input" inputmode="numeric" id="wait_time" name="wait_time" min="1" placeholder="{{interval_wait_times[ticker.interval]}}">
+                  {%- else %}
+                  <input class="uk-input" inputmode="numeric" id="wait_time" name="wait_time" min="1" value="{{ticker.wait_time}}">
+                  {%- endif %}
+                  <label class="uk-form-label" for="mav">Moving average</label>
+                  {%- if ticker.mav is none %}
+                  <input class="uk-input" inputmode="numeric" id="mav" name="mav" min="1" placeholder="3">
+                  {%- else %}
+                  <input class="uk-input" inputmode="numeric" id="mav" name="mav" min="1" value="{{ticker.mav}}">
+                  {%- endif %}
+                  <label class="uk-form-label" for="volume">Volume <input type="hidden" name="volume" value="0"><input class="uk-checkbox" type="checkbox" {% if ticker.volume| default(False) %}checked{% endif %} onclick="this.previousSibling.value=1-this.previousSibling.value"></label>
+                </div>
+                {%- endfor %}
+                <button class="uk-button uk-button-primary uk-width-expand" type="button" onclick="add_ticker()">Add Ticker</button>
               </div>
               <div class="uk-width-1-1 uk-margin">
                 <button type="submit" value="submit" class="uk-button uk-button-primary uk-width-expand">Apply</button>
@@ -130,4 +135,5 @@
       <span class="uk-text-small uk-text-muted">TinyTicker v{{version}} - <span uk-icon="github"></span><a href="https://github.com/loiccoyle/tinyticker" title="tinyticker" target="_blank" data-uk-tooltip>TinyTicker</a> - <span uk-icon="file-text"></span><a href="/logfiles" title="log files" target="_blank" data-uk-tooltip>Log files</a></span>
     </div>
   </body>
+  <script src="js/index.js"></script>
 </html>

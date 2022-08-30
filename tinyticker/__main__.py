@@ -170,15 +170,6 @@ def start_ticker(config_file: Path) -> None:
     )
     logger.debug(sequence)
 
-    # ticker = Ticker(
-    #     symbol_type=args["symbol_type"],
-    #     api_key=args["api_key"],
-    #     symbol=args["symbol"],
-    #     interval=args["interval"],
-    #     lookback=args["lookback"],
-    #     wait_time=args["wait_time"],
-    # )
-
     for (ticker, response) in sequence.start():
         try:
             if response["historical"] is None or response["historical"].empty:
