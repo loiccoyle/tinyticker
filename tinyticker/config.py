@@ -10,16 +10,20 @@ LOGGER = logging.getLogger(__name__)
 TYPES = ["candlestick", "line", "ohlc"]
 DEFAULT = {
     "epd_model": "EPD_v2",
-    "symbol_type": "stock",
     "api_key": None,
-    "symbol": "SPY",
-    "interval": "1d",
-    "lookback": None,
-    "wait_time": None,
     "flip": False,
-    "volume": False,
-    "type": "candlestick",
-    "mav": None,
+    "tickers": [
+        {
+            "symbol_type": "stock",
+            "symbol": "SPY",
+            "interval": "1d",
+            "lookback": None,
+            "wait_time": None,
+            "volume": False,
+            "type": "candlestick",
+            "mav": None,
+        }
+    ],
 }
 
 

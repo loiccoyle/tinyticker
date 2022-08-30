@@ -1,7 +1,7 @@
 import logging
 import time
 from datetime import datetime
-from typing import Callable, Dict, Iterator, List, Optional
+from typing import Callable, Dict, Iterator, List, Optional, Tuple
 
 import cryptocompare
 import pandas as pd
@@ -140,6 +140,7 @@ class Ticker:
         interval: Data time interval,
         lookback: How many intervals to look back.
         wait_time: Time to wait in between API calls.
+        **kwargs: Extra args are provided to the `Display.plot` method.
     """
 
     def __init__(
@@ -150,6 +151,7 @@ class Ticker:
         interval: str = "1d",
         lookback: Optional[int] = None,
         wait_time: Optional[int] = None,
+        **kwargs,
     ) -> None:
         self._log = logging.getLogger(__name__)
         if symbol_type not in SYMBOL_TYPES:
@@ -184,6 +186,7 @@ class Ticker:
             "crypto": self._tick_crypto,
             "stock": self._tick_stock,
         }
+        self._display_kwargs = kwargs
 
     @property
     def single_tick(self) -> Callable:
@@ -252,8 +255,8 @@ class Sequence:
             raise ValueError("No tickers provided.")
         self.tickers = tickers
 
-    def start(self) -> Iterator[dict]:
+    def start(self) -> Iterator[Tuple[Ticker, dict]]:
         while True:
             for ticker in self.tickers:
-                yield ticker.single_tick()
+                yield (ticker, ticker.single_tick())
                 time.sleep(ticker.wait_time)
