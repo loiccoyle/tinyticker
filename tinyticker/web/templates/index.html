@@ -43,8 +43,8 @@
               <div class="uk-width-1-1">
                 <label class="uk-form-label" for="epd_model">ePaper display model</label>
                 <div class="uk-flex uk-flex-middle">
-                  <span uk-icon="icon: tv; ratio: 2" class="uk-padding-small uk-padding-remove-vertical"></span>
-                  <select class="uk-select" id="epd_model" name="epd_model">
+                  <span uk-icon="icon: tv; ratio: 2" class="uk-padding-small uk-padding-remove-vertical" style="width: 40px;"></span>
+                  <select class="uk-select uk-text-small" id="epd_model" name="epd_model">
                     {%- for epd_model_option in epd_model_options %}
                     {%- if epd_model_option.name == epd_model %}
                     <option value="{{epd_model_option.name}}" selected>{{epd_model_option.desc}}</option>
@@ -56,9 +56,9 @@
                   <label class="uk-form-label uk-flex-none uk-margin-left" for="flip"><input class="uk-checkbox uk-margin-small-right" type="checkbox" id="flip" name="flip" {% if flip | default(False) %}checked{% endif %}>Flip display</label>
                 </div>
                 <label class="uk-form-label" for="api_key"><a href="https://min-api.cryptocompare.com/pricing">CryptoCompare</a> API key</label>
-                <div class="uk-flex uk-flex-middle">
-                  <span uk-icon="icon: lock; ratio: 1.35" class="uk-padding-small uk-padding-remove-vertical"></span>
-                  <input class="uk-input" type="text" id="api_key" name="api_key" {% if api_key %} value="{{api_key}}" {% endif %}>
+                <div class="uk-inline uk-width-1-1">
+                  <a class="uk-form-icon" href="#" uk-icon="icon: lock"></a>
+                  <input class="uk-input uk-text-small" type="text" id="api_key" name="api_key" {% if api_key %} value="{{api_key}}" {% endif %}>
                 </div>
                 <h4>Tickers</h4>
                 <div class="container uk-background-secondary uk-flex uk-flex-row uk-flex-middle uk-padding uk-flex-left uk-flex-center@m" style="overflow-x: auto; position: relative; box-sizing: border-box; width:100vw; left: calc(-50vw + 50%);">
