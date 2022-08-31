@@ -30,6 +30,12 @@ def no_empty_str(data: str) -> Optional[str]:
     return data
 
 
+def no_empty_int(data: str) -> Optional[int]:
+    if data == "":
+        return None
+    return int(data)
+
+
 def str_to_bool(data: str) -> Optional[bool]:
     if data == "1":
         return True
@@ -102,9 +108,9 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         tickers["symbol_type"] = request.args.getlist("symbol_type")
         tickers["type"] = request.args.getlist("type")
         tickers["interval"] = request.args.getlist("interval")
-        tickers["lookback"] = request.args.getlist("lookback", type=no_empty_str)
-        tickers["wait_time"] = request.args.getlist("wait_time", type=no_empty_str)
-        tickers["mav"] = request.args.getlist("mav", type=no_empty_str)
+        tickers["lookback"] = request.args.getlist("lookback", type=no_empty_int)
+        tickers["wait_time"] = request.args.getlist("wait_time", type=no_empty_int)
+        tickers["mav"] = request.args.getlist("mav", type=no_empty_int)
         tickers["volume"] = request.args.getlist("volume", type=str_to_bool)
 
         # invert the ticker dict dict of list to list of dict
