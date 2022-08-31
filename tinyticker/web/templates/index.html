@@ -57,7 +57,7 @@
                 <h4>Tickers</h4>
                 <div class="container uk-background-secondary uk-flex uk-flex-row uk-flex-middle uk-padding-small" style="overflow-x: auto;">
                 {%- for ticker in tickers %}
-                  <div class="ticker uk-card uk-card-default uk-flex-none uk-margin-right uk-padding-small uk-animation-slide-right">
+                  <div class="ticker uk-card uk-card-default uk-flex-none uk-margin-right uk-padding-small uk-animation-slide-right uk-border-rounded">
                     <button class="ticker-close" type="button" uk-close style="float: right" onclick="remove_ticker(this)"></button>
                     <label class="uk-form-label" for="symbol_type">Symbol type</label>
                     <select class="uk-select" id="symbol_type" name="symbol_type">
