@@ -14,5 +14,5 @@ function remove_ticker(element) {
     ticker.parentNode.removeChild(ticker);
   });
   ticker.className =
-    " uk-animation-slide-top uk-animation-fast uk-animation-reverse";
+    " uk-animation-slide-top uk-animation-reverse";
 }
