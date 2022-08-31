@@ -113,7 +113,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         tickers["mav"] = request.args.getlist("mav", type=no_empty_int)
         tickers["volume"] = request.args.getlist("volume", type=str_to_bool)
 
-        # invert the ticker dict dict of list to list of dict
+        # invert the ticker dict of list to list of dict
         config["tickers"] = [dict(zip(tickers, t)) for t in zip(*tickers.values())]
         logger.debug(config)
         cfg.write(config, config_file)
