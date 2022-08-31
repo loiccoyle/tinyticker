@@ -55,7 +55,7 @@
                 <input class="uk-input" type="text" id="api_key" name="api_key" {% if api_key %} value="{{api_key}}" {% endif %}>
                 <label class="uk-form-label" for="flip">Flip <input class="uk-checkbox" type="checkbox" id="flip" name="flip" {% if flip | default(False) %}checked{% endif %}></label>
                 <h4>Tickers</h4>
-                <div class="container uk-background-secondary uk-flex uk-flex-row uk-flex-middle uk-padding-small" style="overflow-x: auto;">
+                <div class="container uk-background-secondary uk-flex uk-flex-row uk-flex-middle uk-padding-small" style="overflow-x: auto; position: relative; box-sizing: border-box; width:100vw; left: calc(-50vw + 50%);">
                 {%- for ticker in tickers %}
                   <div class="ticker uk-card uk-card-default uk-flex-none uk-margin-right uk-padding-small uk-animation-slide-right uk-border-rounded">
                     <button class="ticker-close" type="button" uk-close style="float: right" onclick="remove_ticker(this)"></button>
