@@ -9,7 +9,7 @@ LOGGER = logging.getLogger(__name__)
 # remove hollow types because white on white doesn't show
 TYPES = ["candlestick", "line", "ohlc"]
 DEFAULT = {
-    "epd_model": "EPD_v2",
+    "epd_model": "EPD_v3",
     "api_key": None,
     "flip": False,
     "tickers": [
