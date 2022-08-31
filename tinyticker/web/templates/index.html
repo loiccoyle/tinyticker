@@ -114,7 +114,7 @@
                     <label class="uk-form-label" for="volume">Volume <input type="hidden" name="volume" value="0"><input class="uk-checkbox" type="checkbox" {% if ticker.volume| default(False) %}checked{% endif %} onclick="this.previousSibling.value=1-this.previousSibling.value"></label>
                   </div>
                 {%- endfor %}
-                  <div class="uk-card uk-card-primary uk-flex-none uk-margin-right uk-padding-small uk-button uk-border-rounded" onclick="add_ticker()">
+                  <div class="uk-card uk-card-primary uk-flex-none uk-margin-right uk-padding-small uk-button uk-border-rounded uk-animation-fade" onclick="add_ticker()">
                       +
                   </div>
                 </div>
