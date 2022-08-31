@@ -5,6 +5,14 @@ function add_ticker() {
 }
 
 function remove_ticker(element) {
+  let tickers = document.getElementsByClassName("ticker");
+  if (tickers.length == 1) {
+    return;
+  }
   let ticker = element.parentNode;
-  ticker.parentNode.removeChild(ticker);
+  ticker.addEventListener("animationend", function () {
+    ticker.parentNode.removeChild(ticker);
+  });
+  ticker.className =
+    " uk-animation-slide-top uk-animation-fast uk-animation-reverse";
 }
