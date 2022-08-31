@@ -2,6 +2,7 @@ function add_ticker() {
   let tickers = document.getElementsByClassName("ticker");
   let last_ticker = tickers[tickers.length - 1];
   last_ticker.insertAdjacentElement("afterend", last_ticker.cloneNode(true));
+  last_ticker.classList.remove;
 }
 
 function remove_ticker(element) {
@@ -13,6 +14,6 @@ function remove_ticker(element) {
   ticker.addEventListener("animationend", function () {
     ticker.parentNode.removeChild(ticker);
   });
-  ticker.className =
-    " uk-animation-slide-top uk-animation-reverse";
+  ticker.classList.remove("uk-animation-slide-right");
+  ticker.className += " uk-animation-slide-top uk-animation-reverse uk-animation-fast";
 }
