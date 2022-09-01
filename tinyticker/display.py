@@ -207,6 +207,7 @@ class Display:
             update_width_config={"line_width": 1},
             style=s,
             volume=volume_ax,
+            linecolor="k",
             **kwargs,
         )
         # Fall back to using the last closing price

@@ -12,7 +12,7 @@ from . import __version__, config, logger
 from .config import DEFAULT, TYPES
 from .display import Display
 from .settings import CONFIG_FILE, PID_FILE, set_verbosity
-from .ticker import INTERVAL_LOOKBACKS, SYMBOL_TYPES, Ticker
+from .ticker import INTERVAL_LOOKBACKS, SYMBOL_TYPES, Sequence, Ticker
 from .utils import RawTextArgumentDefaultsHelpFormatter
 from .waveshare_lib.models import MODELS
 
@@ -29,94 +29,92 @@ Note:
         formatter_class=RawTextArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
-        "--epd-model",
-        help="ePaper display model.",
-        type=str,
-        default="EPD_v2",
-        choices=MODELS.keys(),
+        "--config",
+        help="Config file location.",
+        type=Path,
+        default=CONFIG_FILE,
     )
-    parser.add_argument(
-        "--symbol-type",
-        help="The type of the symbol.",
-        type=str,
-        default="stock",
-        choices=SYMBOL_TYPES,
-    )
-    parser.add_argument(
-        "-a",
-        "--api-key",
-        help="CryptoCompare API key, https://min-api.cryptocompare.com/pricing.",
-        type=str,
-        default=DEFAULT["api_key"],
-    )
-    parser.add_argument(
-        "-s",
-        "--symbol",
-        help="Asset symbol.",
-        type=str,
-        default=DEFAULT["symbol"],
-    )
-    parser.add_argument(
-        "-i",
-        "--interval",
-        help="Interval.",
-        type=str,
-        default=DEFAULT["interval"],
-        choices=INTERVAL_LOOKBACKS.keys(),
-    )
-    parser.add_argument(
-        "-l",
-        "--lookback",
-        help="Look back amount.",
-        type=int,
-        default=DEFAULT["lookback"],
-    )
-    parser.add_argument(
-        "-w",
-        "--wait-time",
-        help="Wait time in seconds.",
-        type=int,
-        default=DEFAULT["wait_time"],
-    )
-    parser.add_argument(
-        "-t",
-        "--type",
-        help="Plot style, see mplfinance.",
-        type=str,
-        default=DEFAULT["type"],
-        choices=TYPES,
-    )
-    parser.add_argument(
-        "--volume",
-        help="Plot the volume bar plot.",
-        action="store_true",
-    )
-    parser.add_argument(
-        "-f",
-        "--flip",
-        help="Flip the display.",
-        action="store_true",
-    )
-    parser.add_argument(
-        "--moving-average",
-        help="Display a moving average.",
-        type=int,
-        dest="mav",
-    )
+    # parser.add_argument(
+    #     "--epd-model",
+    #     help="ePaper display model.",
+    #     type=str,
+    #     default="EPD_v2",
+    #     choices=MODELS.keys(),
+    # )
+    # parser.add_argument(
+    #     "-a",
+    #     "--api-key",
+    #     help="CryptoCompare API key, https://min-api.cryptocompare.com/pricing.",
+    #     type=str,
+    #     default=DEFAULT["api_key"],
+    # )
+    # parser.add_argument(
+    #     "--symbol-type",
+    #     help="The type of the symbol.",
+    #     type=str,
+    #     choices=SYMBOL_TYPES,
+    #     default=DEFAULT["tickers"][0]["stock"],
+    # )
+    # parser.add_argument(
+    #     "-s",
+    #     "--symbol",
+    #     help="Asset symbol.",
+    #     type=str,
+    #     default=DEFAULT["tickers"][0]["symbol"],
+    # )
+    # parser.add_argument(
+    #     "-i",
+    #     "--interval",
+    #     help="Interval.",
+    #     type=str,
+    #     choices=INTERVAL_LOOKBACKS.keys(),
+    #     default=DEFAULT["tickers"][0]["interval"],
+    # )
+    # parser.add_argument(
+    #     "-l",
+    #     "--lookback",
+    #     help="Look back amount.",
+    #     type=int,
+    #     default=DEFAULT["tickers"][0]["lookback"],
+    # )
+    # parser.add_argument(
+    #     "-w",
+    #     "--wait-time",
+    #     help="Wait time in seconds.",
+    #     type=int,
+    #     default=DEFAULT["tickers"][0]["wait_time"],
+    # )
+    # parser.add_argument(
+    #     "-t",
+    #     "--type",
+    #     help="Plot style, see mplfinance.",
+    #     type=str,
+    #     choices=TYPES,
+    #     default=DEFAULT["tickers"][0]["type"],
+    # )
+    # parser.add_argument(
+    #     "--volume",
+    #     help="Plot the volume bar plot.",
+    #     action="store_true",
+    # )
+    # parser.add_argument(
+    #     "-f",
+    #     "--flip",
+    #     help="Flip the display.",
+    #     action="store_true",
+    # )
+    # parser.add_argument(
+    #     "--moving-average",
+    #     help="Display a moving average.",
+    #     type=int,
+    #     dest="mav",
+    # )
     parser.add_argument(
         "-v",
         "--verbose",
         help="Verbosity.",
         action="count",
         default=0,
-    )
-    parser.add_argument(
-        "--config",
-        help=f"Take values from config file.",
-        nargs="?",
-        type=Path,
-        const=CONFIG_FILE,
-        default=None,
     )
     parser.add_argument(
         "--version",
@@ -129,16 +127,13 @@ Note:
 
 def load_config_values(args: Dict[str, Any]) -> Dict[str, Any]:
     """Update the args dictionary with values found in the config file."""
-    if args["config"]:
-        # update the values if they are not None
-        # allows for using other args to set values not set in the config file
-        args.update(
-            {k: v for k, v in config.read(args["config"]).items() if v is not None}
-        )
+    # update the values if they are not None
+    # allows for using other args to set values not set in the config file
+    args.update({k: v for k, v in config.read(args["config"]).items() if v is not None})
     return args
 
 
-def start_ticker_process(args: Dict[str, Any]) -> multiprocessing.Process:
+def start_ticker_process(config_file: Path) -> multiprocessing.Process:
     """Create and start the ticker process.
 
     Args:
@@ -147,41 +142,39 @@ def start_ticker_process(args: Dict[str, Any]) -> multiprocessing.Process:
     Returns:
         The ticker process.
     """
-    tick_process = multiprocessing.Process(target=start_ticker, args=(args,))
+    tick_process = multiprocessing.Process(target=start_ticker, args=(config_file,))
     tick_process.start()
     return tick_process
 
 
-def start_ticker(args: Dict[str, Any]) -> None:
+def start_ticker(config_file: Path) -> None:
     """Start ticking.
 
     Args:
         args: dictionary containing the arguments.
     """
     logger.info("Starting ticker process")
-    # Update the args in case the config file was changed.
-    args = load_config_values(args)
+    # Read config values
+    args = config.read(config_file)
 
     display = Display(
         flip=args["flip"],
         model=args["epd_model"],
     )
 
-    ticker = Ticker(
-        symbol_type=args["symbol_type"],
-        api_key=args["api_key"],
-        symbol=args["symbol"],
-        interval=args["interval"],
-        lookback=args["lookback"],
-        wait_time=args["wait_time"],
+    sequence = Sequence(
+        [
+            Ticker(api_key=args["api_key"], **ticker_kwargs)
+            for ticker_kwargs in args["tickers"]
+        ]
     )
+    logger.debug(sequence)
 
-    for response in ticker.tick():
+    for (ticker, response) in sequence.start():
         try:
             if response["historical"] is None or response["historical"].empty:
-                error_str = f"No data in lookback range: {ticker.lookback}x{args['interval']} :("
                 display.text(
-                    error_str,
+                    f"No data for {ticker.symbol} in lookback range: {ticker.lookback}x{ticker.interval}",
                     show=True,
                     weight="bold",
                 )
@@ -192,32 +185,31 @@ def start_ticker(args: Dict[str, Any]) -> None:
                 display.plot(
                     response["historical"],
                     response["current_price"],
-                    top_string=f"{args['symbol']}: $",
-                    sub_string=f"{len(response['historical'])}x{args['interval']}",
-                    type=args["type"],
-                    mav=args["mav"],
+                    top_string=f"{ticker.symbol}: $",
+                    sub_string=f"{len(response['historical'])}x{ticker.interval}",
                     show=True,
-                    volume=args["volume"],
+                    **ticker._display_kwargs,
                 )
         except Exception as exc:
             logger.error(exc, stack_info=True)
-            display.text("Wooops something broke :(", show=True, weight="bold")
+            display.text(
+                f"Whoops something broke:\n{exc}",
+                show=True,
+                weight="bold",
+                fontsize="small",
+            )
 
 
 def main():
     args = parse_args(sys.argv[1:])
-    # convert to dict
-    args = vars(args)
+    config_file = args.config
 
-    if args["verbose"] > 0:
-        set_verbosity(logger, args["verbose"])
+    if args.verbose > 0:
+        set_verbosity(logger, args.verbose)
 
-    if args["config"]:
-        # if the config file is not present, write the default values
-        if not args["config"].is_file():
-            config.write_default(args["config"])
-        # update args with config values
-        args = load_config_values(args)
+    # if the config file is not present, write the default values
+    if not config_file.is_file():
+        config.write_default(config_file)
 
     # write the process pid to file.
     pid = os.getpid()
@@ -255,10 +247,10 @@ def main():
     atexit.register(cleanup)
 
     # start ticking
-    tick_process = start_ticker_process(args)
+    tick_process = start_ticker_process(config_file)
     while True:
         if tick_process._closed or not tick_process.is_alive():  # type: ignore
-            tick_process = start_ticker_process(args)
+            tick_process = start_ticker_process(config_file)
         else:
             sleep(1)
 

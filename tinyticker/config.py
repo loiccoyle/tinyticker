@@ -9,17 +9,21 @@ LOGGER = logging.getLogger(__name__)
 # remove hollow types because white on white doesn't show
 TYPES = ["candlestick", "line", "ohlc"]
 DEFAULT = {
-    "epd_model": "EPD_v2",
-    "symbol_type": "stock",
+    "epd_model": "EPD_v3",
     "api_key": None,
-    "symbol": "SPY",
-    "interval": "1d",
-    "lookback": None,
-    "wait_time": None,
     "flip": False,
-    "volume": False,
-    "type": "candlestick",
-    "mav": None,
+    "tickers": [
+        {
+            "symbol_type": "stock",
+            "symbol": "SPY",
+            "interval": "1d",
+            "lookback": None,
+            "wait_time": None,
+            "volume": False,
+            "type": "candlestick",
+            "mav": None,
+        }
+    ],
 }
 
 
