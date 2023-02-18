@@ -248,7 +248,15 @@ class Ticker:
             time.sleep(self.wait_time)
 
     def __str__(self) -> str:
-        return f"Ticker\t{self.symbol_type}\t{self.symbol}\t{self.lookback}x{self.interval}\t{self.wait_time}s"
+        return "\t".join(
+            [
+                "Ticker",
+                self.symbol_type,
+                self.symbol,
+                f"{self.lookback}x{self.interval}",
+                str(self.wait_time),
+            ]
+        )
 
 
 class Sequence:
@@ -265,7 +273,7 @@ class Sequence:
             skip_on_empty: if the response doesn't contain any data, quickly move on to
                 the next ticker.
             skip_on_outdated: if the last candle of the response is too old, move to the
-                next ticker. This typically happends when the stock market closes.
+                next ticker. This typically happens when the stock market closes.
         """
         if len(tickers) == 0:
             raise ValueError("No tickers provided.")
@@ -283,6 +291,8 @@ class Sequence:
                 ):
                     LOGGER.debug(f"{ticker} response empty, skipping.")
                     continue
+                LOGGER.debug(pd.Timestamp.now().tzinfo)
+                LOGGER.debug(response["historical"].index[-1].tzinfo)
                 if self.skip_on_outdated and (
                     (pd.Timestamp.now() - response["historical"].index[-1])
                     < ticker._interval_dt
@@ -293,4 +303,4 @@ class Sequence:
                 time.sleep(ticker.wait_time)
 
     def __str__(self):
-        return "Sequence \n" + "\n".join([ticker.__str__() for ticker in self.tickers])
+        return "Sequence: \n" + "\n".join([ticker.__str__() for ticker in self.tickers])
