@@ -291,8 +291,14 @@ class Sequence:
                 ):
                     LOGGER.debug(f"{ticker} response empty, skipping.")
                     continue
-                LOGGER.debug(pd.Timestamp.now().tzinfo)
-                LOGGER.debug(response["historical"].index[-1].tzinfo)
+                LOGGER.debug(
+                    pd.Timestamp.now(),
+                    pd.Timestamp.now().tzinfo,
+                )
+                LOGGER.debug(
+                    response["historical"].index[-1],
+                    response["historical"].index[-1].tzinfo,
+                )
                 LOGGER.debug(
                     datetime.now(timezone.utc) - response["historical"].index[-1]
                 )
