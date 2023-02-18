@@ -135,9 +135,9 @@ class Ticker:
     Args:
         symbol_type: Either "crypto" or "stock".
         api_key: CryptoCompare API key, https://min-api.cryptocompare.com/pricing,
-            required for obtaining crypto prices.
+            required for fetching crypto prices.
         symbol:  Ticker symbol, "AAPL", "BTC", "ETH", "DOGE" ...
-        interval: Data time interval,
+        interval: Data time interval.
         lookback: How many intervals to look back.
         wait_time: Time to wait in between API calls.
         **kwargs: Extra args are provided to the `Display.plot` method.
@@ -252,16 +252,44 @@ class Ticker:
 
 
 class Sequence:
-    def __init__(self, tickers: List[Ticker]):
-        """Runs multiple tickers."""
+    def __init__(
+        self,
+        tickers: List[Ticker],
+        skip_on_empty: bool = True,
+        skip_on_outdated: bool = True,
+    ):
+        """Runs multiple tickers.
+
+        Args:
+            tickers: list of Ticker instances.
+            skip_on_empty: if the response doesn't contain any data, quickly move on to
+                the next ticker.
+            skip_on_outdated: if the last candle of the response is too old, move to the
+                next ticker. This typically happends when the stock market closes.
+        """
         if len(tickers) == 0:
             raise ValueError("No tickers provided.")
         self.tickers = tickers
+        self.skip_on_empty = skip_on_empty
+        self.skip_on_outdated = skip_on_outdated
 
     def start(self) -> Iterator[Tuple[Ticker, dict]]:
+        """Start iterating through the tickers."""
         while True:
             for ticker in self.tickers:
-                yield (ticker, ticker.single_tick())
+                response = ticker.single_tick()
+                if self.skip_on_empty and (
+                    response["historical"] is None or response["historical"].empty
+                ):
+                    LOGGER.debug(f"{ticker} response empty, skipping.")
+                    continue
+                if self.skip_on_outdated and (
+                    (pd.Timestamp.now() - response["historical"].index[-1])
+                    < ticker._interval_dt
+                ):
+                    LOGGER.debug(f"{ticker} response outdated, skipping.")
+                    continue
+                yield (ticker, response)
                 time.sleep(ticker.wait_time)
 
     def __str__(self):

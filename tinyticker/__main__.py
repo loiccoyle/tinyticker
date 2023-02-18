@@ -9,12 +9,10 @@ from time import sleep
 from typing import Any, Dict, List
 
 from . import __version__, config, logger
-from .config import DEFAULT, TYPES
 from .display import Display
 from .settings import CONFIG_FILE, PID_FILE, set_verbosity
-from .ticker import INTERVAL_LOOKBACKS, SYMBOL_TYPES, Sequence, Ticker
+from .ticker import Sequence, Ticker
 from .utils import RawTextArgumentDefaultsHelpFormatter
-from .waveshare_lib.models import MODELS
 
 
 def parse_args(args: List[str]) -> argparse.Namespace:
@@ -34,81 +32,6 @@ Note:
         type=Path,
         default=CONFIG_FILE,
     )
-    # parser.add_argument(
-    #     "--epd-model",
-    #     help="ePaper display model.",
-    #     type=str,
-    #     default="EPD_v2",
-    #     choices=MODELS.keys(),
-    # )
-    # parser.add_argument(
-    #     "-a",
-    #     "--api-key",
-    #     help="CryptoCompare API key, https://min-api.cryptocompare.com/pricing.",
-    #     type=str,
-    #     default=DEFAULT["api_key"],
-    # )
-    # parser.add_argument(
-    #     "--symbol-type",
-    #     help="The type of the symbol.",
-    #     type=str,
-    #     choices=SYMBOL_TYPES,
-    #     default=DEFAULT["tickers"][0]["stock"],
-    # )
-    # parser.add_argument(
-    #     "-s",
-    #     "--symbol",
-    #     help="Asset symbol.",
-    #     type=str,
-    #     default=DEFAULT["tickers"][0]["symbol"],
-    # )
-    # parser.add_argument(
-    #     "-i",
-    #     "--interval",
-    #     help="Interval.",
-    #     type=str,
-    #     choices=INTERVAL_LOOKBACKS.keys(),
-    #     default=DEFAULT["tickers"][0]["interval"],
-    # )
-    # parser.add_argument(
-    #     "-l",
-    #     "--lookback",
-    #     help="Look back amount.",
-    #     type=int,
-    #     default=DEFAULT["tickers"][0]["lookback"],
-    # )
-    # parser.add_argument(
-    #     "-w",
-    #     "--wait-time",
-    #     help="Wait time in seconds.",
-    #     type=int,
-    #     default=DEFAULT["tickers"][0]["wait_time"],
-    # )
-    # parser.add_argument(
-    #     "-t",
-    #     "--type",
-    #     help="Plot style, see mplfinance.",
-    #     type=str,
-    #     choices=TYPES,
-    #     default=DEFAULT["tickers"][0]["type"],
-    # )
-    # parser.add_argument(
-    #     "--volume",
-    #     help="Plot the volume bar plot.",
-    #     action="store_true",
-    # )
-    # parser.add_argument(
-    #     "-f",
-    #     "--flip",
-    #     help="Flip the display.",
-    #     action="store_true",
-    # )
-    # parser.add_argument(
-    #     "--moving-average",
-    #     help="Display a moving average.",
-    #     type=int,
-    #     dest="mav",
-    # )
     parser.add_argument(
         "-v",
         "--verbose",
@@ -137,7 +60,7 @@ def start_ticker_process(config_file: Path) -> multiprocessing.Process:
     """Create and start the ticker process.
 
     Args:
-        args: dictionary containing the arguments.
+        config_file: config file path.
 
     Returns:
         The ticker process.
@@ -151,7 +74,7 @@ def start_ticker(config_file: Path) -> None:
     """Start ticking.
 
     Args:
-        args: dictionary containing the arguments.
+        config_file: config file path.
     """
     logger.info("Starting ticker process")
     # Read config values
@@ -173,6 +96,7 @@ def start_ticker(config_file: Path) -> None:
     for (ticker, response) in sequence.start():
         try:
             if response["historical"] is None or response["historical"].empty:
+                logger.debug("response data empty.")
                 display.text(
                     f"No data for {ticker.symbol} in lookback range: {ticker.lookback}x{ticker.interval}",
                     show=True,
