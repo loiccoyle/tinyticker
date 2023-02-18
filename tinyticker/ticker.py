@@ -1,6 +1,6 @@
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Callable, Dict, Iterator, List, Optional, Tuple
 
 import cryptocompare
@@ -87,7 +87,7 @@ def get_cryptocompare(
         api_method(
             coin,
             CRYPTO_CURRENCY,
-            toTs=datetime.now(),
+            toTs=datetime.now(timezone.utc),
             limit=crypto_limit,
         )
     )
@@ -263,38 +263,38 @@ class Sequence:
     def __init__(
         self,
         tickers: List[Ticker],
-        skip_on_empty: bool = True,
-        skip_on_outdated: bool = True,
+        skip_empty: bool = True,
+        skip_outdated: bool = True,
     ):
         """Runs multiple tickers.
 
         Args:
             tickers: list of Ticker instances.
-            skip_on_empty: if the response doesn't contain any data, quickly move on to
-                the next ticker.
-            skip_on_outdated: if the last candle of the response is too old, move to the
+            skip_empty: if the response doesn't contain any data, move on to the
+                next ticker.
+            skip_outdated: if the last candle of the response is too old, move on to the
                 next ticker. This typically happens when the stock market closes.
         """
         if len(tickers) == 0:
             raise ValueError("No tickers provided.")
         self.tickers = tickers
-        self.skip_on_empty = skip_on_empty
-        self.skip_on_outdated = skip_on_outdated
+        self.skip_empty = skip_empty
+        self.skip_outdated = skip_outdated
 
     def start(self) -> Iterator[Tuple[Ticker, dict]]:
         """Start iterating through the tickers."""
         while True:
             for ticker in self.tickers:
                 response = ticker.single_tick()
-                if self.skip_on_empty and (
+                if self.skip_empty and (
                     response["historical"] is None or response["historical"].empty
                 ):
                     LOGGER.debug(f"{ticker} response empty, skipping.")
                     continue
                 LOGGER.debug(pd.Timestamp.now().tzinfo)
                 LOGGER.debug(response["historical"].index[-1].tzinfo)
-                if self.skip_on_outdated and (
-                    (pd.Timestamp.now() - response["historical"].index[-1])
+                if self.skip_outdated and (
+                    (datetime.now(timezone.utc) - response["historical"].index[-1])
                     < ticker._interval_dt
                 ):
                     LOGGER.debug(f"{ticker} response outdated, skipping.")
