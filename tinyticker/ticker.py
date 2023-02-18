@@ -209,7 +209,7 @@ class Ticker:
 
     def _tick_stock(self) -> dict:
         self._log.info("Stock tick.")
-        end = pd.to_datetime("now")
+        end = datetime.now(timezone.utc)
         start = end - self._interval_dt * (self.lookback - 1)
         self._log.debug("interval: %s", self.interval)
         self._log.debug("self.lookback: %s", self.lookback)
@@ -293,9 +293,12 @@ class Sequence:
                     continue
                 LOGGER.debug(pd.Timestamp.now().tzinfo)
                 LOGGER.debug(response["historical"].index[-1].tzinfo)
+                LOGGER.debug(
+                    datetime.now(timezone.utc) - response["historical"].index[-1]
+                )
                 if self.skip_outdated and (
                     (datetime.now(timezone.utc) - response["historical"].index[-1])
-                    < ticker._interval_dt
+                    > ticker._interval_dt
                 ):
                     LOGGER.debug(f"{ticker} response outdated, skipping.")
                     continue
