@@ -93,6 +93,7 @@ def get_cryptocompare(
     )
     LOGGER.debug("crypto historical data columns: %s", historical.columns)
     historical.set_index("time", inplace=True)
+    historical = historical.tz_localize("UTC", copy=False)
     historical.index = pd.to_datetime(historical.index, unit="s")  # type: ignore
     historical.drop(
         columns=["volumeto", "conversionType", "conversionSymbol"],
