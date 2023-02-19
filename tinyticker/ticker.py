@@ -292,16 +292,6 @@ class Sequence:
                     LOGGER.debug(f"{ticker} response empty, skipping.")
                     continue
                 LOGGER.debug(
-                    "%s, %s",
-                    pd.Timestamp.now(),
-                    pd.Timestamp.now().tzinfo,
-                )
-                LOGGER.debug(
-                    "%s, %s",
-                    response["historical"].index[-1],
-                    response["historical"].index[-1].tzinfo,
-                )
-                LOGGER.debug(
                     datetime.now(timezone.utc) - response["historical"].index[-1]
                 )
                 if self.skip_outdated and (
