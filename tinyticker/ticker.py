@@ -11,13 +11,13 @@ CRYPTO_MAX_LOOKBACK = 1440
 CRYPTO_CURRENCY = "USD"
 SYMBOL_TYPES = ["crypto", "stock"]
 
-YFINANCE_NON_STANDARD_INTERVALS = {
+YFINANCE_NON_STANDARD_INTERVALS: Dict[str, pd.Timedelta] = {
     "1wk": pd.to_timedelta("7d"),
     "1mo": pd.to_timedelta("30d"),
     "3mo": pd.to_timedelta("90d"),
-}
+}  # type: ignore
 
-INTERVAL_TIMEDELTAS = {
+INTERVAL_TIMEDELTAS: Dict[str, pd.Timedelta] = {
     interval: YFINANCE_NON_STANDARD_INTERVALS[interval]
     if interval in YFINANCE_NON_STANDARD_INTERVALS
     else pd.to_timedelta(interval)
@@ -35,7 +35,7 @@ INTERVAL_TIMEDELTAS = {
         "1mo",
         "3mo",
     ]
-}
+}  # type: ignore
 
 INTERVAL_LOOKBACKS = {
     "1m": 20,  # 20m
@@ -52,11 +52,11 @@ INTERVAL_LOOKBACKS = {
     "3mo": 24,  # 6 yrs
 }
 
-CRYPTO_INTERVAL_TIMEDELTAS = {
+CRYPTO_INTERVAL_TIMEDELTAS: Dict[str, pd.Timedelta] = {
     "minute": pd.to_timedelta("1m"),
     "hour": pd.to_timedelta("1h"),
     "day": pd.to_timedelta("1d"),
-}
+}  # type: ignore
 
 
 LOGGER = logging.getLogger(__name__)
@@ -93,7 +93,7 @@ def get_cryptocompare(
     )
     LOGGER.debug("crypto historical data columns: %s", historical.columns)
     historical.set_index("time", inplace=True)
-    historical.index = pd.to_datetime(historical.index, unit="s", utc=True)  # type: ignore
+    historical.index = pd.to_datetime(historical.index.to_numpy(), unit="s", utc=True)
     historical.drop(
         columns=["volumeto", "conversionType", "conversionSymbol"],
         inplace=True,
@@ -218,7 +218,7 @@ class Ticker:
         self._log.debug("end: %s", end)
         current_price_data = yfinance.download(
             self.symbol,
-            start=end - pd.to_timedelta("2m"),
+            start=end - pd.to_timedelta("2m"),  # type: ignore
             end=end,
             interval="1m",
         )  # type: pd.DataFrame
