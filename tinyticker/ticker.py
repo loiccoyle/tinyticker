@@ -197,7 +197,8 @@ class Ticker:
         """Query the crypto API.
 
         Returns:
-            Dictionary containing the cryptocompare API's historical and current price data.
+            Dictionary containing the cryptocompare API's historical and current price
+                data.
         """
         self._log.info("Crypto tick.")
         historical = get_cryptocompare(self.symbol, self._interval_dt, self.lookback)

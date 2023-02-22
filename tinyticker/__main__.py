@@ -93,7 +93,7 @@ def start_ticker(config_file: Path) -> None:
     )
     logger.debug(sequence)
 
-    for (ticker, response) in sequence.start():
+    for ticker, response in sequence.start():
         try:
             if response["historical"] is None or response["historical"].empty:
                 logger.debug("response data empty.")
