@@ -106,12 +106,21 @@ def start_ticker(config_file: Path) -> None:
                 logger.debug("API historical[0]: \n%s", response["historical"].iloc[0])
                 logger.debug("API len(historical): %s", len(response["historical"]))
                 logger.debug("API current_price: %s", response["current_price"])
+                xlim = None
+                if len(response) <= ticker.lookback:
+                    import datetime
+
+                    xlim = (
+                        response["historical"].index[0],
+                        datetime.datetime.now(datetime.timezone.utc),
+                    )
                 display.plot(
                     response["historical"],
                     response["current_price"],
                     top_string=f"{ticker.symbol}: $",
                     sub_string=f"{len(response['historical'])}x{ticker.interval}",
                     show=True,
+                    xlim=xlim,
                     **ticker._display_kwargs,
                 )
         except Exception as exc:
