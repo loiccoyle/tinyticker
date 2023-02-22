@@ -106,6 +106,9 @@ def start_ticker(config_file: Path) -> None:
                 logger.debug("API historical[0]: \n%s", response["historical"].iloc[0])
                 logger.debug("API len(historical): %s", len(response["historical"]))
                 logger.debug("API current_price: %s", response["current_price"])
+                response["historical"].index = response["historical"].index.tz_convert(
+                    "utc"
+                )
                 xlim = (
                     response["historical"].index[0] - ticker._interval_dt,
                     response["historical"].index[-1] + ticker._interval_dt,
