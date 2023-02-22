@@ -109,7 +109,7 @@ def start_ticker(config_file: Path) -> None:
                 response["historical"].index = response["historical"].index.tz_convert(
                     "utc"
                 )
-                xlim = (0, -1)
+                xlim = None
                 # if incomplete data, leave space for the missing data
                 if len(response["historical"]) < ticker.lookback:
                     xlim = (
