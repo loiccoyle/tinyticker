@@ -109,13 +109,14 @@ def start_ticker(config_file: Path) -> None:
                 logger.debug("API len(historical): %s", len(historical))
                 logger.debug("API current_price: %s", current_price)
                 historical.index = historical.index.tz_convert("utc")
-                # xlim = None
-                # # if incomplete data, leave space for the missing data
-                # if len(historical) < ticker.lookback:
-                xlim = (
-                    historical.index[0] - ticker._interval_dt,
-                    historical.index[0] + ticker._interval_dt * (ticker.lookback + 1),
-                )
+                xlim = None
+                # if incomplete data, leave space for the missing data
+                if len(historical) < ticker.lookback:
+                    xlim = (
+                        historical.index[0] - ticker._interval_dt,
+                        historical.index[0]
+                        + ticker._interval_dt * (ticker.lookback + 1),
+                    )
                 logger.debug("xlim: %s", xlim)
                 display.plot(
                     historical,
