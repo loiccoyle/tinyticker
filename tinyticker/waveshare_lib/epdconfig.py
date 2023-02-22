@@ -48,7 +48,6 @@ class RaspberryPi:
     BUSY_PIN = 24
 
     def __init__(self):
-
         self.SPI = spidev.SpiDev()
 
     def digital_write(self, pin, value):

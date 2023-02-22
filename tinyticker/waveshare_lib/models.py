@@ -9,7 +9,8 @@ class EPDModel:
     name: str
     class_: Callable
     desc: str
-    has_highlight: bool  # if the model has a colour channel for highlights i.e. red, yellow, ...
+    # if the model has a colour channel for highlights i.e. red, yellow, ...
+    has_highlight: bool
     width: int
     height: int
 

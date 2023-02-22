@@ -1,6 +1,6 @@
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Callable, Dict, Iterator, List, Optional, Tuple
 
 import cryptocompare
@@ -11,13 +11,13 @@ CRYPTO_MAX_LOOKBACK = 1440
 CRYPTO_CURRENCY = "USD"
 SYMBOL_TYPES = ["crypto", "stock"]
 
-YFINANCE_NON_STANDARD_INTERVALS = {
+YFINANCE_NON_STANDARD_INTERVALS: Dict[str, pd.Timedelta] = {
     "1wk": pd.to_timedelta("7d"),
     "1mo": pd.to_timedelta("30d"),
     "3mo": pd.to_timedelta("90d"),
-}
+}  # type: ignore
 
-INTERVAL_TIMEDELTAS = {
+INTERVAL_TIMEDELTAS: Dict[str, pd.Timedelta] = {
     interval: YFINANCE_NON_STANDARD_INTERVALS[interval]
     if interval in YFINANCE_NON_STANDARD_INTERVALS
     else pd.to_timedelta(interval)
@@ -35,7 +35,7 @@ INTERVAL_TIMEDELTAS = {
         "1mo",
         "3mo",
     ]
-}
+}  # type: ignore
 
 INTERVAL_LOOKBACKS = {
     "1m": 20,  # 20m
@@ -52,11 +52,11 @@ INTERVAL_LOOKBACKS = {
     "3mo": 24,  # 6 yrs
 }
 
-CRYPTO_INTERVAL_TIMEDELTAS = {
+CRYPTO_INTERVAL_TIMEDELTAS: Dict[str, pd.Timedelta] = {
     "minute": pd.to_timedelta("1m"),
     "hour": pd.to_timedelta("1h"),
     "day": pd.to_timedelta("1d"),
-}
+}  # type: ignore
 
 
 LOGGER = logging.getLogger(__name__)
@@ -87,13 +87,13 @@ def get_cryptocompare(
         api_method(
             coin,
             CRYPTO_CURRENCY,
-            toTs=datetime.now(),
+            toTs=datetime.now(timezone.utc),
             limit=crypto_limit,
         )
     )
     LOGGER.debug("crypto historical data columns: %s", historical.columns)
     historical.set_index("time", inplace=True)
-    historical.index = pd.to_datetime(historical.index, unit="s")  # type: ignore
+    historical.index = pd.to_datetime(historical.index.to_numpy(), unit="s", utc=True)
     historical.drop(
         columns=["volumeto", "conversionType", "conversionSymbol"],
         inplace=True,
@@ -135,9 +135,9 @@ class Ticker:
     Args:
         symbol_type: Either "crypto" or "stock".
         api_key: CryptoCompare API key, https://min-api.cryptocompare.com/pricing,
-            required for obtaining crypto prices.
+            required for fetching crypto prices.
         symbol:  Ticker symbol, "AAPL", "BTC", "ETH", "DOGE" ...
-        interval: Data time interval,
+        interval: Data time interval.
         lookback: How many intervals to look back.
         wait_time: Time to wait in between API calls.
         **kwargs: Extra args are provided to the `Display.plot` method.
@@ -197,7 +197,8 @@ class Ticker:
         """Query the crypto API.
 
         Returns:
-            Dictionary containing the cryptocompare API's historical and current price data.
+            Dictionary containing the cryptocompare API's historical and current price
+                data.
         """
         self._log.info("Crypto tick.")
         historical = get_cryptocompare(self.symbol, self._interval_dt, self.lookback)
@@ -209,7 +210,7 @@ class Ticker:
 
     def _tick_stock(self) -> dict:
         self._log.info("Stock tick.")
-        end = pd.to_datetime("now")
+        end = datetime.now(timezone.utc)
         start = end - self._interval_dt * (self.lookback - 1)
         self._log.debug("interval: %s", self.interval)
         self._log.debug("self.lookback: %s", self.lookback)
@@ -217,7 +218,7 @@ class Ticker:
         self._log.debug("end: %s", end)
         current_price_data = yfinance.download(
             self.symbol,
-            start=end - pd.to_timedelta("2m"),
+            start=end - pd.to_timedelta("2m"),  # type: ignore
             end=end,
             interval="1m",
         )  # type: pd.DataFrame
@@ -248,21 +249,60 @@ class Ticker:
             time.sleep(self.wait_time)
 
     def __str__(self) -> str:
-        return f"Ticker\t{self.symbol_type}\t{self.symbol}\t{self.lookback}x{self.interval}\t{self.wait_time}s"
+        return "\t".join(
+            [
+                "Ticker",
+                self.symbol_type,
+                self.symbol,
+                f"{self.lookback}x{self.interval}",
+                str(self.wait_time),
+            ]
+        )
 
 
 class Sequence:
-    def __init__(self, tickers: List[Ticker]):
-        """Runs multiple tickers."""
+    def __init__(
+        self,
+        tickers: List[Ticker],
+        skip_empty: bool = True,
+        skip_outdated: bool = True,
+    ):
+        """Runs multiple tickers.
+
+        Args:
+            tickers: list of Ticker instances.
+            skip_empty: if the response doesn't contain any data, move on to the
+                next ticker.
+            skip_outdated: if the last candle of the response is too old, move on to the
+                next ticker. This typically happens when the stock market closes.
+        """
         if len(tickers) == 0:
             raise ValueError("No tickers provided.")
         self.tickers = tickers
+        self.skip_empty = skip_empty
+        self.skip_outdated = skip_outdated
 
     def start(self) -> Iterator[Tuple[Ticker, dict]]:
+        """Start iterating through the tickers."""
         while True:
             for ticker in self.tickers:
-                yield (ticker, ticker.single_tick())
+                response = ticker.single_tick()
+                if self.skip_empty and (
+                    response["historical"] is None or response["historical"].empty
+                ):
+                    LOGGER.debug(f"{ticker} response empty, skipping.")
+                    continue
+                LOGGER.debug(
+                    datetime.now(timezone.utc) - response["historical"].index[-1]
+                )
+                if self.skip_outdated and (
+                    (datetime.now(timezone.utc) - response["historical"].index[-1])
+                    > ticker._interval_dt
+                ):
+                    LOGGER.debug(f"{ticker} response outdated, skipping.")
+                    continue
+                yield (ticker, response)
                 time.sleep(ticker.wait_time)
 
     def __str__(self):
-        return "Sequence \n" + "\n".join([ticker.__str__() for ticker in self.tickers])
+        return "Sequence: \n" + "\n".join([ticker.__str__() for ticker in self.tickers])

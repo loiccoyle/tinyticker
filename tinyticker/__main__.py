@@ -9,12 +9,10 @@ from time import sleep
 from typing import Any, Dict, List
 
 from . import __version__, config, logger
-from .config import DEFAULT, TYPES
 from .display import Display
 from .settings import CONFIG_FILE, PID_FILE, set_verbosity
-from .ticker import INTERVAL_LOOKBACKS, SYMBOL_TYPES, Sequence, Ticker
+from .ticker import Sequence, Ticker
 from .utils import RawTextArgumentDefaultsHelpFormatter
-from .waveshare_lib.models import MODELS
 
 
 def parse_args(args: List[str]) -> argparse.Namespace:
@@ -34,81 +32,6 @@ Note:
         type=Path,
         default=CONFIG_FILE,
     )
-    # parser.add_argument(
-    #     "--epd-model",
-    #     help="ePaper display model.",
-    #     type=str,
-    #     default="EPD_v2",
-    #     choices=MODELS.keys(),
-    # )
-    # parser.add_argument(
-    #     "-a",
-    #     "--api-key",
-    #     help="CryptoCompare API key, https://min-api.cryptocompare.com/pricing.",
-    #     type=str,
-    #     default=DEFAULT["api_key"],
-    # )
-    # parser.add_argument(
-    #     "--symbol-type",
-    #     help="The type of the symbol.",
-    #     type=str,
-    #     choices=SYMBOL_TYPES,
-    #     default=DEFAULT["tickers"][0]["stock"],
-    # )
-    # parser.add_argument(
-    #     "-s",
-    #     "--symbol",
-    #     help="Asset symbol.",
-    #     type=str,
-    #     default=DEFAULT["tickers"][0]["symbol"],
-    # )
-    # parser.add_argument(
-    #     "-i",
-    #     "--interval",
-    #     help="Interval.",
-    #     type=str,
-    #     choices=INTERVAL_LOOKBACKS.keys(),
-    #     default=DEFAULT["tickers"][0]["interval"],
-    # )
-    # parser.add_argument(
-    #     "-l",
-    #     "--lookback",
-    #     help="Look back amount.",
-    #     type=int,
-    #     default=DEFAULT["tickers"][0]["lookback"],
-    # )
-    # parser.add_argument(
-    #     "-w",
-    #     "--wait-time",
-    #     help="Wait time in seconds.",
-    #     type=int,
-    #     default=DEFAULT["tickers"][0]["wait_time"],
-    # )
-    # parser.add_argument(
-    #     "-t",
-    #     "--type",
-    #     help="Plot style, see mplfinance.",
-    #     type=str,
-    #     choices=TYPES,
-    #     default=DEFAULT["tickers"][0]["type"],
-    # )
-    # parser.add_argument(
-    #     "--volume",
-    #     help="Plot the volume bar plot.",
-    #     action="store_true",
-    # )
-    # parser.add_argument(
-    #     "-f",
-    #     "--flip",
-    #     help="Flip the display.",
-    #     action="store_true",
-    # )
-    # parser.add_argument(
-    #     "--moving-average",
-    #     help="Display a moving average.",
-    #     type=int,
-    #     dest="mav",
-    # )
     parser.add_argument(
         "-v",
         "--verbose",
@@ -137,7 +60,7 @@ def start_ticker_process(config_file: Path) -> multiprocessing.Process:
     """Create and start the ticker process.
 
     Args:
-        args: dictionary containing the arguments.
+        config_file: config file path.
 
     Returns:
         The ticker process.
@@ -151,7 +74,7 @@ def start_ticker(config_file: Path) -> None:
     """Start ticking.
 
     Args:
-        args: dictionary containing the arguments.
+        config_file: config file path.
     """
     logger.info("Starting ticker process")
     # Read config values
@@ -170,24 +93,37 @@ def start_ticker(config_file: Path) -> None:
     )
     logger.debug(sequence)
 
-    for (ticker, response) in sequence.start():
+    for ticker, response in sequence.start():
+        historical = response["historical"]
+        current_price = response["current_price"]
         try:
-            if response["historical"] is None or response["historical"].empty:
+            if historical is None or historical.empty:
+                logger.debug("response data empty.")
                 display.text(
                     f"No data for {ticker.symbol} in lookback range: {ticker.lookback}x{ticker.interval}",
                     show=True,
                     weight="bold",
                 )
             else:
-                logger.debug("API historical[0]: \n%s", response["historical"].iloc[0])
-                logger.debug("API len(historical): %s", len(response["historical"]))
-                logger.debug("API current_price: %s", response["current_price"])
+                logger.debug("API historical[0]: \n%s", historical.iloc[0])
+                logger.debug("API len(historical): %s", len(historical))
+                logger.debug("API current_price: %s", current_price)
+                xlim = None
+                # if incomplete data, leave space for the missing data
+                if len(historical) < ticker.lookback:
+                    xlim = (
+                        historical.index[0] - ticker._interval_dt,
+                        historical.index[0]
+                        + ticker._interval_dt * (ticker.lookback + 1),
+                    )
+                logger.debug("xlim: %s", xlim)
                 display.plot(
-                    response["historical"],
-                    response["current_price"],
+                    historical,
+                    current_price,
                     top_string=f"{ticker.symbol}: $",
                     sub_string=f"{len(response['historical'])}x{ticker.interval}",
                     show=True,
+                    xlim=xlim,
                     **ticker._display_kwargs,
                 )
         except Exception as exc:
