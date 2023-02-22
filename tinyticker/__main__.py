@@ -108,11 +108,10 @@ def start_ticker(config_file: Path) -> None:
                 logger.debug("API current_price: %s", response["current_price"])
                 xlim = None
                 if len(response) <= ticker.lookback:
-                    import datetime
-
                     xlim = (
                         response["historical"].index[0],
-                        datetime.datetime.now(datetime.timezone.utc),
+                        response["historical"].index[0]
+                        + ticker._interval_dt * ticker.lookback,
                     )
                 display.plot(
                     response["historical"],
