@@ -111,7 +111,7 @@ def start_ticker(config_file: Path) -> None:
                 )
                 xlim = (0, -1)
                 # if incomplete data, leave space for the missing data
-                if len(response) < ticker.lookback:
+                if len(response["historical"]) < ticker.lookback:
                     xlim = (
                         response["historical"].index[0] - ticker._interval_dt,
                         response["historical"].index[0]
