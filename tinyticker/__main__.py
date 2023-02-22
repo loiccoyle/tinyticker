@@ -109,7 +109,7 @@ def start_ticker(config_file: Path) -> None:
                 xlim = None
                 if len(response) <= ticker.lookback:
                     xlim = (
-                        response["historical"].index[0] + ticker._interval_dt / 2,
+                        response["historical"].index[0] - ticker._interval_dt / 2,
                         response["historical"].index[0]
                         + ticker._interval_dt * ticker.lookback,
                     )
