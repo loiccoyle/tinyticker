@@ -94,8 +94,10 @@ def start_ticker(config_file: Path) -> None:
     logger.debug(sequence)
 
     for ticker, response in sequence.start():
+        historical = response["historical"]
+        current_price = response["current_price"]
         try:
-            if response["historical"] is None or response["historical"].empty:
+            if historical is None or historical.empty:
                 logger.debug("response data empty.")
                 display.text(
                     f"No data for {ticker.symbol} in lookback range: {ticker.lookback}x{ticker.interval}",
@@ -103,24 +105,21 @@ def start_ticker(config_file: Path) -> None:
                     weight="bold",
                 )
             else:
-                logger.debug("API historical[0]: \n%s", response["historical"].iloc[0])
-                logger.debug("API len(historical): %s", len(response["historical"]))
-                logger.debug("API current_price: %s", response["current_price"])
-                response["historical"].index = response["historical"].index.tz_convert(
-                    "utc"
+                logger.debug("API historical[0]: \n%s", historical.iloc[0])
+                logger.debug("API len(historical): %s", len(historical))
+                logger.debug("API current_price: %s", current_price)
+                historical.index = historical.index.tz_convert("utc")
+                # xlim = None
+                # # if incomplete data, leave space for the missing data
+                # if len(historical) < ticker.lookback:
+                xlim = (
+                    historical.index[0] - ticker._interval_dt,
+                    historical.index[0] + ticker._interval_dt * (ticker.lookback + 1),
                 )
-                xlim = None
-                # if incomplete data, leave space for the missing data
-                if len(response["historical"]) < ticker.lookback:
-                    xlim = (
-                        response["historical"].index[0] - ticker._interval_dt,
-                        response["historical"].index[0]
-                        + ticker._interval_dt * (ticker.lookback + 1),
-                    )
                 logger.debug("xlim: %s", xlim)
                 display.plot(
-                    response["historical"],
-                    response["current_price"],
+                    historical,
+                    current_price,
                     top_string=f"{ticker.symbol}: $",
                     sub_string=f"{len(response['historical'])}x{ticker.interval}",
                     show=True,
