@@ -107,15 +107,15 @@ def start_ticker(config_file: Path) -> None:
                 logger.debug("API len(historical): %s", len(response["historical"]))
                 logger.debug("API current_price: %s", response["current_price"])
                 xlim = (
-                    response["historical"].index[0] - ticker._interval_dt / 2,
-                    response["historical"].index[-1],
+                    response["historical"].index[0] - ticker._interval_dt,
+                    response["historical"].index[-1] + ticker._interval_dt,
                 )
                 # if incomplete data, leave space for the missing data
                 if len(response) <= ticker.lookback:
                     xlim = (
-                        response["historical"].index[0] - ticker._interval_dt / 2,
+                        response["historical"].index[0] - ticker._interval_dt,
                         response["historical"].index[0]
-                        + ticker._interval_dt * ticker.lookback,
+                        + ticker._interval_dt * (ticker.lookback + 1),
                     )
                 logger.debug("xlim: %s", xlim)
                 display.plot(
