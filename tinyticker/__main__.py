@@ -108,7 +108,6 @@ def start_ticker(config_file: Path) -> None:
                 logger.debug("API historical[0]: \n%s", historical.iloc[0])
                 logger.debug("API len(historical): %s", len(historical))
                 logger.debug("API current_price: %s", current_price)
-                historical.index = historical.index.tz_convert("utc")
                 xlim = None
                 # if incomplete data, leave space for the missing data
                 if len(historical) < ticker.lookback:
