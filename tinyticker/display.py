@@ -13,9 +13,10 @@ from .waveshare_lib.models import MODELS
 
 
 class Display:
-    """Handle the displaying of the API response.
+    """Display the API response on the e-Paper display.
 
     Args:
+        model: epd model name.
         flip: Flip the display.
     """
 
@@ -87,7 +88,7 @@ class Display:
     def text(
         self, text: str, show: bool = False, **kwargs
     ) -> Tuple[plt.Figure, plt.Axes]:
-        """Create a plt.Figure, plt.Axes with text centered.
+        """Create a `plt.Figure` and `plt.Axes` centered text.
 
         Args:
             text: Text on the plot.
@@ -158,7 +159,7 @@ class Display:
         volume: bool = False,
         **kwargs,
     ) -> Tuple[plt.Figure, plt.Axes]:
-        """Plot symbol chart.
+        """Plot symbol historical data chart.
 
         Args:
             historical: API response, `pd.DataFrame` containing the historical

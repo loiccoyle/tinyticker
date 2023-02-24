@@ -23,14 +23,14 @@ PID_FILE = TMP_DIR / "tinyticker_pid"
 
 
 def set_verbosity(logger: logging.Logger, verbosity: int) -> logging.Logger:
-    """Set the verbosity.
+    """Set the logger's verbosity.
 
     Args:
         logger: `logging.Logger`.
         verbosity: verbosity level, 1, or 2.
 
     Return:
-        The same logger object.
+        The `logger` object with configured verbosity.
     """
     verbose_map = {1: logging.INFO, 2: logging.DEBUG}
     level = verbose_map[verbosity]

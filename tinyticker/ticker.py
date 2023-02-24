@@ -67,6 +67,22 @@ def get_cryptocompare(
     interval_dt: pd.Timedelta,
     lookback: int,
 ) -> pd.DataFrame:
+    """Wraps the crypto data API to have the same interface as the stock API.
+
+    This involves working around `cryptocompare`'s 'limited interval choice by
+    requesting more data and resampling ourselves. It also renames the columns and sets
+    a time index.
+
+    Args:
+        token: token identifier e.g. BTC, ETH, ...
+        interval_dt: the desired interval duration.
+        lookback: how many intervals to fetch data for.
+
+    Returns:
+        A `pd.DataFrame` containing the Open, Close, High, Low and Volume historical
+            data, with a time index.
+    """
+
     max_timedelta = pd.Timedelta(0)
     crypto_interval = "minute"
     # get the biggest interval_dt which is smaller than the desired interval
@@ -136,7 +152,7 @@ class Ticker:
         symbol_type: Either "crypto" or "stock".
         api_key: CryptoCompare API key, https://min-api.cryptocompare.com/pricing,
             required for fetching crypto prices.
-        symbol:  Ticker symbol, "AAPL", "BTC", "ETH", "DOGE" ...
+        symbol:  Ticker or token identifier, "AAPL", "BTC", "ETH", "DOGE" ...
         interval: Data time interval.
         lookback: How many intervals to look back.
         wait_time: Time to wait in between API calls.
@@ -270,7 +286,7 @@ class Sequence:
         """Runs multiple tickers.
 
         Args:
-            tickers: list of Ticker instances.
+            tickers: list of `Ticker` instances.
             skip_empty: if the response doesn't contain any data, move on to the
                 next ticker.
             skip_outdated: if the last candle of the response is too old, move on to the
