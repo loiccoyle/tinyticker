@@ -30,6 +30,7 @@
 
 import logging
 
+from ._base import EPDPartial
 from .epdconfig import CONFIG
 
 # Display resolution
@@ -39,7 +40,7 @@ EPD_HEIGHT = 250
 logger = logging.getLogger(__name__)
 
 
-class EPD:
+class EPD(EPDPartial):
     def __init__(self):
         self.reset_pin = CONFIG.RST_PIN
         self.dc_pin = CONFIG.DC_PIN
@@ -351,13 +352,13 @@ class EPD:
         buf = [0xFF] * (linewidth * self.height)
         image_monocolor = image.convert("1")
         imwidth, imheight = image_monocolor.size
-        pixels = image_monocolor.load()
+        # pixels = image_monocolor.load()
 
         if imwidth == self.width and imheight == self.height:
             logger.debug("Vertical")
             for y in range(imheight):
                 for x in range(imwidth):
-                    if pixels[x, y] == 0:
+                    if image_monocolor.getpixel((x, y)) == 0:
                         x = imwidth - x
                         buf[int(x / 8) + y * linewidth] &= ~(0x80 >> (x % 8))
         elif imwidth == self.height and imheight == self.width:
@@ -366,7 +367,7 @@ class EPD:
                 for x in range(imwidth):
                     newx = y
                     newy = self.height - x - 1
-                    if pixels[x, y] == 0:
+                    if image_monocolor.getpixel((x, y)) == 0:
                         newy = imwidth - newy - 1
                         buf[int(newx / 8) + newy * linewidth] &= ~(0x80 >> (y % 8))
         return buf

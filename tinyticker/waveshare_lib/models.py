@@ -1,13 +1,14 @@
 from dataclasses import dataclass
-from typing import Callable
+from typing import Type, Union
 
 from . import epd2in13, epd2in13_V2, epd2in13_V3, epd2in13b_V3, epd2in13b_V4, epd2in13bc
+from ._base import EPDBase, EPDHighlight, EPDPartial
 
 
 @dataclass
 class EPDModel:
     name: str
-    class_: Callable
+    class_: Union[Type[EPDBase], Type[EPDHighlight], Type[EPDPartial]]
     desc: str
     # if the model has a colour channel for highlights i.e. red, yellow, ...
     has_highlight: bool

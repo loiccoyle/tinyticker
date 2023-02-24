@@ -9,6 +9,7 @@ import pandas as pd
 from PIL import Image
 
 from .waveshare_lib import CONFIG
+from .waveshare_lib._base import EPDHighlight
 from .waveshare_lib.models import MODELS
 
 
@@ -110,6 +111,18 @@ class Display:
         image = self.fig_to_image(fig)
         self.show_image(image)
 
+    def _show_image(
+        self, image: Image.Image, highlight: Optional[Image.Image] = None
+    ) -> None:
+        """Small wrapper to handle the capabalities of the display."""
+        if isinstance(self.epd, EPDHighlight):
+            self.epd.display(
+                self.epd.getbuffer(image),
+                self.epd.getbuffer(highlight) if highlight is not None else None,
+            )
+        else:
+            self.epd.display(self.epd.getbuffer(image))
+
     def show_image(self, image: Image.Image) -> None:
         """Show a `PIL.Image.Image` on the display."""
         highlight_image = None
@@ -138,13 +151,7 @@ class Display:
         self._log.info("Wake up.")
         # I think this wakes it from sleep
         self.epd.init()
-        if highlight_image is not None:
-            self.epd.display(
-                self.epd.getbuffer(image),
-                self.epd.getbuffer(highlight_image),
-            )
-        else:
-            self.epd.display(self.epd.getbuffer(image))
+        self._show_image(image, highlight_image)
         self._log.info("Display sleep.")
         self.epd.sleep()
 
