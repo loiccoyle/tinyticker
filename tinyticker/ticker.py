@@ -12,7 +12,7 @@ CRYPTO_CURRENCY = "USD"
 SYMBOL_TYPES = ["crypto", "stock"]
 
 YFINANCE_NON_STANDARD_INTERVALS: Dict[str, pd.Timedelta] = {
-    "1wk": pd.to_timedelta("7d"),
+    "1wk": pd.to_timedelta("1W"),
     "1mo": pd.to_timedelta("30d"),
     "3mo": pd.to_timedelta("90d"),
 }  # type: ignore
@@ -58,12 +58,13 @@ CRYPTO_INTERVAL_TIMEDELTAS: Dict[str, pd.Timedelta] = {
     "day": pd.to_timedelta("1d"),
 }  # type: ignore
 
-
 LOGGER = logging.getLogger(__name__)
 
 
+# TODO: check again if maybe coinmarketcap has a better api which doesn't require all
+# this
 def get_cryptocompare(
-    coin: str,
+    token: str,
     interval_dt: pd.Timedelta,
     lookback: int,
 ) -> pd.DataFrame:
@@ -101,7 +102,7 @@ def get_cryptocompare(
     )
     historical = pd.DataFrame(
         api_method(
-            coin,
+            token,
             CRYPTO_CURRENCY,
             toTs=datetime.now(timezone.utc),
             limit=crypto_limit,
