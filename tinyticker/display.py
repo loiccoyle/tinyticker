@@ -218,20 +218,19 @@ class Display:
             top_string += f" {current_price:.2f}"
         else:
             top_string = str(current_price)
-        if top_string is not None:
-            ax.text(
-                0,
-                1,
-                top_string,
-                transform=ax.transAxes,
-                fontsize=10,
-                weight="bold",
-                bbox=dict(
-                    boxstyle="square,pad=0",
-                    facecolor="white",
-                    edgecolor="white",
-                ),
-            )
+        ax.text(
+            0,
+            1,
+            top_string,
+            transform=ax.transAxes,
+            fontsize=10,
+            weight="bold",
+            bbox=dict(
+                boxstyle="square,pad=0",
+                facecolor="white",
+                edgecolor="white",
+            ),
+        )
         if sub_string is not None:
             ax.text(
                 0,
