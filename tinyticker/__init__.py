@@ -1,4 +1,3 @@
-# type: ignore
 import logging
 
 from .display import Display
