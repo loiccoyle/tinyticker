@@ -49,6 +49,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
 
     Args:
         config_file: config file to read from and write to.
+        log_dir: directory containing the log files.
 
     Returns:
         The flask application.
