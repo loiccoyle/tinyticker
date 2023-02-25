@@ -8,9 +8,8 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from .waveshare_lib import CONFIG
+from .waveshare_lib import CONFIG, MODELS
 from .waveshare_lib._base import EPDHighlight
-from .waveshare_lib.models import MODELS
 
 
 class Display:
