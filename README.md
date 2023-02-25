@@ -12,7 +12,7 @@ A `flask` web interface is created to set the ticker options and control the Ras
 
 `tinyticker` uses the [`cryptocompare`](https://github.com/lagerfeuer/cryptocompare) API to query the crypto price information, you'll need to get yourself a free [API key](https://min-api.cryptocompare.com/pricing). As well as the [`yfinance`](https://github.com/ranaroussi/yfinance) package to get the stock financial data.
 
-## Hardware
+## 🛒 Hardware
 
 Shopping list:
 
@@ -23,11 +23,13 @@ Shopping list:
   - [Waveshare ePaper 2.13in Black, White & Yellow](<https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT_(C)>)
 - A micro sd card
 
-## Recommended setup
+## 📦 Installation
 
-Flash the latest iso from [tinyticker-images](https://github.com/loiccoyle/tinyticker-images) onto a SD card and you should be good to go.
+### Recommended setup
 
-## Manual setup
+Flash the [tinyticker image](https://drive.google.com/drive/folders/1U-PGzkOtSynN6FGDq2MsXF9kXGdkzd0D) onto a SD card and you should be good to go.
+
+### Manual setup
 
 I highly recommend using [comitup](https://github.com/davesteele/comitup) to setup the networking on your RPi.
 
