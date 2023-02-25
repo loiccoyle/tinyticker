@@ -8,7 +8,6 @@ from .. import config as cfg
 from ..display import Display
 from ..settings import CONFIG_FILE, LOG_DIR, generate_qrcode, set_verbosity
 from ..utils import RawTextArgumentDefaultsHelpFormatter
-from ..waveshare_lib.models import MODELS
 from .app import create_app
 from .app import logger as logger_app
 
@@ -79,15 +78,14 @@ def main():
     if args.show_qrcode:
         logger.info("Generating qrcode.")
         config = {**cfg.DEFAULT, **cfg.read(args.config)}
-        epd_model = MODELS[config["epd_model"]]
-        qrcode = generate_qrcode(
-            epd_model.width,
-            epd_model.height,
-            args.port,
-        )
         display = Display(
             model=config["epd_model"],
             flip=config["flip"],
+        )
+        qrcode = generate_qrcode(
+            display.epd.width,
+            display.epd.height,
+            args.port,
         )
         logger.info("Displaying qrcode.")
         display.show_image(qrcode)
