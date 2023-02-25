@@ -9,13 +9,15 @@ import pandas as pd
 from PIL import Image
 
 from .waveshare_lib import CONFIG
+from .waveshare_lib._base import EPDHighlight
 from .waveshare_lib.models import MODELS
 
 
 class Display:
-    """Handle the displaying of the API response.
+    """Display the API response on the e-Paper display.
 
     Args:
+        model: epd model name.
         flip: Flip the display.
     """
 
@@ -87,7 +89,7 @@ class Display:
     def text(
         self, text: str, show: bool = False, **kwargs
     ) -> Tuple[plt.Figure, plt.Axes]:
-        """Create a plt.Figure, plt.Axes with text centered.
+        """Create a `plt.Figure` and `plt.Axes` centered text.
 
         Args:
             text: Text on the plot.
@@ -108,6 +110,18 @@ class Display:
         """Show a `plt.Figure` on the display."""
         image = self.fig_to_image(fig)
         self.show_image(image)
+
+    def _show_image(
+        self, image: Image.Image, highlight: Optional[Image.Image] = None
+    ) -> None:
+        """Small wrapper to handle the capabalities of the display."""
+        if isinstance(self.epd, EPDHighlight):
+            self.epd.display(
+                self.epd.getbuffer(image),
+                self.epd.getbuffer(highlight) if highlight is not None else None,
+            )
+        else:
+            self.epd.display(self.epd.getbuffer(image))
 
     def show_image(self, image: Image.Image) -> None:
         """Show a `PIL.Image.Image` on the display."""
@@ -137,13 +151,7 @@ class Display:
         self._log.info("Wake up.")
         # I think this wakes it from sleep
         self.epd.init()
-        if highlight_image is not None:
-            self.epd.display(
-                self.epd.getbuffer(image),
-                self.epd.getbuffer(highlight_image),
-            )
-        else:
-            self.epd.display(self.epd.getbuffer(image))
+        self._show_image(image, highlight_image)
         self._log.info("Display sleep.")
         self.epd.sleep()
 
@@ -158,7 +166,7 @@ class Display:
         volume: bool = False,
         **kwargs,
     ) -> Tuple[plt.Figure, plt.Axes]:
-        """Plot symbol chart.
+        """Plot symbol historical data chart.
 
         Args:
             historical: API response, `pd.DataFrame` containing the historical
@@ -217,20 +225,19 @@ class Display:
             top_string += f" {current_price:.2f}"
         else:
             top_string = str(current_price)
-        if top_string is not None:
-            ax.text(
-                0,
-                1,
-                top_string,
-                transform=ax.transAxes,
-                fontsize=10,
-                weight="bold",
-                bbox=dict(
-                    boxstyle="square,pad=0",
-                    facecolor="white",
-                    edgecolor="white",
-                ),
-            )
+        ax.text(
+            0,
+            1,
+            top_string,
+            transform=ax.transAxes,
+            fontsize=10,
+            weight="bold",
+            bbox=dict(
+                boxstyle="square,pad=0",
+                facecolor="white",
+                edgecolor="white",
+            ),
+        )
         if sub_string is not None:
             ax.text(
                 0,

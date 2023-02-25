@@ -29,6 +29,7 @@
 
 import logging
 
+from ._base import EPDHighlight
 from .epdconfig import CONFIG
 
 # Display resolution
@@ -38,7 +39,7 @@ EPD_HEIGHT = 250
 logger = logging.getLogger(__name__)
 
 
-class EPD:
+class EPD(EPDHighlight):
     def __init__(self):
         self.reset_pin = CONFIG.RST_PIN
         self.dc_pin = CONFIG.DC_PIN
@@ -77,8 +78,8 @@ class EPD:
         CONFIG.spi_writebyte2(data)
         CONFIG.digital_write(self.cs_pin, 1)
 
-    # judge e-Paper whether is busy
-    def busy(self):
+    # judge e-Paper whether is ReadBusy
+    def ReadBusy(self):
         logger.debug("e-Paper busy")
         while CONFIG.digital_read(self.busy_pin) != 0:
             CONFIG.delay_ms(10)
@@ -112,9 +113,9 @@ class EPD:
 
         self.reset()
 
-        self.busy()
+        self.ReadBusy()
         self.send_command(0x12)  # SWRESET
-        self.busy()
+        self.ReadBusy()
 
         self.send_command(0x01)  # Driver output control
         self.send_data(0xF9)
@@ -137,14 +138,14 @@ class EPD:
         self.send_data(0x80)
         self.send_data(0x80)
 
-        self.busy()
+        self.ReadBusy()
 
         return 0
 
     # turn on display
-    def ondisplay(self):
+    def TurnOnDisplay(self):
         self.send_command(0x20)
-        self.busy()
+        self.ReadBusy()
 
     # image converted to bytearray
     def getbuffer(self, image):
@@ -169,15 +170,15 @@ class EPD:
         return buf
 
     # display image
-    def display(self, imageblack, imagered=None):
+    def display(self, imageblack, highlights=None):
         self.send_command(0x24)
         self.send_data2(imageblack)
 
-        if imagered is not None:
+        if highlights is not None:
             self.send_command(0x26)
-            self.send_data2(imagered)
+            self.send_data2(highlights)
 
-        self.ondisplay()
+        self.TurnOnDisplay()
 
     # display white image
     def clear(self):
@@ -194,7 +195,7 @@ class EPD:
         self.send_command(0x26)
         self.send_data2(buf)
 
-        self.ondisplay()
+        self.TurnOnDisplay()
 
     # Compatible with older version functions
     def Clear(self):

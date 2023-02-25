@@ -30,6 +30,7 @@
 
 import logging
 
+from ._base import EPDPartial
 from .epdconfig import CONFIG
 
 # Display resolution
@@ -39,7 +40,7 @@ EPD_HEIGHT = 250
 logger = logging.getLogger(__name__)
 
 
-class EPD:
+class EPD(EPDPartial):
     def __init__(self):
         self.reset_pin = CONFIG.RST_PIN
         self.dc_pin = CONFIG.DC_PIN
