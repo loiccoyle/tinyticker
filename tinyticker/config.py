@@ -31,8 +31,7 @@ class TinytickerConfig:
     @classmethod
     def from_file(cls, file: Path) -> "TinytickerConfig":
         with file.open("r") as fp:
-            data = json.load(fp)
-        return cls.from_json(data)
+            return cls.from_json(fp.read())
 
     def to_file(self, file: Path) -> None:
         with file.open("w") as fp:
