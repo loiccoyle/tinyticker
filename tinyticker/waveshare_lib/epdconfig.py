@@ -27,6 +27,8 @@
 # THE SOFTWARE.
 #
 
+# type: ignore
+# ^ required because RPi.GPIO can only be installed on an rpi.
 import logging
 import time
 
@@ -35,7 +37,7 @@ import spidev
 logger = logging.getLogger(__name__)
 
 try:
-    import RPi.GPIO as GPIO  # type: ignore
+    import RPi.GPIO as GPIO
 except RuntimeError:
     logger.warning("Not on RPi, could not import RPI.GPIO. Display will not work.")
 

@@ -7,6 +7,8 @@ import cryptocompare
 import pandas as pd
 import yfinance
 
+from .config import TinytickerConfig
+
 CRYPTO_MAX_LOOKBACK = 1440
 CRYPTO_CURRENCY = "USD"
 SYMBOL_TYPES = ["crypto", "stock"]
@@ -61,8 +63,6 @@ CRYPTO_INTERVAL_TIMEDELTAS: Dict[str, pd.Timedelta] = {
 LOGGER = logging.getLogger(__name__)
 
 
-# TODO: check again if maybe coinmarketcap has a better api which doesn't require all
-# this
 def get_cryptocompare(
     token: str,
     interval_dt: pd.Timedelta,
@@ -100,7 +100,7 @@ def get_cryptocompare(
         lookback * scale_factor,
         CRYPTO_MAX_LOOKBACK,
     )
-    historical = pd.DataFrame(
+    historical: pd.DataFrame = pd.DataFrame(
         api_method(
             token,
             CRYPTO_CURRENCY,
@@ -129,7 +129,7 @@ def get_cryptocompare(
         LOGGER.debug("resampling historical data")
         # resample the crypto data to get the desired interval
         historical_index = historical.index
-        historical = historical.resample(interval_dt).agg(
+        historical: pd.DataFrame = historical.resample(interval_dt).agg(
             {
                 "Open": "first",
                 "High": "max",
@@ -137,13 +137,13 @@ def get_cryptocompare(
                 "Close": "last",
                 "Volume": "sum",
             }
-        )
+        )  # type: ignore
         historical.index = historical_index[::scale_factor]
     LOGGER.debug("crypto historical length: %s", len(historical))
     if len(historical) > lookback:
         historical = historical.iloc[len(historical) - lookback :]
     LOGGER.debug("crypto historical length pruned: %s", len(historical))
-    return historical  # type: ignore
+    return historical
 
 
 class Ticker:
@@ -162,8 +162,8 @@ class Ticker:
 
     def __init__(
         self,
-        symbol_type: str = "crypto",
         api_key: Optional[str] = None,
+        symbol_type: str = "crypto",
         symbol: str = "BTC",
         interval: str = "1d",
         lookback: Optional[int] = None,
@@ -245,11 +245,14 @@ class Ticker:
         else:
             self._log.debug("current price data not empty")
             current_price = current_price_data.iloc[-1]["Close"]
+        historical = yfinance.download(
+            self.symbol, start=start, end=end, interval=self.interval
+        )
+        if historical.index.tzinfo is None:  # type: ignore
+            historical.index = historical.index.tz_localize("utc")  # type: ignore
 
         return {
-            "historical": yfinance.download(
-                self.symbol, start=start, end=end, interval=self.interval
-            ),
+            "historical": historical,
             "current_price": current_price,
         }
 
@@ -278,6 +281,28 @@ class Ticker:
 
 
 class Sequence:
+    @classmethod
+    def from_tinyticker_config(
+        cls, tt_config: TinytickerConfig, **kwargs
+    ) -> "Sequence":
+        """Create a `Sequence` from a `TinytickerConfig`."""
+        return Sequence(
+            [
+                Ticker(
+                    api_key=tt_config.api_key,
+                    symbol_type=ticker.symbol_type,
+                    symbol=ticker.symbol,
+                    interval=ticker.interval,
+                    lookback=ticker.lookback,
+                    wait_time=ticker.wait_time,
+                    plot_type=ticker.plot_type,
+                    mav=ticker.mav,
+                )
+                for ticker in tt_config.tickers
+            ],
+            **kwargs,
+        )
+
     def __init__(
         self,
         tickers: List[Ticker],
@@ -309,9 +334,6 @@ class Sequence:
                 ):
                     LOGGER.debug(f"{ticker} response empty, skipping.")
                     continue
-                LOGGER.debug(
-                    datetime.now(timezone.utc) - response["historical"].index[-1]
-                )
                 if self.skip_outdated and (
                     (datetime.now(timezone.utc) - response["historical"].index[-1])
                     > ticker._interval_dt

@@ -4,7 +4,8 @@ import signal
 import subprocess
 from typing import Callable, List, Union
 
-from ..settings import PID_FILE
+from ..config import TinytickerConfig
+from ..settings import CONFIG_FILE, PID_FILE
 
 LOGGER = logging.getLogger(__name__)
 COMMANDS = {}
@@ -82,3 +83,11 @@ def update() -> None:
     try_command(
         'sh -c "type pipx > /dev/null && pipx upgrade tinyticker || pip install --upgrade tinyticker"'
     )
+
+
+@register
+def default() -> None:
+    """Write the default config."""
+    LOGGER.info("Setting config to default.")
+    TinytickerConfig().to_file(CONFIG_FILE)
+    refresh()
