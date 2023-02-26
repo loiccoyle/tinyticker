@@ -35,7 +35,7 @@ class TinytickerConfig:
 
     def to_file(self, file: Path) -> None:
         with file.open("w") as fp:
-            json.dump(self.to_dict(), fp)
+            json.dump(self.to_dict(), fp, indent=2)
 
     @classmethod
     def from_json(cls, json_: Union[str, bytes, bytearray]) -> "TinytickerConfig":
