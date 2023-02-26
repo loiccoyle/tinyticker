@@ -63,8 +63,6 @@ CRYPTO_INTERVAL_TIMEDELTAS: Dict[str, pd.Timedelta] = {
 LOGGER = logging.getLogger(__name__)
 
 
-# TODO: check again if maybe coinmarketcap has a better api which doesn't require all
-# this
 def get_cryptocompare(
     token: str,
     interval_dt: pd.Timedelta,
