@@ -287,6 +287,7 @@ class Sequence:
     def from_tinyticker_config(
         cls, tt_config: TinytickerConfig, **kwargs
     ) -> "Sequence":
+        """Create a `Sequence` from a `TinytickerConfig`."""
         return Sequence(
             [
                 Ticker(
