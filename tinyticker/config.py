@@ -19,6 +19,7 @@ class TickerConfig:
     wait_time: Optional[int] = None
     plot_type: str = "candlestick"
     mav: Optional[int] = None
+    volume: bool = False
 
 
 @dc.dataclass
