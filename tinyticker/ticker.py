@@ -247,11 +247,14 @@ class Ticker:
         else:
             self._log.debug("current price data not empty")
             current_price = current_price_data.iloc[-1]["Close"]
+        historical = yfinance.download(
+            self.symbol, start=start, end=end, interval=self.interval
+        )
+        if historical.index.tzinfo is None:  # type: ignore
+            historical.index = historical.index.tz_localize("utc")  # type: ignore
 
         return {
-            "historical": yfinance.download(
-                self.symbol, start=start, end=end, interval=self.interval
-            ),
+            "historical": historical,
             "current_price": current_price,
         }
 
