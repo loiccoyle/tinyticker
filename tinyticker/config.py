@@ -1,7 +1,6 @@
-import dataclasses
+import dataclasses as dc
 import json
 import logging
-from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Union
 
@@ -11,7 +10,7 @@ LOGGER = logging.getLogger(__name__)
 PLOT_TYPES = ["candlestick", "line", "ohlc"]
 
 
-@dataclass
+@dc.dataclass
 class TickerConfig:
     symbol_type: str = "stock"
     symbol: str = "SPY"
@@ -22,11 +21,9 @@ class TickerConfig:
     mav: Optional[int] = None
 
 
-@dataclass
+@dc.dataclass
 class TinytickerConfig:
-    tickers: List[TickerConfig] = dataclasses.field(
-        default_factory=lambda: [TickerConfig()]
-    )
+    tickers: List[TickerConfig] = dc.field(default_factory=lambda: [TickerConfig()])
     epd_model: str = "EPD_v3"
     api_key: Optional[str] = None
     flip: bool = False
@@ -53,4 +50,4 @@ class TinytickerConfig:
         return json.dumps(self.to_dict())
 
     def to_dict(self) -> dict:
-        return dataclasses.asdict(self)
+        return dc.asdict(self)
