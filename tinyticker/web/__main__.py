@@ -77,11 +77,8 @@ def main():
 
     if args.show_qrcode:
         logger.info("Generating qrcode.")
-        config = {**cfg.DEFAULT, **cfg.read(args.config)}
-        display = Display(
-            model=config["epd_model"],
-            flip=config["flip"],
-        )
+        tt_config = cfg.TinytickerConfig.from_file(args.config)
+        display = Display.from_tinyticker_config(tt_config)
         qrcode = generate_qrcode(
             display.epd.width,
             display.epd.height,

@@ -89,11 +89,11 @@
                     </select>
                     <label class="uk-form-label" for="type">Plot type</label>
                     <select class="uk-select" id="type" name="type">
-                      {%- for type_option in type_options %}
-                      {%- if type_option == ticker.type %}
-                      <option value="{{type_option}}" selected>{{type_option}}</option>
+                      {%- for plot_type_option in plot_type_options %}
+                      {%- if plot_type_option == ticker.plot_type %}
+                      <option value="{{plot_type_option}}" selected>{{plot_type_option}}</option>
                       {%- else %}
-                      <option value="{{type_option}}">{{type_option}}</option>
+                      <option value="{{plot_type_option}}">{{plot_type_option}}</option>
                       {%- endif %}
                       {%- endfor %}
                     </select>

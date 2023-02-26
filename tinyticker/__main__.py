@@ -6,12 +6,13 @@ import signal
 import sys
 from pathlib import Path
 from time import sleep
-from typing import Any, Dict, List
+from typing import List
 
-from . import __version__, config, logger
+from . import __version__, logger
+from .config import TinytickerConfig
 from .display import Display
 from .settings import CONFIG_FILE, PID_FILE, set_verbosity
-from .ticker import Sequence, Ticker
+from .ticker import Sequence
 from .utils import RawTextArgumentDefaultsHelpFormatter
 
 
@@ -48,14 +49,6 @@ Note:
     return parser.parse_args(args)
 
 
-def load_config_values(args: Dict[str, Any]) -> Dict[str, Any]:
-    """Update the args dictionary with values found in the config file."""
-    # update the values if they are not None
-    # allows for using other args to set values not set in the config file
-    args.update({k: v for k, v in config.read(args["config"]).items() if v is not None})
-    return args
-
-
 def start_ticker_process(config_file: Path) -> multiprocessing.Process:
     """Create and start the ticker process.
 
@@ -78,19 +71,10 @@ def start_ticker(config_file: Path) -> None:
     """
     logger.info("Starting ticker process")
     # Read config values
-    args = config.read(config_file)
+    tt_config = TinytickerConfig.from_file(config_file)
 
-    display = Display(
-        flip=args["flip"],
-        model=args["epd_model"],
-    )
-
-    sequence = Sequence(
-        [
-            Ticker(api_key=args["api_key"], **ticker_kwargs)
-            for ticker_kwargs in args["tickers"]
-        ]
-    )
+    display = Display.from_tinyticker_config(tt_config)
+    sequence = Sequence.from_tinyticker_config(tt_config)
     logger.debug(sequence)
 
     for ticker, response in sequence.start():
@@ -145,7 +129,8 @@ def main():
 
     # if the config file is not present, write the default values
     if not config_file.is_file():
-        config.write_default(config_file)
+        # write defaults to file
+        TinytickerConfig().to_file(config_file)
 
     # write the process pid to file.
     pid = os.getpid()

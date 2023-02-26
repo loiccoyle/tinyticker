@@ -1,71 +1,54 @@
+import dataclasses
 import json
 import logging
+from dataclasses import dataclass
 from pathlib import Path
-
-from .settings import CONFIG_FILE
+from typing import List, Optional, Union
 
 LOGGER = logging.getLogger(__name__)
 
 # remove hollow types because white on white doesn't show
-TYPES = ["candlestick", "line", "ohlc"]
-DEFAULT = {
-    "epd_model": "EPD_v3",
-    "api_key": None,
-    "flip": False,
-    "tickers": [
-        {
-            "symbol_type": "stock",
-            "symbol": "SPY",
-            "interval": "1d",
-            "lookback": None,
-            "wait_time": None,
-            "volume": False,
-            "type": "candlestick",
-            "mav": None,
-        }
-    ],
-}
+PLOT_TYPES = ["candlestick", "line", "ohlc"]
 
 
-def read(config_file: Path = CONFIG_FILE) -> dict:
-    """Read the config file and return a dictionary.
-
-    Args:
-        config_file: path of the config file.
-    """
-    if config_file.is_file():
-        LOGGER.debug("Reading config file: %s", config_file)
-        with open(config_file, "r") as fd:
-            return json.load(fd)
-    else:
-        LOGGER.debug("Fallback to default values.")
-        return DEFAULT
+@dataclass
+class TickerConfig:
+    symbol_type: str = "stock"
+    symbol: str = "SPY"
+    interval: str = "1d"
+    lookback: Optional[int] = None
+    wait_time: Optional[int] = None
+    plot_type: str = "candlestick"
+    mav: Optional[int] = None
 
 
-def write(config: dict, config_file: Path = CONFIG_FILE) -> None:
-    """Write the config file.
+@dataclass
+class TinytickerConfig:
+    tickers: List[TickerConfig] = [TickerConfig()]
+    epd_model: str = "EPD_v3"
+    api_key: Optional[str] = None
+    flip: bool = False
 
-    Args:
-        config: dictionary containing the contents of the config.
-        config_file: path of the config file.
-    """
-    config_dir = config_file.parent
-    if not config_dir.is_dir():
-        LOGGER.debug("Creating config dir: %s", config_dir)
-        config_dir.mkdir(parents=True)
+    @classmethod
+    def from_file(cls, file: Path) -> "TinytickerConfig":
+        with file.open("r") as fp:
+            data = json.load(fp)
+        return cls.from_json(data)
 
-    LOGGER.debug("Writing config file: %s", config_file)
-    with open(config_file, "w") as fd:
-        json.dump(config, fd, indent=2)
+    def to_file(self, file: Path) -> None:
+        with file.open("w") as fp:
+            json.dump(self.to_dict(), fp)
 
+    @classmethod
+    def from_json(cls, json_: Union[str, bytes, bytearray]) -> "TinytickerConfig":
+        data = json.loads(json_)
+        data["tickers"] = [
+            TickerConfig(**ticker_data) for ticker_data in data["tickers"]
+        ]
+        return cls(**data)
 
-def write_default(config_file: Path = CONFIG_FILE) -> None:
-    """Write the default values to the config file.
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict())
 
-    Args:
-        config_file: path of the config file.
-    """
-    LOGGER.debug("Creating default config: %s", config_file)
-    if not config_file.parent.is_dir():
-        config_file.parent.mkdir(parents=True)
-    write(DEFAULT, config_file)
+    def to_dict(self) -> dict:
+        return dataclasses.asdict(self)

@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
+from .config import TinytickerConfig
 from .waveshare_lib import CONFIG, MODELS
 from .waveshare_lib._base import EPDHighlight
 
@@ -19,6 +20,10 @@ class Display:
         model: epd model name.
         flip: Flip the display.
     """
+
+    @classmethod
+    def from_tinyticker_config(cls, tt_config: TinytickerConfig) -> "Display":
+        return cls(model=tt_config.epd_model, flip=tt_config.flip)
 
     def __init__(
         self,

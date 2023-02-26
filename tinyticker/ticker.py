@@ -7,6 +7,8 @@ import cryptocompare
 import pandas as pd
 import yfinance
 
+from .config import TinytickerConfig
+
 CRYPTO_MAX_LOOKBACK = 1440
 CRYPTO_CURRENCY = "USD"
 SYMBOL_TYPES = ["crypto", "stock"]
@@ -162,8 +164,8 @@ class Ticker:
 
     def __init__(
         self,
-        symbol_type: str = "crypto",
         api_key: Optional[str] = None,
+        symbol_type: str = "crypto",
         symbol: str = "BTC",
         interval: str = "1d",
         lookback: Optional[int] = None,
@@ -278,6 +280,27 @@ class Ticker:
 
 
 class Sequence:
+    @classmethod
+    def from_tinyticker_config(
+        cls, tt_config: TinytickerConfig, **kwargs
+    ) -> "Sequence":
+        return Sequence(
+            [
+                Ticker(
+                    api_key=tt_config.api_key,
+                    symbol_type=ticker.symbol_type,
+                    symbol=ticker.symbol,
+                    interval=ticker.interval,
+                    lookback=ticker.lookback,
+                    wait_time=ticker.wait_time,
+                    plot_type=ticker.plot_type,
+                    mav=ticker.mav,
+                )
+                for ticker in tt_config.tickers
+            ],
+            **kwargs,
+        )
+
     def __init__(
         self,
         tickers: List[Ticker],

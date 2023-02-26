@@ -10,7 +10,7 @@ from urllib.error import HTTPError, URLError
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
 
 from .. import __version__
-from .. import config as cfg
+from ..config import PLOT_TYPES, TickerConfig, TinytickerConfig
 from ..settings import CONFIG_FILE, LOG_DIR
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from ..utils import check_for_update
@@ -68,7 +68,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
 
     @app.route("/")
     def index():
-        config = {**cfg.DEFAULT, **cfg.read(config_file)}
+        tt_config = TinytickerConfig.from_file(config_file)
         # TODO: performing this query on the server will reduce responsiveness
         try:
             update_available = check_for_update(timeout=1)
@@ -78,10 +78,10 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
             logger.warning("Update check failed", exc_info=True)
         return render_template(
             "index.html",
-            cfg=config_file,
+            config_file=config_file,
             hostname=hostname,
             commands=commands,
-            type_options=cfg.TYPES,
+            plot_type_options=PLOT_TYPES,
             symbol_type_options=SYMBOL_TYPES,
             interval_lookbacks=INTERVAL_LOOKBACKS,
             interval_wait_times=INTERVAL_WAIT_TIMES,
@@ -89,7 +89,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
             epd_model_options=MODELS.values(),
             update_available=update_available,
             version=__version__,
-            **config,
+            **tt_config.to_dict(),
         )
 
     @app.route("/logfiles")
@@ -99,11 +99,6 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
     @app.route("/config")
     def config():
         logger.debug("/config url args: %s", request.args)
-        config = {}
-        config["api_key"] = request.args.get("api_key", type=no_empty_str)
-        config["flip"] = request.args.get("flip", default=False, type=bool)
-        config["epd_model"] = request.args.get("epd_model")
-        # ticker_args = cfg.DEFAULT["tickers"].keys()
         tickers = {}
         tickers["symbol"] = request.args.getlist("symbol")
         tickers["symbol_type"] = request.args.getlist("symbol_type")
@@ -114,10 +109,18 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         tickers["mav"] = request.args.getlist("mav", type=no_empty_int)
         tickers["volume"] = request.args.getlist("volume", type=str_to_bool)
 
-        # invert the ticker dict of list to list of dict
-        config["tickers"] = [dict(zip(tickers, t)) for t in zip(*tickers.values())]
-        logger.debug(config)
-        cfg.write(config, config_file)
+        # invert the ticker dict of list to list of dict and create ticker list
+        tickers = [
+            TickerConfig(**dict(zip(tickers, t))) for t in zip(*tickers.values())
+        ]
+        tt_config = TinytickerConfig(
+            api_key=request.args.get("api_key", type=no_empty_str),
+            flip=request.args.get("flip", default=False, type=bool),
+            epd_model=request.args.get("epd_model", "EPD_v3"),
+            tickers=tickers,
+        )
+        logger.debug(tt_config)
+        tt_config.to_file(config_file)
         refresh()
         return redirect("/", code=302)
 
