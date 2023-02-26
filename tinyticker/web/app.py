@@ -102,7 +102,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         tickers = {}
         tickers["symbol"] = request.args.getlist("symbol")
         tickers["symbol_type"] = request.args.getlist("symbol_type")
-        tickers["type"] = request.args.getlist("type")
+        tickers["plot_type"] = request.args.getlist("plot_type")
         tickers["interval"] = request.args.getlist("interval")
         tickers["lookback"] = request.args.getlist("lookback", type=no_empty_int)
         tickers["wait_time"] = request.args.getlist("wait_time", type=no_empty_int)
@@ -113,7 +113,6 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         tickers = [
             TickerConfig(**dict(zip(tickers, t))) for t in zip(*tickers.values())
         ]
-        logger.debug("tickers", tickers)
         tt_config = TinytickerConfig(
             api_key=request.args.get("api_key", type=no_empty_str),
             flip=request.args.get("flip", default=False, type=bool),
