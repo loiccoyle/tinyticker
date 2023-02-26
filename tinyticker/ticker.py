@@ -100,7 +100,7 @@ def get_cryptocompare(
         lookback * scale_factor,
         CRYPTO_MAX_LOOKBACK,
     )
-    historical = pd.DataFrame(
+    historical: pd.DataFrame = pd.DataFrame(
         api_method(
             token,
             CRYPTO_CURRENCY,
@@ -129,7 +129,7 @@ def get_cryptocompare(
         LOGGER.debug("resampling historical data")
         # resample the crypto data to get the desired interval
         historical_index = historical.index
-        historical = historical.resample(interval_dt).agg(
+        historical: pd.DataFrame = historical.resample(interval_dt).agg(
             {
                 "Open": "first",
                 "High": "max",
@@ -137,13 +137,13 @@ def get_cryptocompare(
                 "Close": "last",
                 "Volume": "sum",
             }
-        )
+        )  # type: ignore
         historical.index = historical_index[::scale_factor]
     LOGGER.debug("crypto historical length: %s", len(historical))
     if len(historical) > lookback:
         historical = historical.iloc[len(historical) - lookback :]
     LOGGER.debug("crypto historical length pruned: %s", len(historical))
-    return historical  # type: ignore
+    return historical
 
 
 class Ticker:
