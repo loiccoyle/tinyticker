@@ -89,7 +89,6 @@ def start_ticker(config_file: Path) -> None:
                     weight="bold",
                 )
             else:
-                logger.debug("API historical[0]: \n%s", historical.iloc[0])
                 logger.debug("API len(historical): %s", len(historical))
                 logger.debug("API current_price: %s", current_price)
                 xlim = None

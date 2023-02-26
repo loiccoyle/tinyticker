@@ -335,9 +335,6 @@ class Sequence:
                 ):
                     LOGGER.debug(f"{ticker} response empty, skipping.")
                     continue
-                LOGGER.debug(
-                    datetime.now(timezone.utc) - response["historical"].index[-1]
-                )
                 if self.skip_outdated and (
                     (datetime.now(timezone.utc) - response["historical"].index[-1])
                     > ticker._interval_dt
