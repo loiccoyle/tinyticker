@@ -90,3 +90,4 @@ def default() -> None:
     """Write the default config."""
     LOGGER.info("Setting config to default.")
     TinytickerConfig().to_file(CONFIG_FILE)
+    refresh()
