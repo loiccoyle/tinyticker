@@ -113,6 +113,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         tickers = [
             TickerConfig(**dict(zip(tickers, t))) for t in zip(*tickers.values())
         ]
+        logger.debug("tickers", tickers)
         tt_config = TinytickerConfig(
             api_key=request.args.get("api_key", type=no_empty_str),
             flip=request.args.get("flip", default=False, type=bool),
