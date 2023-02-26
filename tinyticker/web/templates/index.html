@@ -104,7 +104,7 @@
                     {%- else %}
                     <input class="uk-input" inputmode="numeric" id="lookback" name="lookback" min="1" value="{{ticker.lookback}}">
                     {%- endif %}
-                    <label class="uk-form-label" for="wait_time">Wait time</label>
+                    <label class="uk-form-label" for="wait_time">Wait time (s)</label>
                     {%- if ticker.wait_time is none %}
                     {#- If the wait_time is None then it hasn't been set so use the default wait_time for the interval #}
                     <input class="uk-input" inputmode="numeric" id="wait_time" name="wait_time" min="1" placeholder="{{interval_wait_times[ticker.interval]}}">
@@ -117,7 +117,7 @@
                     {%- else %}
                     <input class="uk-input" inputmode="numeric" id="mav" name="mav" min="1" value="{{ticker.mav}}">
                     {%- endif %}
-                    <label class="uk-form-label" for="volume">Volume <input type="hidden" name="volume" value="0"><input class="uk-checkbox" type="checkbox" {% if ticker.volume| default(False) %}checked{% endif %} onclick="this.previousSibling.value=1-this.previousSibling.value"></label>
+                    <label class="uk-form-label" for="volume">Show trade volume <input type="hidden" name="volume" value="0"><input class="uk-checkbox" type="checkbox" {% if ticker.volume| default(False) %}checked{% endif %} onclick="this.previousSibling.value=1-this.previousSibling.value"></label>
                   </div>
                 {%- endfor %}
                   <div class="uk-card uk-card-primary uk-flex-none uk-margin-right uk-padding-small uk-button uk-border-rounded uk-animation-fade" onclick="add_ticker()">
