@@ -164,7 +164,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
             abort(404)
         try:
             logger.info("Loading log file %s", log_dir / log_file_name)
-            return send_from_directory(log_dir, log_file_name)
+            return send_from_directory(log_dir, log_file_name, mimetype="text/plain")
         except FileNotFoundError:
             abort(404)
 
