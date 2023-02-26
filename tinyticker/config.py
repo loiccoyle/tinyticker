@@ -24,7 +24,9 @@ class TickerConfig:
 
 @dataclass
 class TinytickerConfig:
-    tickers: List[TickerConfig] = [TickerConfig()]
+    tickers: List[TickerConfig] = dataclasses.field(
+        default_factory=lambda: [TickerConfig()]
+    )
     epd_model: str = "EPD_v3"
     api_key: Optional[str] = None
     flip: bool = False
