@@ -7,7 +7,7 @@ from typing import List, Optional, Union
 LOGGER = logging.getLogger(__name__)
 
 # remove hollow types because white on white doesn't show
-PLOT_TYPES = ["candlestick", "line", "ohlc"]
+PLOT_TYPES = ["candle", "line", "ohlc"]
 
 
 @dc.dataclass
@@ -17,7 +17,7 @@ class TickerConfig:
     interval: str = "1d"
     lookback: Optional[int] = None
     wait_time: Optional[int] = None
-    plot_type: str = "candlestick"
+    plot_type: str = "candle"
     mav: Optional[int] = None
     volume: bool = False
 

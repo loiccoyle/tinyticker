@@ -108,6 +108,7 @@ def start_ticker(config_file: Path) -> None:
                     sub_string=f"{len(response['historical'])}x{ticker.interval}",
                     show=True,
                     xlim=xlim,
+                    type=ticker._display_kwargs.pop("plot_type", "candle"),
                     **ticker._display_kwargs,
                 )
         except Exception as exc:
