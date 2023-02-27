@@ -228,9 +228,10 @@ class Ticker:
     def _tick_stock(self) -> dict:
         self._log.info("Stock tick.")
         end = datetime.now(timezone.utc)
-        start = end - self._interval_dt * (self.lookback - 1)
+        # We fetch more than desired to kinda compensate for market being closed
+        start = end - self._interval_dt * (2 * self.lookback)
         self._log.debug("interval: %s", self.interval)
-        self._log.debug("self.lookback: %s", self.lookback)
+        self._log.debug("lookback: %s", self.lookback)
         self._log.debug("start: %s", start)
         self._log.debug("end: %s", end)
         current_price_data = yfinance.download(
@@ -248,6 +249,9 @@ class Ticker:
         historical = yfinance.download(
             self.symbol, start=start, end=end, interval=self.interval
         )
+        # drop the extra data
+        if len(historical) > self.lookback:
+            historical = historical[-self.lookback :]
         if historical.index.tzinfo is None:  # type: ignore
             historical.index = historical.index.tz_localize("utc")  # type: ignore
 
@@ -336,7 +340,7 @@ class Sequence:
                     continue
                 if self.skip_outdated and (
                     (datetime.now(timezone.utc) - response["historical"].index[-1])
-                    > ticker._interval_dt
+                    > ticker._interval_dt * 2
                 ):
                     LOGGER.debug(f"{ticker} response outdated, skipping.")
                     continue

@@ -99,11 +99,8 @@ def start_ticker(config_file: Path) -> None:
                 xlim = None
                 # if incomplete data, leave space for the missing data
                 if len(historical) < ticker.lookback:
-                    xlim = (
-                        historical.index[0] - ticker._interval_dt,
-                        historical.index[0]
-                        + ticker._interval_dt * (ticker.lookback + 1),
-                    )
+                    # the floats are to leave padding left and right of the edge candles
+                    xlim = (-0.75, ticker.lookback - 0.25)
                 logger.debug("xlim: %s", xlim)
                 display.plot(
                     historical,
