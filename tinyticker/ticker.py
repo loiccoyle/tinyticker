@@ -210,6 +210,14 @@ class Ticker:
         """Perform a single tick."""
         return self._symbol_type_map[self.symbol_type]
 
+    def _current_price_fallback(
+        self, historical: pd.DataFrame, current_price: Optional[float]
+    ) -> dict:
+        if current_price is None:
+            self._log.debug("current price missing, using last historical point.")
+            current_price = historical.iloc[-1]["Close"]
+        return {"historical": historical, "current_price": current_price}
+
     def _tick_crypto(self) -> dict:
         """Query the crypto API.
 
@@ -221,9 +229,11 @@ class Ticker:
         historical = get_cryptocompare(self.symbol, self._interval_dt, self.lookback)
         current = cryptocompare.get_price(self.symbol, CRYPTO_CURRENCY)
         if current is not None:
-            current = current[self.symbol][CRYPTO_CURRENCY]
+            current_price = current[self.symbol][CRYPTO_CURRENCY]
+        else:
+            current_price = None
 
-        return {"historical": historical, "current_price": current}
+        return self._current_price_fallback(historical, current_price)
 
     def _tick_stock(self) -> dict:
         self._log.info("Stock tick.")
@@ -240,25 +250,19 @@ class Ticker:
             end=end,
             interval="1m",
         )  # type: pd.DataFrame
-        if current_price_data.empty:
-            self._log.debug("current price data empty")
-            current_price = None
-        else:
-            self._log.debug("current price data not empty")
-            current_price = current_price_data.iloc[-1]["Close"]
         historical = yfinance.download(
             self.symbol, start=start, end=end, interval=self.interval
-        )
+        )  # type: pd.DataFrame
+        if not current_price_data.empty:
+            current_price = current_price_data.iloc[-1]["Close"]
+        else:
+            current_price = None
         # drop the extra data
         if len(historical) > self.lookback:
-            historical = historical[-self.lookback :]
+            historical = historical.iloc[-self.lookback :]
         if historical.index.tzinfo is None:  # type: ignore
             historical.index = historical.index.tz_localize("utc")  # type: ignore
-
-        return {
-            "historical": historical,
-            "current_price": current_price,
-        }
+        return self._current_price_fallback(historical, current_price)
 
     def tick(self) -> Iterator[dict]:
         """Tick forever.
