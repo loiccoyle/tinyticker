@@ -91,20 +91,23 @@ def start_ticker(config_file: Path) -> None:
             else:
                 logger.debug("API len(historical): %s", len(historical))
                 logger.debug("API current_price: %s", current_price)
+                delta = (
+                    100
+                    * (current_price - historical.iloc[0]["Open"])
+                    / historical.iloc[0]["Open"]
+                )
                 xlim = None
                 # if incomplete data, leave space for the missing data
                 if len(historical) < ticker.lookback:
-                    xlim = (
-                        historical.index[0] - ticker._interval_dt,
-                        historical.index[0]
-                        + ticker._interval_dt * (ticker.lookback + 1),
-                    )
+                    # the floats are to leave padding left and right of the edge candles
+                    xlim = (-0.75, ticker.lookback - 0.25)
                 logger.debug("xlim: %s", xlim)
                 display.plot(
                     historical,
                     current_price,
                     top_string=f"{ticker.symbol}: $",
                     sub_string=f"{len(response['historical'])}x{ticker.interval}",
+                    delta=delta,
                     show=True,
                     xlim=xlim,
                     type=ticker._display_kwargs.pop("plot_type", "candle"),

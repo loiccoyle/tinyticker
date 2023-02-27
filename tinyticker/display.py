@@ -163,6 +163,7 @@ class Display:
         self,
         historical: pd.DataFrame,
         current_price: Optional[float],
+        delta: Optional[float] = None,
         top_string: Optional[str] = None,
         sub_string: Optional[str] = None,
         show: bool = False,
@@ -176,6 +177,7 @@ class Display:
             historical: API response, `pd.DataFrame` containing the historical
                 price of the symbol.
             current_price: API response, the current price of the symbol.
+            delta: relative percentage change.
             top_string: Contents of the top left string, the current will be
                 appended if provided.
             sub_string: Contents of a smaller text box bollow top_string.
@@ -229,6 +231,9 @@ class Display:
             top_string += f" {current_price:.2f}"
         else:
             top_string = str(current_price)
+
+        if delta is not None:
+            top_string += f" {delta:+.2f}%"
         ax.text(
             0,
             1,
