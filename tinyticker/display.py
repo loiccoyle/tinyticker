@@ -182,9 +182,9 @@ class Display:
                 appended if provided.
             sub_string: Contents of a smaller text box bollow top_string.
             show: display the plot on the ePaper display.
-            type: the chart type, see `mpfinance.plot`.
+            type: the chart type, see `mplfinance.plot`.
             volume: also plot the volume bar plot information.
-            **kwargs: passed to `mpfinance.plot`.
+            **kwargs: passed to `mplfinance.plot`.
 
         Returns:
             The `plt.Figure` and `plt.Axes` of the plot.
