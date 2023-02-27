@@ -31,7 +31,6 @@ class Display:
         flip: bool = False,
     ) -> None:
         self._log = logging.getLogger(__name__)
-        self.previous_response = {}
         self.flip = flip
         self.model = MODELS[model]
         self.epd = self.model.class_()
