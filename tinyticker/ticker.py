@@ -334,6 +334,7 @@ class Sequence:
 
     def start(self) -> Iterator[Tuple[Ticker, dict]]:
         """Start iterating through the tickers."""
+        min_delta: pd.Timedelta = max(pd.to_timedelta("5m"), self._interval_dt)  # type: ignore
         while True:
             for ticker in self.tickers:
                 response = ticker.single_tick()
@@ -344,7 +345,7 @@ class Sequence:
                     continue
                 if self.skip_outdated and (
                     (datetime.now(timezone.utc) - response["historical"].index[-1])
-                    > ticker._interval_dt * 2
+                    > min_delta
                 ):
                     LOGGER.debug(f"{ticker} response outdated, skipping.")
                     continue
