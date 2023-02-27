@@ -93,7 +93,7 @@ def start_ticker(config_file: Path) -> None:
                 logger.debug("API current_price: %s", current_price)
                 delta = (
                     100
-                    * (historical.iloc[0]["Open"] - current_price)
+                    * (current_price - historical.iloc[0]["Open"])
                     / historical.iloc[0]["Open"]
                 )
                 xlim = None
