@@ -334,9 +334,9 @@ class Sequence:
 
     def start(self) -> Iterator[Tuple[Ticker, dict]]:
         """Start iterating through the tickers."""
-        min_delta: pd.Timedelta = max(pd.to_timedelta("5m"), self._interval_dt)  # type: ignore
         while True:
             for ticker in self.tickers:
+                min_delta: pd.Timedelta = max(pd.to_timedelta("5m"), ticker._interval_dt)  # type: ignore
                 response = ticker.single_tick()
                 if self.skip_empty and (
                     response["historical"] is None or response["historical"].empty
