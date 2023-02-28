@@ -1,5 +1,6 @@
 import argparse
 import json
+from datetime import datetime, timezone
 from urllib.request import urlopen
 
 from packaging.version import Version
@@ -49,3 +50,8 @@ def check_for_update(**kwargs) -> bool:
     pypy_version = Version(response["info"]["version"])
     current_version = Version(__version__)
     return pypy_version > current_version
+
+
+def now() -> datetime:
+    """Return the current timestamp."""
+    return datetime.now(timezone.utc)
