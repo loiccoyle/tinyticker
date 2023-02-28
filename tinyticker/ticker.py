@@ -119,7 +119,7 @@ def get_cryptocompare(
         api_method(
             token,
             CRYPTO_CURRENCY,
-            toTs=utils.now(),
+            toTs=utils.now().timestamp(),
             limit=crypto_limit,
         )
     )

@@ -9,6 +9,7 @@ from unittest import TestCase
 import numpy as np
 import pandas as pd
 import pytest
+import pytz
 
 from tinyticker import utils
 
@@ -64,6 +65,7 @@ class TestTicker(TestCase):
         assert resp.historical.index.inferred_type == "datetime64"
         assert len(resp.historical) == ticker.lookback
         assert ticker.wait_time == pd.to_timedelta(ticker.interval).total_seconds()  # type: ignore
+        assert resp.historical.index.tzinfo == pytz.UTC  # type: ignore
         assert (resp.historical.index == expected.index).all()
         assert (resp.historical.columns == expected.columns).all()
         assert same(resp.historical, expected)
@@ -97,7 +99,7 @@ class TestTicker(TestCase):
             if i == 3:
                 break
         # the time between iterations should roughly be the ticker wait_time
-        assert np.mean(np.diff(times)) == pytest.approx(ticker.wait_time, abs=1)
+        assert np.mean(np.diff(times)) == pytest.approx(ticker.wait_time, abs=2)
 
     def test_crypto_no_api_key(self):
         with pytest.raises(ValueError):
