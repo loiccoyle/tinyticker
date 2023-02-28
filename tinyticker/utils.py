@@ -36,7 +36,7 @@ def check_for_update(current_version: str, **kwargs) -> bool:
     """Query the pypy index, returns True if an update is available.
 
     Args:
-        current_version: the version version string of the package.
+        current_version: the version string of the package.
         **kwargs: passed to `urllib.request.urlopen`.
 
     Returns:
