@@ -1,12 +1,13 @@
+import dataclasses as dc
 import logging
 import time
-from datetime import datetime, timezone
 from typing import Callable, Dict, Iterator, List, Optional, Tuple
 
 import cryptocompare
 import pandas as pd
 import yfinance
 
+from . import utils
 from .config import TinytickerConfig
 
 CRYPTO_MAX_LOOKBACK = 1440
@@ -63,6 +64,20 @@ CRYPTO_INTERVAL_TIMEDELTAS: Dict[str, pd.Timedelta] = {
 LOGGER = logging.getLogger(__name__)
 
 
+@dc.dataclass
+class Response:
+    """The api response. Holds the historical and current price data.
+
+    Args:
+        historical: DataFrame with columns "Open", "Close", "High", "Low", "Volume"
+            and a time index.
+        current_price: The current price of the asset.
+    """
+
+    historical: pd.DataFrame
+    current_price: float
+
+
 def get_cryptocompare(
     token: str,
     interval_dt: pd.Timedelta,
@@ -104,7 +119,7 @@ def get_cryptocompare(
         api_method(
             token,
             CRYPTO_CURRENCY,
-            toTs=datetime.now(timezone.utc),
+            toTs=utils.now(),
             limit=crypto_limit,
         )
     )
@@ -141,7 +156,7 @@ def get_cryptocompare(
         historical.index = historical_index[::scale_factor]
     LOGGER.debug("crypto historical length: %s", len(historical))
     if len(historical) > lookback:
-        historical = historical.iloc[len(historical) - lookback :]
+        historical = historical.iloc[-lookback:]
     LOGGER.debug("crypto historical length pruned: %s", len(historical))
     return historical
 
@@ -206,19 +221,19 @@ class Ticker:
         self._display_kwargs = kwargs
 
     @property
-    def single_tick(self) -> Callable:
+    def single_tick(self) -> Callable[[], Response]:
         """Perform a single tick."""
         return self._symbol_type_map[self.symbol_type]
 
     def _current_price_fallback(
         self, historical: pd.DataFrame, current_price: Optional[float]
-    ) -> dict:
-        if current_price is None:
-            self._log.debug("current price missing, using last historical point.")
-            current_price = historical.iloc[-1]["Close"]
-        return {"historical": historical, "current_price": current_price}
+    ) -> Response:
+        return Response(
+            historical,
+            historical.iloc[-1]["Close"] if current_price is None else current_price,
+        )
 
-    def _tick_crypto(self) -> dict:
+    def _tick_crypto(self) -> Response:
         """Query the crypto API.
 
         Returns:
@@ -235,9 +250,11 @@ class Ticker:
 
         return self._current_price_fallback(historical, current_price)
 
-    def _tick_stock(self) -> dict:
+    def _tick_stock(
+        self,
+    ) -> Response:
         self._log.info("Stock tick.")
-        end = datetime.now(timezone.utc)
+        end = utils.now()
         # We fetch more than desired to kinda compensate for market being closed
         start = end - self._interval_dt * (2 * self.lookback)
         self._log.debug("interval: %s", self.interval)
@@ -264,7 +281,7 @@ class Ticker:
             historical.index = historical.index.tz_localize("utc")  # type: ignore
         return self._current_price_fallback(historical, current_price)
 
-    def tick(self) -> Iterator[dict]:
+    def tick(self) -> Iterator[Response]:
         """Tick forever.
 
         Returns:
@@ -293,7 +310,12 @@ class Sequence:
     def from_tinyticker_config(
         cls, tt_config: TinytickerConfig, **kwargs
     ) -> "Sequence":
-        """Create a `Sequence` from a `TinytickerConfig`."""
+        """Create a `Sequence` from a `TinytickerConfig`.
+
+        Args:
+            tt_config: `TinytickerConfig` from which to create the `Sequence`.
+            **kwargs: Paseed to the `Sequence.__init__` method.
+        """
         return Sequence(
             [
                 Ticker(
@@ -317,7 +339,7 @@ class Sequence:
         skip_empty: bool = True,
         skip_outdated: bool = True,
     ):
-        """Runs multiple tickers.
+        """Runs multiple tickers in sequence.
 
         Args:
             tickers: list of `Ticker` instances.
@@ -332,19 +354,19 @@ class Sequence:
         self.skip_empty = skip_empty
         self.skip_outdated = skip_outdated
 
-    def start(self) -> Iterator[Tuple[Ticker, dict]]:
+    def start(self) -> Iterator[Tuple[Ticker, Response]]:
         """Start iterating through the tickers."""
         while True:
             for ticker in self.tickers:
                 min_delta: pd.Timedelta = max(pd.to_timedelta("5m"), ticker._interval_dt)  # type: ignore
                 response = ticker.single_tick()
                 if self.skip_empty and (
-                    response["historical"] is None or response["historical"].empty
+                    response.historical is None or response.historical.empty
                 ):
                     LOGGER.debug(f"{ticker} response empty, skipping.")
                     continue
                 if self.skip_outdated and (
-                    (datetime.now(timezone.utc) - response["historical"].index[-1])
+                    (utils.now() - response.historical.index[-1])  # type: ignore
                     > min_delta
                 ):
                     LOGGER.debug(f"{ticker} response outdated, skipping.")

@@ -77,11 +77,9 @@ def start_ticker(config_file: Path) -> None:
     sequence = Sequence.from_tinyticker_config(tt_config)
     logger.debug(sequence)
 
-    for ticker, response in sequence.start():
-        historical = response["historical"]
-        current_price = response["current_price"]
+    for ticker, resp in sequence.start():
         try:
-            if historical is None or historical.empty:
+            if resp.historical is None or resp.historical.empty:
                 logger.debug("response data empty.")
                 display.text(
                     f"No data for {ticker.symbol} in lookback range: {ticker.lookback}x{ticker.interval}",
@@ -89,24 +87,24 @@ def start_ticker(config_file: Path) -> None:
                     weight="bold",
                 )
             else:
-                logger.debug("API len(historical): %s", len(historical))
-                logger.debug("API current_price: %s", current_price)
+                logger.debug("API len(historical): %s", len(resp.historical))
+                logger.debug("API current_price: %s", resp.current_price)
                 delta = (
                     100
-                    * (current_price - historical.iloc[0]["Open"])
-                    / historical.iloc[0]["Open"]
+                    * (resp.current_price - resp.historical.iloc[0]["Open"])
+                    / resp.historical.iloc[0]["Open"]
                 )
                 xlim = None
                 # if incomplete data, leave space for the missing data
-                if len(historical) < ticker.lookback:
+                if len(resp.historical) < ticker.lookback:
                     # the floats are to leave padding left and right of the edge candles
                     xlim = (-0.75, ticker.lookback - 0.25)
                 logger.debug("xlim: %s", xlim)
                 display.plot(
-                    historical,
-                    current_price,
+                    resp.historical,
+                    resp.current_price,
                     top_string=f"{ticker.symbol}: $",
-                    sub_string=f"{len(response['historical'])}x{ticker.interval}",
+                    sub_string=f"{len(resp.historical)}x{ticker.interval}",
                     delta=delta,
                     show=True,
                     xlim=xlim,
