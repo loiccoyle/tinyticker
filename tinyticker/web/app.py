@@ -71,7 +71,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         tt_config = TinytickerConfig.from_file(config_file)
         # TODO: performing this query on the server will reduce responsiveness
         try:
-            update_available = check_for_update(timeout=1)
+            update_available = check_for_update(current_version=__version__, timeout=1)
             logger.info("Update available: %s", update_available)
         except (HTTPError, URLError, timeout):
             update_available = False

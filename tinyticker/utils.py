@@ -6,8 +6,6 @@ from urllib.request import urlopen
 from packaging.version import Version
 from PIL import Image, ImageChops
 
-from . import __version__
-
 
 def trim(image: Image.Image) -> Image.Image:
     """Trim white space.
@@ -34,7 +32,7 @@ class RawTextArgumentDefaultsHelpFormatter(
     pass
 
 
-def check_for_update(**kwargs) -> bool:
+def check_for_update(current_version: str, **kwargs) -> bool:
     """Query the pypy index, returns True if an update is available.
 
     Args:
@@ -48,8 +46,8 @@ def check_for_update(**kwargs) -> bool:
         urlopen(url.format(package="tinyticker"), **kwargs).read().decode("utf8")
     )
     pypy_version = Version(response["info"]["version"])
-    current_version = Version(__version__)
-    return pypy_version > current_version
+    this_version = Version(current_version)
+    return pypy_version > this_version
 
 
 def now() -> datetime:
