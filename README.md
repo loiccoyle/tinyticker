@@ -4,6 +4,7 @@
 <p align="center">
   <a href="https://pypi.org/project/tinyticker/"><img src="https://img.shields.io/pypi/v/tinyticker"></a>
   <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <a href="https://github.com/loiccoyle/tinyticker/actions/workflows/ci.yml"><img src="https://github.com/loiccoyle/tinyticker/actions/workflows/ci.yml/badge.svg"></a>
 </p>
 
 `tinyticker` uses a Raspberry Pi zero W and a small ePaper display to periodically display a stock or crypto chart.
