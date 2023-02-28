@@ -42,3 +42,5 @@ jobs:
       - name: Run pytest
         shell: bash
         run: poetry run pytest -q tests
+        env:
+          CRYPTOCOMPARE_API_KEY: ${{secrets.CRYPTOCOMPARE_API_KEY}}

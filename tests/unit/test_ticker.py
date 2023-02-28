@@ -16,7 +16,7 @@ from tinyticker import utils
 utils.__dict__["now"] = lambda: datetime(2021, 7, 22, 18, 00, 00, tzinfo=timezone.utc)
 from tinyticker import config, ticker
 
-API_KEY = os.environ.get("TINYTICKER_API_KEY", None)
+API_KEY = os.environ.get("CRYPTOCOMPARE_API_KEY", None)
 
 
 def same(df1: pd.DataFrame, df2: pd.DataFrame) -> bool:
