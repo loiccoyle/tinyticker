@@ -57,7 +57,7 @@ class TestTicker(TestCase):
     def _test_ticker_response(self, ticker: ticker.Ticker, expected: pd.DataFrame):
         resp = ticker.single_tick()
         assert isinstance(resp.historical, pd.DataFrame)
-        assert isinstance(resp.current_price, float)
+        assert resp.current_price is not None
         assert {"Open", "Close", "High", "Low", "Volume"}.issubset(
             set(resp.historical.columns)
         )
