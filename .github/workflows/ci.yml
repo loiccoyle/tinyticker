@@ -68,4 +68,3 @@ jobs:
           workflow: Build TinyTicker RPi image
           repo: loiccoyle/private.actionsrunner
           token: ${{ secrets.PRIVATE_RUNNER_ACCESS_TOKEN }}
-          ref: refs/heads/main # https://github.com/benc-uk/workflow-dispatch/issues/11
