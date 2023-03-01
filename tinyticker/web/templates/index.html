@@ -61,10 +61,13 @@
                   <input class="uk-input uk-text-small" type="text" id="api_key" name="api_key" {% if api_key %} value="{{api_key}}" {% endif %}>
                 </div>
                 <h4>Tickers</h4>
-                <div class="container uk-background-secondary uk-flex uk-flex-row uk-flex-middle uk-padding uk-flex-left uk-flex-center@m" style="overflow-x: auto; position: relative; box-sizing: border-box; width:100vw; left: calc(-50vw + 50%);">
+                <div uk-sortable="handle: .ticker-handle" class="container uk-background-secondary uk-flex uk-flex-row uk-flex-middle uk-padding uk-flex-left uk-flex-center@m" style="overflow-x: auto; position: relative; box-sizing: border-box; width:100vw; left: calc(-50vw + 50%);">
                 {%- for ticker in tickers %}
-                  <div class="ticker uk-card uk-card-default uk-flex-none uk-margin-right uk-padding-small uk-animation-slide-right uk-border-rounded">
-                    <button class="ticker-close" type="button" uk-close style="float: right" onclick="remove_ticker(this)"></button>
+                  <div class="ticker uk-card uk-card-default uk-flex-none uk-margin-right uk-padding-small uk-border-rounded">
+                    <div style="float: right">
+                      <button class="ticker-handle" type="button" uk-icon="icon: table"></button>
+                      <button class="ticker-close" type="button" uk-close onclick="remove_ticker(this)"></button>
+                    </div>
                     <label class="uk-form-label" for="symbol_type">Symbol type</label>
                     <select class="uk-select" id="symbol_type" name="symbol_type">
                       {%- for symbol_type_option in symbol_type_options %}
