@@ -8,10 +8,10 @@ from .. import config as cfg
 from ..display import Display
 from ..settings import CONFIG_FILE, LOG_DIR, generate_qrcode, set_verbosity
 from ..utils import RawTextArgumentDefaultsHelpFormatter
+from .app import LOGGER as APP_LOGGER
 from .app import create_app
-from .app import logger as logger_app
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 def parse_args(args: List[str]) -> argparse.Namespace:
@@ -67,16 +67,16 @@ def parse_args(args: List[str]) -> argparse.Namespace:
 def main():
     args = parse_args(sys.argv[1:])
     if args.verbose > 0:
-        set_verbosity(logger, args.verbose)
-        set_verbosity(logger_app, args.verbose)
+        set_verbosity(LOGGER, args.verbose)
+        set_verbosity(APP_LOGGER, args.verbose)
 
-    logger.debug("Args: %s", args)
+    LOGGER.debug("Args: %s", args)
 
     if not args.log_dir.is_dir():
         args.log_dir.mkdir(parents=True)
 
     if args.show_qrcode:
-        logger.info("Generating qrcode.")
+        LOGGER.info("Generating qrcode.")
         tt_config = cfg.TinytickerConfig.from_file(args.config)
         display = Display.from_tinyticker_config(tt_config)
         qrcode = generate_qrcode(
@@ -84,15 +84,15 @@ def main():
             display.epd.height,
             args.port,
         )
-        logger.info("Displaying qrcode.")
+        LOGGER.info("Displaying qrcode.")
         display.show_image(qrcode)
         del display
         sys.exit()
 
-    logger.info("Starting tinyticker-web")
+    LOGGER.info("Starting tinyticker-web")
     app = create_app(config_file=args.config, log_dir=args.log_dir)
     app.run(host="0.0.0.0", port=args.port, debug=False, threaded=True)
-    logger.info("Stopping tinyticker-web")
+    LOGGER.info("Stopping tinyticker-web")
 
 
 if __name__ == "__main__":
