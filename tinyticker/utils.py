@@ -10,6 +10,9 @@ from PIL import Image, ImageChops
 def trim(image: Image.Image) -> Image.Image:
     """Trim white space.
 
+    See:
+        https://stackoverflow.com/questions/10615901/trim-whitespace-using-pil
+
     Args:
         image: Image to trim.
 

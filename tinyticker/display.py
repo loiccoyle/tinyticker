@@ -44,7 +44,7 @@ class Display:
 
     @staticmethod
     def fig_to_image(fig: plt.Figure) -> Image.Image:
-        """Convert a plt.Figure to PIL.Image"""
+        """Convert a `plt.Figure` to `PIL.Image.Image`."""
         matplotlib.use("Agg")
         fig.canvas.draw()
         return Image.frombytes(
