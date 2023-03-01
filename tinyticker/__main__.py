@@ -123,13 +123,14 @@ def start_ticker(config_file: Path) -> None:
 
 def main():
     args = parse_args(sys.argv[1:])
-    config_file = args.config
+    config_file: Path = args.config
 
     if args.verbose > 0:
         set_verbosity(logger, args.verbose)
 
     # if the config file is not present, write the default values
     if not config_file.is_file():
+        config_file.parent.mkdir(parents=True)
         # write defaults to file
         TinytickerConfig().to_file(config_file)
 
