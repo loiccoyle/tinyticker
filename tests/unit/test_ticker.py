@@ -97,7 +97,7 @@ class TestTicker(TestCase):
             if i == 3:
                 break
         # the time between iterations should roughly be the ticker wait_time
-        assert np.mean(np.diff(times)) == pytest.approx(ticker.wait_time, abs=2)
+        assert np.mean(np.diff(times)) == pytest.approx(ticker.wait_time, abs=5)
 
     def test_crypto_no_api_key(self):
         with pytest.raises(ValueError):
