@@ -17,10 +17,8 @@ from ..utils import check_for_update
 from ..waveshare_lib.models import MODELS
 from .command import COMMANDS, reboot, refresh
 
-logger = logging.getLogger(__name__)
-
+LOGGER = logging.getLogger(__name__)
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
-
 INTERVAL_WAIT_TIMES = {k: v.value * 1e-9 for k, v in INTERVAL_TIMEDELTAS.items()}
 
 
@@ -72,10 +70,10 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         # TODO: performing this query on the server will reduce responsiveness
         try:
             update_available = check_for_update(current_version=__version__, timeout=1)
-            logger.info("Update available: %s", update_available)
+            LOGGER.info("Update available: %s", update_available)
         except (HTTPError, URLError, timeout):
             update_available = False
-            logger.warning("Update check failed", exc_info=True)
+            LOGGER.warning("Update check failed", exc_info=True)
         return render_template(
             "index.html",
             config_file=config_file,
@@ -98,7 +96,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
 
     @app.route("/config")
     def config():
-        logger.debug("/config url args: %s", request.args)
+        LOGGER.debug("/config url args: %s", request.args)
         tickers = {}
         tickers["symbol"] = request.args.getlist("symbol")
         tickers["symbol_type"] = request.args.getlist("symbol_type")
@@ -119,14 +117,14 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
             epd_model=request.args.get("epd_model", "EPD_v3"),
             tickers=tickers,
         )
-        logger.debug(tt_config)
+        LOGGER.debug(tt_config)
         tt_config.to_file(config_file)
         refresh()
         return redirect("/", code=302)
 
     @app.route("/command")
     def command():
-        logger.debug("/command url args: %s", request.args)
+        LOGGER.debug("/command url args: %s", request.args)
         command = request.args.get("command")
         if command:
             # call the registered command function
@@ -135,7 +133,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
 
     @app.route("/set_hostname")
     def set_hostname():
-        logger.debug("/host_rename url args: %s", request.args)
+        LOGGER.debug("/host_rename url args: %s", request.args)
         hostname = request.args.get("hostname")
         if hostname:
             subprocess.Popen(
@@ -163,7 +161,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         if log_file_name not in log_files:
             abort(404)
         try:
-            logger.info("Loading log file %s", log_dir / log_file_name)
+            LOGGER.info("Loading log file %s", log_dir / log_file_name)
             return send_from_directory(log_dir, log_file_name, mimetype="text/plain")
         except FileNotFoundError:
             abort(404)
@@ -181,7 +179,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         return send_from_directory(TEMPLATE_PATH + "/css", path)
 
     @app.errorhandler(500)
-    def internal_error(error):
+    def internal_error(_):
         sys.exit(1)
 
     return app
