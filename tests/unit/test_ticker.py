@@ -1,8 +1,6 @@
 import os
 import time
-import unittest
 from datetime import datetime, timezone
-from importlib import reload
 from pathlib import Path
 from unittest import TestCase
 
@@ -28,8 +26,8 @@ class TestTicker(TestCase):
     @classmethod
     def setUp(cls) -> None:
         cls.data_dir = Path(__file__).parents[1] / "data"
-        cls.stock_historical_path = cls.data_dir / "stock_tick_historical.pkl"
-        cls.crypto_historical_path = cls.data_dir / "crypto_tick_historical.pkl"
+        cls.stock_historical_path = cls.data_dir / "stock_historical.pkl"
+        cls.crypto_historical_path = cls.data_dir / "crypto_historical.pkl"
         cls.stock_historical: pd.DataFrame = pd.read_pickle(cls.stock_historical_path)
         cls.crypto_historical: pd.DataFrame = pd.read_pickle(cls.crypto_historical_path)
         cls.stock_ticker = ticker.Ticker(

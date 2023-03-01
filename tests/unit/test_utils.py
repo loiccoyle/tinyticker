@@ -18,7 +18,7 @@ class TestUtils(TestCase):
         assert utils.check_for_update("0.0.1")
 
     def test_trim(self):
-        trim_file = Path(__file__).parents[1] / "data" / "test_trim.jpg"
+        trim_file = Path(__file__).parents[1] / "data" / "trim.jpg"
         assert trim_file.is_file()
         img = Image.open(trim_file)
         img_trim = utils.trim(img)
