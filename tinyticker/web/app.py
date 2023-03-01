@@ -76,7 +76,6 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
             LOGGER.warning("Update check failed", exc_info=True)
         return render_template(
             "index.html",
-            config_file=config_file,
             hostname=hostname,
             commands=commands,
             plot_type_options=PLOT_TYPES,
