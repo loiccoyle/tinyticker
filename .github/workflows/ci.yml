@@ -37,7 +37,7 @@ jobs:
           poetry run pip install --upgrade pip
           poetry install --all-extras
       - name: Run pytest
-        run: poetry run pytest -q tests
+        run: poetry run pytest -q tests -v
         env:
           CRYPTOCOMPARE_API_KEY: ${{secrets.CRYPTOCOMPARE_API_KEY}}
 
