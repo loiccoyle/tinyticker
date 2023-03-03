@@ -30,8 +30,8 @@ INTERVAL_TIMEDELTAS: Dict[str, pd.Timedelta] = {
         "5m",
         "15m",
         "30m",
-        "90m",
         "1h",
+        "90m",
         "1d",
         "5d",
         "1wk",
@@ -46,8 +46,8 @@ INTERVAL_LOOKBACKS = {
     "5m": 24,  # 2h
     "15m": 16,  # 8h
     "30m": 24,  # 12h
-    "90m": 24,  # 36h
     "1h": 24,  # 24h
+    "90m": 24,  # 36h
     "1d": 30,  # 1mo
     "5d": 30,  # 150d
     "1wk": 26,  # 6mo
