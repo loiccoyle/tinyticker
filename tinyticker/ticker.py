@@ -165,9 +165,9 @@ class Ticker:
     """Price data fetcher.
 
     Args:
-        symbol_type: Either "crypto" or "stock".
         api_key: CryptoCompare API key, https://min-api.cryptocompare.com/pricing,
             required for fetching crypto prices.
+        symbol_type: Either "crypto" or "stock".
         symbol:  Ticker or token identifier, "AAPL", "BTC", "ETH", "DOGE" ...
         interval: Data time interval.
         lookback: How many intervals to look back.
@@ -222,7 +222,11 @@ class Ticker:
 
     @property
     def single_tick(self) -> Callable[[], Response]:
-        """Perform a single tick."""
+        """Perform a single tick.
+
+        Returns:
+            The response from the API.
+        """
         return self._symbol_type_map[self.symbol_type]
 
     def _current_price_fallback(
@@ -237,8 +241,7 @@ class Ticker:
         """Query the crypto API.
 
         Returns:
-            Dictionary containing the cryptocompare API's historical and current price
-                data.
+            The response from the API.
         """
         self._log.info("Crypto tick.")
         historical = get_cryptocompare(self.symbol, self._interval_dt, self.lookback)
@@ -253,6 +256,11 @@ class Ticker:
     def _tick_stock(
         self,
     ) -> Response:
+        """Query the stock API.
+
+        Returns:
+            The response from the API.
+        """
         self._log.info("Stock tick.")
         end = utils.now()
         # We fetch more than desired to kinda compensate for market being closed
@@ -285,7 +293,7 @@ class Ticker:
         """Tick forever.
 
         Returns:
-            Iterator over the price data.
+            Iterator over the API responses.
         """
         while True:
             self._log.info("Ticker start.")
@@ -315,6 +323,9 @@ class Sequence:
         Args:
             tt_config: `TinytickerConfig` from which to create the `Sequence`.
             **kwargs: Paseed to the `Sequence.__init__` method.
+
+        Returns:
+            The `Sequence` instance.
         """
         return Sequence(
             [
@@ -356,7 +367,11 @@ class Sequence:
         self.skip_outdated = skip_outdated
 
     def start(self) -> Iterator[Tuple[Ticker, Response]]:
-        """Start iterating through the tickers."""
+        """Start iterating through the tickers.
+
+        Returns:
+            The `Ticker` instance and the response from the API.
+        """
         while True:
             for ticker in self.tickers:
                 min_delta: pd.Timedelta = max(pd.to_timedelta("5m"), ticker._interval_dt)  # type: ignore

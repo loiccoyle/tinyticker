@@ -48,7 +48,14 @@ class Display:
 
     @staticmethod
     def fig_to_image(fig: plt.Figure) -> Image.Image:
-        """Convert a `plt.Figure` to `PIL.Image.Image`."""
+        """Convert a `plt.Figure` to `PIL.Image.Image`.
+
+        Args:
+            fig: The `plt.Figure` to convert.
+
+        Returns:
+            The `PIL.Image.Image` representation of the provided `plt.Figure`.
+        """
         matplotlib.use("Agg")
         fig.canvas.draw()
         return Image.frombytes(
@@ -60,7 +67,7 @@ class Display:
     def _create_fig_ax(
         self, n_axes: int = 1, **kwargs
     ) -> Tuple[plt.Figure, np.ndarray]:
-        """Create the matplotlib figure and axes used to plot the chart.
+        """Create the `plt.Figure` and `plt.Axes` used to plot the chart.
 
         Args:
             n_axes: the number of subplot axes to create.
@@ -96,7 +103,7 @@ class Display:
     def text(
         self, text: str, show: bool = False, **kwargs
     ) -> Tuple[plt.Figure, plt.Axes]:
-        """Create a `plt.Figure` and `plt.Axes` centered text.
+        """Create a `plt.Figure` and `plt.Axes` with centered text.
 
         Args:
             text: Text on the plot.
@@ -131,7 +138,11 @@ class Display:
             self.epd.display(self.epd.getbuffer(image))
 
     def show_image(self, image: Image.Image) -> None:
-        """Show a `PIL.Image.Image` on the display."""
+        """Show a `PIL.Image.Image` on the display.
+
+        Args:
+            image: The image to display.
+        """
         highlight_image = None
         if self.has_highlight and image.mode == "RGB":
             self._log.info("Computing highlight pixels.")
@@ -181,9 +192,9 @@ class Display:
                 price of the symbol.
             current_price: API response, the current price of the symbol.
             delta: relative percentage change.
-            top_string: Contents of the top left string, the current will be
+            top_string: Contents of the top left string, the `current_price` will be
                 appended if provided.
-            sub_string: Contents of a smaller text box bollow top_string.
+            sub_string: Contents of a smaller text box bollow `top_string`.
             show: display the plot on the ePaper display.
             type: the chart type, see `mplfinance.plot`.
             volume: also plot the volume bar plot information.

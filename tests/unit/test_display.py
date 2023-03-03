@@ -12,6 +12,7 @@ from tinyticker.display import Display
 from tinyticker.waveshare_lib._base import EPDBase
 from tinyticker.waveshare_lib.models import MODELS, EPDModel
 
+# if set to True, the reference plots will be updated
 UPDATE_REF_PLOTS = os.environ.get("TINYTICKER_UPDATE_REF_PLOTS", False)
 
 
