@@ -327,6 +327,7 @@ class Sequence:
                     wait_time=ticker.wait_time,
                     plot_type=ticker.plot_type,
                     mav=ticker.mav,
+                    volume=ticker.volume,
                 )
                 for ticker in tt_config.tickers
             ],
