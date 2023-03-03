@@ -4,6 +4,8 @@ import signal
 import subprocess
 from typing import Callable, List, Union
 
+from pip._internal.cli.main import main as pipmain
+
 from ..config import TinytickerConfig
 from ..settings import CONFIG_FILE, PID_FILE
 
@@ -78,11 +80,8 @@ def wifi_reset() -> None:
 
 @register
 def update() -> None:
-    """Update tinyticker."""
-    LOGGER.info("Updating tinyticker.")
-    try_command(
-        'sh -c "type pipx > /dev/null && pipx upgrade tinyticker || pip install --upgrade tinyticker"'
-    )
+    """Update tinyticker with pip."""
+    pipmain(["install", "--upgrade", "tinyticker"])
 
 
 @register

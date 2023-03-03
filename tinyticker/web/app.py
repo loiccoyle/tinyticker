@@ -2,6 +2,7 @@ import logging
 import socket
 import subprocess
 import sys
+import threading
 from pathlib import Path
 from socket import timeout
 from typing import Optional
@@ -126,8 +127,10 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         LOGGER.debug("/command url args: %s", request.args)
         command = request.args.get("command")
         if command:
-            # call the registered command function
-            COMMANDS.get(command, lambda: None)()
+            # call the registered command function in a separate thread
+            cmd_func = COMMANDS.get(command, None)
+            if cmd_func is not None:
+                threading.Thread(target=cmd_func).start()
         return redirect("/", code=302)
 
     @app.route("/set_hostname")
@@ -149,11 +152,6 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
                 )
             reboot()
         return redirect("/", code=302)
-
-    # @app.route("/img/favicon.ico")
-    # def favicon():
-    #     logger.info("Returning 404 for favicon request")
-    #     abort(404)
 
     @app.route("/get-log/<log_file_name>")
     def send_log(log_file_name):
