@@ -30,10 +30,14 @@ class Display:
         model: str = "EPD_v2",
         flip: bool = False,
     ) -> None:
+        if model not in MODELS:
+            raise KeyError(
+                f"Model '{model}' not found. Available models: {list(MODELS.keys())}"
+            )
         self._log = logging.getLogger(__name__)
         self.flip = flip
-        self.model = MODELS[model]
-        self.epd = self.model.class_()
+        self.epd = MODELS[model].class_()
+        self.has_highlight = isinstance(self.epd, EPDHighlight)
         self.init_epd()
 
     def init_epd(self):
@@ -129,7 +133,7 @@ class Display:
     def show_image(self, image: Image.Image) -> None:
         """Show a `PIL.Image.Image` on the display."""
         highlight_image = None
-        if self.model.has_highlight and image.mode == "RGB":
+        if self.has_highlight and image.mode == "RGB":
             self._log.info("Computing highlight pixels.")
             # create an image with the pixels which are coloured
             image_ar = np.array(image)
@@ -206,7 +210,7 @@ class Display:
             ohlc="black",
             volume="black",
         )
-        if self.model.has_highlight:
+        if self.has_highlight:
             mavcolors = ["r"]
         else:
             mavcolors = ["k"]

@@ -40,8 +40,7 @@ class EPDMock(EPDBase):
 MODELS["mock"] = EPDModel(
     name="mock",
     class_=EPDMock,
-    desc="A Mock display for tessting",
-    has_highlight=False,
+    desc="A Mock display for testing",
 )
 
 
@@ -67,7 +66,6 @@ class TestDisplay(TestCase):
         tt_config = TinytickerConfig.from_file(self.config_path)
         tt_config.epd_model = "mock"
         display = Display.from_tinyticker_config(tt_config)
-        assert display.model.name == tt_config.epd_model
         assert display.flip == tt_config.flip
 
     def _check_fig_ax(self, fig, ax):
