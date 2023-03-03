@@ -340,7 +340,7 @@ class Sequence:
         skip_empty: bool = True,
         skip_outdated: bool = True,
     ):
-        """Runs multiple tickers in sequence.
+        """Runs multiple `Ticker` instances in sequence.
 
         Args:
             tickers: list of `Ticker` instances.
