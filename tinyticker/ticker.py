@@ -327,6 +327,7 @@ class Sequence:
                     wait_time=ticker.wait_time,
                     plot_type=ticker.plot_type,
                     mav=ticker.mav,
+                    volume=ticker.volume,
                 )
                 for ticker in tt_config.tickers
             ],
@@ -339,7 +340,7 @@ class Sequence:
         skip_empty: bool = True,
         skip_outdated: bool = True,
     ):
-        """Runs multiple tickers in sequence.
+        """Runs multiple `Ticker` instances in sequence.
 
         Args:
             tickers: list of `Ticker` instances.
