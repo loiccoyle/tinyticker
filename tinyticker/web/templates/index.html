@@ -125,7 +125,7 @@
                       {% else %}
                       <input type="hidden" name="volume" value="0">
                       {% endif %}
-                      <input class="uk-checkbox" type="checkbox" {% if ticker.volume | default(False) %}checked{% endif %} onclick="this.previousSibling.value=1-this.previousSibling.value">
+                      <input class="uk-checkbox" type="checkbox" {% if ticker.volume | default(False) %}checked{% endif %} onclick="this.previousElementSibling.value=1-this.previousElementSibling.value">
                     </label>
                   </div>
                 {%- endfor %}
