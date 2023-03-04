@@ -9,10 +9,12 @@ class TestCommand(TestCase):
 
         @command.register
         def new():
+            """Test command"""
             pass
 
         assert "new" in command.COMMANDS.keys()
-        assert command.COMMANDS["new"] == new
+        assert command.COMMANDS["new"].func == new
+        assert command.COMMANDS["new"].desc == "Test command"
 
     def test_try_command(self):
         command.try_command("echo test")
