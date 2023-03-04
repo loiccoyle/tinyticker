@@ -1,11 +1,14 @@
-<h1 align="center">🚀 tinyticker 🚀</h5>
-<h3 align="center"><img src="https://i.imgur.com/2mF86LQ.png" width=500><img src="https://i.imgur.com/BPiGmxo.png" height=600 align=right></h3>
-<h5 align="center">size doesn't matter</h5>
+<h1 align="center">🚀 tinyticker 🚀</h1>
+<div align="center">
+  <img  src="https://i.imgur.com/J4k3PCM.png" height=400>
+  <img src="https://i.imgur.com/QWP7bpH.png" height=400>
+</div>
 <p align="center">
   <a href="https://pypi.org/project/tinyticker/"><img src="https://img.shields.io/pypi/v/tinyticker"></a>
   <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
   <a href="https://github.com/loiccoyle/tinyticker/actions/workflows/ci.yml"><img src="https://github.com/loiccoyle/tinyticker/actions/workflows/ci.yml/badge.svg"></a>
 </p>
+<hr/>
 
 `tinyticker` uses a Raspberry Pi zero W and a small ePaper display to periodically display a stock or crypto chart.
 
