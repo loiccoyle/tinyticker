@@ -1,8 +1,9 @@
+import dataclasses as dc
 import logging
 import os
 import signal
 import subprocess
-from typing import Callable, List, Union
+from typing import Callable, Dict, List, Optional, Union
 
 from pip._internal.cli.main import main as pipmain
 
@@ -10,12 +11,20 @@ from ..config import TinytickerConfig
 from ..settings import CONFIG_FILE, PID_FILE
 
 LOGGER = logging.getLogger(__name__)
-COMMANDS = {}
+COMMANDS: Dict[str, "Command"] = {}
+
+
+@dc.dataclass
+class Command:
+    func: Callable[[None], None]
+    name: str
+    desc: Optional[str]
 
 
 def register(func: Callable) -> Callable:
     """Register a function to appear in the commands section of the web interface."""
-    COMMANDS[func.__name__.replace("_", " ")] = func
+    cmd = Command(func, func.__name__.replace("_", " "), func.__doc__)
+    COMMANDS[func.title] = cmd
     return func
 
 

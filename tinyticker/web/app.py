@@ -54,9 +54,8 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         The flask application.
     """
     app = Flask(__name__, template_folder=TEMPLATE_PATH)
-    commands = sorted(COMMANDS.keys())
-    # remove the update command as we treat it separately
-    commands.remove("update")
+    # don't keep update as we handle is differently
+    commands = {cmd.name: cmd.desc for cmd in COMMANDS.values() if cmd.name != "update"}
     log_files = sorted([path.name for path in log_dir.glob("*.log")])
     hostname = socket.gethostname()
 
@@ -128,9 +127,9 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         command = request.args.get("command")
         if command:
             # call the registered command function in a separate thread
-            cmd_func = COMMANDS.get(command, None)
-            if cmd_func is not None:
-                threading.Thread(target=cmd_func).start()
+            cmd = COMMANDS.get(command, None)
+            if cmd is not None:
+                threading.Thread(target=cmd.func).start()
         return redirect("/", code=302)
 
     @app.route("/set_hostname")
