@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tinyticker"
-version = "0.3.13"
+version = "0.3.14"
 description = "A tiny Raspberry Pi powered ePaper ticker."
 authors = ["Loic Coyle <loic.coyle@hotmail.fr>"]
 license = "MIT"
