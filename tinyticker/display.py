@@ -12,6 +12,22 @@ from .config import TinytickerConfig
 from .waveshare_lib import CONFIG, MODELS
 from .waveshare_lib._base import EPDHighlight
 
+MARKETCOLORS = mpf.make_marketcolors(
+    up="white",
+    down="black",
+    edge="black",
+    wick="black",
+    ohlc="black",
+    volume="black",
+)
+STYLE = mpf.make_mpf_style(marketcolors=MARKETCOLORS, mavcolors=["k"])
+STYLE_HIGHLIGHT = mpf.make_mpf_style(marketcolors=MARKETCOLORS, mavcolors=["r"])
+TEXT_BBOX = {
+    "boxstyle": "square,pad=0",
+    "facecolor": "white",
+    "edgecolor": "white",
+}
+
 
 class Display:
     """Display the API response on the e-Paper display.
@@ -99,6 +115,7 @@ class Display:
         """Strip all visuals from `plt.Axes` object."""
         ax.axis("off")
         ax.margins(0, 0)
+        ax.grid(False)
 
     def text(
         self, text: str, show: bool = False, **kwargs
@@ -194,10 +211,10 @@ class Display:
             delta: relative percentage change.
             top_string: Contents of the top left string, the `current_price` will be
                 appended if provided.
-            sub_string: Contents of a smaller text box bollow `top_string`.
+            sub_string: Contents of a smaller text box below `top_string`.
             show: display the plot on the ePaper display.
             type: the chart type, see `mplfinance.plot`.
-            volume: also plot the volume bar plot information.
+            volume: also plot the trade volume data.
             **kwargs: passed to `mplfinance.plot`.
 
         Returns:
@@ -211,21 +228,7 @@ class Display:
         else:
             fig, axes = self._create_fig_ax(n_axes=1)
             volume_ax = False
-        ax = axes[0]
-
-        marketcolors = mpf.make_marketcolors(
-            up="white",
-            down="black",
-            edge="black",
-            wick="black",
-            ohlc="black",
-            volume="black",
-        )
-        if self.has_highlight:
-            mavcolors = ["r"]
-        else:
-            mavcolors = ["k"]
-        s = mpf.make_mpf_style(marketcolors=marketcolors, mavcolors=mavcolors)
+        ax: plt.Axes = axes[0]
         # remove Nones, it doesn't play well with mplfinance
         kwargs = {key: value for key, value in kwargs.items() if value is not None}
         mpf.plot(
@@ -233,7 +236,7 @@ class Display:
             type=type,
             ax=ax,
             update_width_config={"line_width": 1},
-            style=s,
+            style=STYLE_HIGHLIGHT if self.has_highlight else STYLE,
             volume=volume_ax,
             linecolor="k",
             **kwargs,
@@ -255,11 +258,7 @@ class Display:
             transform=ax.transAxes,
             fontsize=10,
             weight="bold",
-            bbox=dict(
-                boxstyle="square,pad=0",
-                facecolor="white",
-                edgecolor="white",
-            ),
+            bbox=TEXT_BBOX,
         )
         if sub_string is not None:
             ax.text(
@@ -269,15 +268,10 @@ class Display:
                 transform=ax.transAxes,
                 fontsize=8,
                 weight="bold",
-                bbox=dict(
-                    boxstyle="square,pad=0",
-                    facecolor="white",
-                    edgecolor="white",
-                ),
+                bbox=TEXT_BBOX,
             )
 
         fig.tight_layout(pad=0)
-        ax.grid(False)
         if show:
             self.show_fig(fig)
         return fig, ax
