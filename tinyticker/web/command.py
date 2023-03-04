@@ -24,7 +24,7 @@ class Command:
 def register(func: Callable) -> Callable:
     """Register a function to appear in the commands section of the web interface."""
     cmd = Command(func, func.__name__.replace("_", " "), func.__doc__)
-    COMMANDS[func.title] = cmd
+    COMMANDS[cmd.name] = cmd
     return func
 
 
