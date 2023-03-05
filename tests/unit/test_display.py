@@ -1,9 +1,6 @@
-import os
-from io import BytesIO
 from pathlib import Path
 from unittest import TestCase
 
-import matplotlib.pyplot as plt
 import pandas as pd
 import pytest
 from PIL import Image
@@ -13,8 +10,7 @@ from tinyticker.display import Display
 from tinyticker.waveshare_lib._base import EPDBase
 from tinyticker.waveshare_lib.models import MODELS, EPDModel
 
-# if set to True, the reference plots will be updated
-UPDATE_REF_PLOTS = os.environ.get("TINYTICKER_UPDATE_REF_PLOTS", False)
+from .utils import expected_fig
 
 
 class EPDMock(EPDBase):
@@ -84,32 +80,19 @@ class TestDisplay(TestCase):
         assert ax.margins() == (0, 0)
         assert ax.axison == False
 
-    def _same_img(self, fig: plt.Figure, reference: Path) -> bool:
-        """Helper function to compare the generated plot with the reference plot."""
-        buf = BytesIO()
-        fig.savefig(buf, format="png")
-        buf.seek(0)
-        return reference.open("rb").read() == buf.read()
-
     def test_plot(self):
         fig, ax = self.display.plot(self.historical, None)
-        if UPDATE_REF_PLOTS:
-            fig.savefig(self.crypto_historical_plot_file, format="png")
         self._check_fig_ax(fig, ax)
-        assert self._same_img(fig, self.crypto_historical_plot_file)
+        assert expected_fig(fig, self.crypto_historical_plot_file)
 
     def test_plot_with_volume(self):
         fig, ax = self.display.plot(self.historical, None, volume=True)
-        if UPDATE_REF_PLOTS:
-            fig.savefig(self.crypto_historical_plot_volume_file, format="png")
         self._check_fig_ax(fig, ax)
-        assert self._same_img(fig, self.crypto_historical_plot_volume_file)
+        assert expected_fig(fig, self.crypto_historical_plot_volume_file)
 
     def test_text(self):
         text = "Some text"
         fig, ax = self.display.text(text)
-        if UPDATE_REF_PLOTS:
-            fig.savefig(self.text_plot_file, format="png")
         self._check_fig_ax(fig, ax)
         assert ax.texts[0]._text == text
-        assert self._same_img(fig, self.text_plot_file)
+        assert expected_fig(fig, self.text_plot_file)
