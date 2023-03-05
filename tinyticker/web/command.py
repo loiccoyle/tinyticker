@@ -8,7 +8,7 @@ from typing import Callable, Dict, List, Optional, Union
 from pip._internal.cli.main import main as pipmain
 
 from ..config import TinytickerConfig
-from ..settings import CONFIG_FILE, PID_FILE
+from ..paths import CONFIG_FILE, PID_FILE
 
 LOGGER = logging.getLogger(__name__)
 COMMANDS: Dict[str, "Command"] = {}

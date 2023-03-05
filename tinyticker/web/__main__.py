@@ -4,10 +4,14 @@ import sys
 from pathlib import Path
 from typing import List
 
-from .. import config as cfg
+from ..config import TinytickerConfig
 from ..display import Display
-from ..settings import CONFIG_FILE, LOG_DIR, set_verbosity
-from ..utils import RawTextArgumentDefaultsHelpFormatter, dashboard_qrcode
+from ..paths import CONFIG_FILE, LOG_DIR
+from ..utils import (
+    RawTextArgumentDefaultsHelpFormatter,
+    dashboard_qrcode,
+    set_verbosity,
+)
 from .app import LOGGER as APP_LOGGER
 from .app import create_app
 
@@ -18,14 +22,14 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     """Parse the command line arguments.
 
     Args:
-        args: The command line argument.
+        args: The command line arguments.
 
     Returns:
         The parsed arguments.
     """
     parser = argparse.ArgumentParser(
         prog="tinyticker-web",
-        description="tinyticker web interface.",
+        description="Tinyticker web dashboard.",
         formatter_class=RawTextArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -77,7 +81,7 @@ def main():
 
     if args.show_qrcode:
         LOGGER.info("Generating qrcode.")
-        tt_config = cfg.TinytickerConfig.from_file(args.config)
+        tt_config = TinytickerConfig.from_file(args.config)
         display = Display.from_tinyticker_config(tt_config)
         qrcode = dashboard_qrcode(
             display.epd.width,

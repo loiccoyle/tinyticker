@@ -11,9 +11,9 @@ from typing import List
 from . import __version__, logger
 from .config import TinytickerConfig
 from .display import Display
-from .settings import CONFIG_FILE, PID_FILE, set_verbosity
+from .paths import CONFIG_FILE, PID_FILE
 from .ticker import Sequence
-from .utils import RawTextArgumentDefaultsHelpFormatter
+from .utils import RawTextArgumentDefaultsHelpFormatter, set_verbosity
 
 
 def parse_args(args: List[str]) -> argparse.Namespace:

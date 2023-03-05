@@ -12,7 +12,7 @@ from flask import Flask, abort, redirect, render_template, request, send_from_di
 
 from .. import __version__
 from ..config import PLOT_TYPES, TickerConfig, TinytickerConfig
-from ..settings import CONFIG_FILE, LOG_DIR
+from ..paths import CONFIG_FILE, LOG_DIR
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from ..utils import check_for_update
 from ..waveshare_lib.models import MODELS
@@ -95,6 +95,9 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
 
     @app.route("/config")
     def config():
+        # TODO: post the config via a json post instead of parsing it here
+        # Something like:
+        # https://stackoverflow.com/questions/22195065/how-to-send-a-json-object-using-html-form-data
         LOGGER.debug("/config url args: %s", request.args)
         tickers = {}
         tickers["symbol"] = request.args.getlist("symbol")
