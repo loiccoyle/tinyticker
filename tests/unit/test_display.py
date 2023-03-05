@@ -3,6 +3,7 @@ from io import BytesIO
 from pathlib import Path
 from unittest import TestCase
 
+import matplotlib.pyplot as plt
 import pandas as pd
 import pytest
 from PIL import Image
@@ -56,6 +57,9 @@ class TestDisplay(TestCase):
             cls.data_dir / "crypto_historical.pkl"
         )
         cls.crypto_historical_plot_file = cls.data_dir / "crypto_historical_plot.png"
+        cls.crypto_historical_plot_volume_file = (
+            cls.data_dir / "crypto_historical_plot_volume.png"
+        )
         cls.text_plot_file = cls.data_dir / "text_plot.png"
 
     def test_init(self):
@@ -80,15 +84,26 @@ class TestDisplay(TestCase):
         assert ax.margins() == (0, 0)
         assert ax.axison == False
 
+    def _same_img(self, fig: plt.Figure, reference: Path) -> bool:
+        """Helper function to compare the generated plot with the reference plot."""
+        buf = BytesIO()
+        fig.savefig(buf, format="png")
+        buf.seek(0)
+        return reference.open("rb").read() == buf.read()
+
     def test_plot(self):
         fig, ax = self.display.plot(self.historical, None)
         if UPDATE_REF_PLOTS:
             fig.savefig(self.crypto_historical_plot_file, format="png")
         self._check_fig_ax(fig, ax)
-        buf = BytesIO()
-        fig.savefig(buf, format="png")
-        buf.seek(0)
-        assert self.crypto_historical_plot_file.open("rb").read() == buf.read()
+        assert self._same_img(fig, self.crypto_historical_plot_file)
+
+    def test_plot_with_volume(self):
+        fig, ax = self.display.plot(self.historical, None, volume=True)
+        if UPDATE_REF_PLOTS:
+            fig.savefig(self.crypto_historical_plot_volume_file, format="png")
+        self._check_fig_ax(fig, ax)
+        assert self._same_img(fig, self.crypto_historical_plot_volume_file)
 
     def test_text(self):
         text = "Some text"
@@ -97,7 +112,4 @@ class TestDisplay(TestCase):
             fig.savefig(self.text_plot_file, format="png")
         self._check_fig_ax(fig, ax)
         assert ax.texts[0]._text == text
-        buf = BytesIO()
-        fig.savefig(buf, format="png")
-        buf.seek(0)
-        assert self.text_plot_file.open("rb").read() == buf.read()
+        assert self._same_img(fig, self.text_plot_file)
