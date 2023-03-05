@@ -1,4 +1,5 @@
 import datetime
+import logging
 from pathlib import Path
 from unittest import TestCase
 
@@ -27,3 +28,10 @@ class TestUtils(TestCase):
     def test_dashboard_qrcode(self):
         qrcode = utils.dashboard_qrcode(200, 200)
         assert qrcode.size == (200, 200)
+
+    def test_set_verbosity(self):
+        logger = logging.getLogger("tinyticker_test")
+        logger = utils.set_verbosity(logger, 1)
+        assert logger.level == logging.INFO
+        logger = utils.set_verbosity(logger, 2)
+        assert logger.level == logging.DEBUG
