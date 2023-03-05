@@ -269,15 +269,21 @@ class Ticker:
         self._log.debug("lookback: %s", self.lookback)
         self._log.debug("start: %s", start)
         self._log.debug("end: %s", end)
-        current_price_data = yfinance.download(
+        current_price_data: pd.DataFrame = yfinance.download(
             self.symbol,
             start=end - pd.to_timedelta("2m"),  # type: ignore
             end=end,
             interval="1m",
-        )  # type: pd.DataFrame
-        historical = yfinance.download(
-            self.symbol, start=start, end=end, interval=self.interval
-        )  # type: pd.DataFrame
+            show_errors=False,
+        )
+        historical: pd.DataFrame = yfinance.download(
+            self.symbol,
+            start=start,
+            end=end,
+            interval=self.interval,
+            show_errors=False,
+            timeout=None,
+        )
         if not current_price_data.empty:
             current_price = current_price_data.iloc[-1]["Close"]
         else:
