@@ -56,7 +56,7 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "-q",
         "--show-qrcode",
-        help="Display a qrcode containing the URL of the dashboard and exit.",
+        help="Display a qrcode of the dashboard URL and exit.",
         action="store_true",
     )
     parser.add_argument(
