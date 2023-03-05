@@ -106,14 +106,13 @@ class Display:
         if not isinstance(axes, np.ndarray):
             axes = np.array([axes])
         fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
-        fig.set_dpi(dpi)
         for ax in axes:
             self._strip_ax(ax)
         return fig, axes
 
     def _strip_ax(self, ax: plt.Axes) -> None:
         """Strip all visuals from `plt.Axes` object."""
-        ax.axis("off")
+        ax.axis(False)
         ax.margins(0, 0)
         ax.grid(False)
 
