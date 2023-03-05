@@ -23,3 +23,7 @@ class TestUtils(TestCase):
         img = Image.open(trim_file)
         img_trim = utils.trim(img)
         assert img_trim.size == (200, 133)
+
+    def test_dashboard_qrcode(self):
+        qrcode = utils.dashboard_qrcode(200, 200)
+        assert qrcode.size == (200, 200)
