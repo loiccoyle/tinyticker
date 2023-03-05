@@ -1,10 +1,32 @@
 import argparse
 import json
+import socket
 from datetime import datetime, timezone
 from urllib.request import urlopen
 
+import qrcode
 from packaging.version import Version
 from PIL import Image, ImageChops
+
+
+def dashboard_qrcode(epd_width: int, epd_height: int, port: int = 8000) -> Image.Image:
+    """Generate a qrcode pointing to the dashboard url.
+
+    Args:
+        epd_width: the width of the ePaper display.
+        epd_height: the height of the ePaper display.
+        port: the port number on which the dashboard is hosted.
+
+    Returns:
+        The qrcode image.
+    """
+    url = f"http://{socket.gethostname()}.local:{port}"
+    qr = qrcode.make(url)
+    qr = trim(qr)
+    qr = qr.resize((epd_width, epd_width))
+    base = Image.new("1", (epd_height, epd_width), 1)
+    base.paste(qr, (base.size[0] // 2 - qr.size[0] // 2, 0))
+    return base
 
 
 def trim(image: Image.Image) -> Image.Image:

@@ -6,8 +6,8 @@ from typing import List
 
 from .. import config as cfg
 from ..display import Display
-from ..settings import CONFIG_FILE, LOG_DIR, generate_qrcode, set_verbosity
-from ..utils import RawTextArgumentDefaultsHelpFormatter
+from ..settings import CONFIG_FILE, LOG_DIR, set_verbosity
+from ..utils import RawTextArgumentDefaultsHelpFormatter, dashboard_qrcode
 from .app import LOGGER as APP_LOGGER
 from .app import create_app
 
@@ -79,7 +79,7 @@ def main():
         LOGGER.info("Generating qrcode.")
         tt_config = cfg.TinytickerConfig.from_file(args.config)
         display = Display.from_tinyticker_config(tt_config)
-        qrcode = generate_qrcode(
+        qrcode = dashboard_qrcode(
             display.epd.width,
             display.epd.height,
             args.port,
