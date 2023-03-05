@@ -529,10 +529,6 @@ video {
   top: 1rem;
 }
 
-.m-2 {
-  margin: 0.5rem;
-}
-
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -591,20 +587,8 @@ video {
   height: 1.5rem;
 }
 
-.h-64 {
-  height: 16rem;
-}
-
-.h-72 {
-  height: 18rem;
-}
-
 .h-60 {
   height: 15rem;
-}
-
-.h-52 {
-  height: 13rem;
 }
 
 .w-10 {
@@ -663,6 +647,16 @@ video {
   flex-grow: 1;
 }
 
+.cursor-default {
+  cursor: default;
+}
+
+.select-none {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+}
+
 .flex-col {
   flex-direction: column;
 }
@@ -711,10 +705,6 @@ video {
 
 .overflow-visible {
   overflow: visible;
-}
-
-.scroll-smooth {
-  scroll-behavior: smooth;
 }
 
 .rounded-full {
@@ -767,11 +757,6 @@ video {
 
 .fill-indigo-400 {
   fill: #818cf8;
-}
-
-.object-contain {
-  -o-object-fit: contain;
-     object-fit: contain;
 }
 
 .object-cover {
@@ -960,12 +945,6 @@ video {
   box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 
-.ring-2 {
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
-}
-
 .ring-inset {
   --tw-ring-inset: inset;
 }
@@ -988,26 +967,6 @@ video {
 .ring-slate-700 {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(51 65 85 / var(--tw-ring-opacity));
-}
-
-.ring-zinc-50 {
-  --tw-ring-opacity: 1;
-  --tw-ring-color: rgb(250 250 250 / var(--tw-ring-opacity));
-}
-
-.ring-sky-50 {
-  --tw-ring-opacity: 1;
-  --tw-ring-color: rgb(240 249 255 / var(--tw-ring-opacity));
-}
-
-.ring-sky-500 {
-  --tw-ring-opacity: 1;
-  --tw-ring-color: rgb(14 165 233 / var(--tw-ring-opacity));
-}
-
-.ring-pink-400 {
-  --tw-ring-opacity: 1;
-  --tw-ring-color: rgb(244 114 182 / var(--tw-ring-opacity));
 }
 
 .hover\:text-cyan-500:hover {
@@ -1064,10 +1023,6 @@ video {
     margin: 0.5rem;
   }
 
-  .sm\:m-4 {
-    margin: 1rem;
-  }
-
   .sm\:my-4 {
     margin-top: 1rem;
     margin-bottom: 1rem;
@@ -1075,14 +1030,6 @@ video {
 
   .sm\:mb-4 {
     margin-bottom: 1rem;
-  }
-
-  .sm\:h-72 {
-    height: 18rem;
-  }
-
-  .sm\:h-96 {
-    height: 24rem;
   }
 
   .sm\:h-80 {
