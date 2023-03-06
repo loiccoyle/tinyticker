@@ -79,38 +79,30 @@ def start_ticker(config_file: Path) -> None:
 
     try:
         for ticker, resp in sequence.start():
-            if resp.historical is None or resp.historical.empty:
-                logger.debug("response data empty.")
-                display.text(
-                    f"No data for {ticker.symbol} in lookback range: {ticker.lookback}x{ticker.interval}",
-                    show=True,
-                    weight="bold",
-                )
-            else:
-                logger.debug("API len(historical): %s", len(resp.historical))
-                logger.debug("API current_price: %s", resp.current_price)
-                delta = (
-                    100
-                    * (resp.current_price - resp.historical.iloc[0]["Open"])
-                    / resp.historical.iloc[0]["Open"]
-                )
-                xlim = None
-                # if incomplete data, leave space for the missing data
-                if len(resp.historical) < ticker.lookback:
-                    # the floats are to leave padding left and right of the edge candles
-                    xlim = (-0.75, ticker.lookback - 0.25)
-                logger.debug("xlim: %s", xlim)
-                display.plot(
-                    resp.historical,
-                    resp.current_price,
-                    top_string=f"{ticker.symbol}: $",
-                    sub_string=f"{len(resp.historical)}x{ticker.interval}",
-                    delta=delta,
-                    show=True,
-                    xlim=xlim,
-                    type=ticker._display_kwargs.pop("plot_type", "candle"),
-                    **ticker._display_kwargs,
-                )
+            logger.debug("API len(historical): %s", len(resp.historical))
+            logger.debug("API current_price: %s", resp.current_price)
+            delta = (
+                100
+                * (resp.current_price - resp.historical.iloc[0]["Open"])
+                / resp.historical.iloc[0]["Open"]
+            )
+            xlim = None
+            # if incomplete data, leave space for the missing data
+            if len(resp.historical) < ticker.lookback:
+                # the floats are to leave padding left and right of the edge candles
+                xlim = (-0.75, ticker.lookback - 0.25)
+            logger.debug("xlim: %s", xlim)
+            display.plot(
+                resp.historical,
+                resp.current_price,
+                top_string=f"{ticker.symbol}: $",
+                sub_string=f"{len(resp.historical)}x{ticker.interval}",
+                delta=delta,
+                show=True,
+                xlim=xlim,
+                type=ticker._display_kwargs.pop("plot_type", "candle"),
+                **ticker._display_kwargs,
+            )
     except Exception as exc:
         logger.error(exc, stack_info=True)
         display.text(
