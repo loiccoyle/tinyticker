@@ -77,8 +77,8 @@ def start_ticker(config_file: Path) -> None:
     sequence = Sequence.from_tinyticker_config(tt_config)
     logger.debug(sequence)
 
-    for ticker, resp in sequence.start():
-        try:
+    try:
+        for ticker, resp in sequence.start():
             if resp.historical is None or resp.historical.empty:
                 logger.debug("response data empty.")
                 display.text(
@@ -111,14 +111,14 @@ def start_ticker(config_file: Path) -> None:
                     type=ticker._display_kwargs.pop("plot_type", "candle"),
                     **ticker._display_kwargs,
                 )
-        except Exception as exc:
-            logger.error(exc, stack_info=True)
-            display.text(
-                f"Whoops something broke:\n{exc}",
-                show=True,
-                weight="bold",
-                fontsize="small",
-            )
+    except Exception as exc:
+        logger.error(exc, stack_info=True)
+        display.text(
+            f"Whoops something broke:\n{exc}",
+            show=True,
+            weight="bold",
+            fontsize="small",
+        )
 
 
 def main():

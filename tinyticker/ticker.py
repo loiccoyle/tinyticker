@@ -282,8 +282,10 @@ class Ticker:
             end=end,
             interval=self.interval,
             show_errors=False,
-            timeout=None,
+            timeout=None,  # type: ignore
         )
+        if historical.empty:
+            raise ValueError("No historical data returned from yfinance API.")
         if not current_price_data.empty:
             current_price = current_price_data.iloc[-1]["Close"]
         else:
@@ -381,7 +383,11 @@ class Sequence:
         while True:
             for ticker in self.tickers:
                 min_delta: pd.Timedelta = max(pd.to_timedelta("5m"), ticker._interval_dt)  # type: ignore
-                response = ticker.single_tick()
+                try:
+                    response = ticker.single_tick()
+                except Exception as e:
+                    LOGGER.error(f"{ticker} failed with {e}")
+                    continue
                 if self.skip_empty and (
                     response.historical is None or response.historical.empty
                 ):
