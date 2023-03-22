@@ -59,7 +59,7 @@ I highly recommend using [comitup](https://github.com/davesteele/comitup) to set
   ```sh
   sudo apt install libatlas-base-dev libopenjp2-7 libtiff5 libxml2-dev libxslt1-dev
   ```
-- Install `tinyticker` (the `CFLAGS` variable is required for `RPi.GPIO` to install):
+- Install `tinyticker`:
   ```sh
   pip install tinyticker
   ```
