@@ -48,6 +48,7 @@ class RaspberryPi:
     DC_PIN = 25
     CS_PIN = 8
     BUSY_PIN = 24
+    PWR_PIN = 18
 
     def __init__(self):
         self.SPI = spidev.SpiDev()
@@ -73,7 +74,10 @@ class RaspberryPi:
         GPIO.setup(self.RST_PIN, GPIO.OUT)
         GPIO.setup(self.DC_PIN, GPIO.OUT)
         GPIO.setup(self.CS_PIN, GPIO.OUT)
+        GPIO.setup(self.PWR_PIN, self.GPIO.OUT)
         GPIO.setup(self.BUSY_PIN, GPIO.IN)
+
+        GPIO.output(self.PWR_PIN, 1)
 
         # SPI device, bus = 0, device = 0
         self.SPI.open(0, 0)
@@ -89,7 +93,7 @@ class RaspberryPi:
         GPIO.output(self.RST_PIN, 0)
         GPIO.output(self.DC_PIN, 0)
 
-        GPIO.cleanup([self.RST_PIN, self.DC_PIN, self.CS_PIN, self.BUSY_PIN])
+        GPIO.cleanup([self.RST_PIN, self.DC_PIN, self.CS_PIN, self.BUSY_PIN, self.PWR_PIN])
 
 
 CONFIG = RaspberryPi()
