@@ -33,6 +33,8 @@ Shopping list:
 
 Flash the [tinyticker image](https://drive.google.com/drive/folders/1U-PGzkOtSynN6FGDq2MsXF9kXGdkzd0D) onto a SD card and you should be good to go.
 
+> Note: to build your own image, see the [`pi-gen`](https://github.com/loiccoyle/pi-gen) repo.
+
 ### Manual setup
 
 I highly recommend using [comitup](https://github.com/davesteele/comitup) to setup the networking on your RPi.
