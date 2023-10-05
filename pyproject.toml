@@ -6,13 +6,13 @@ authors = ["Loic Coyle <loic.coyle@hotmail.fr>"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/loiccoyle/tinyticker"
-keywords = ["raspberry-pi", "ticker", "stock", "crypto", "epaper"]
+keywords = ["raspberry-pi", "ticker", "stock", "crypto", "epaper", "finance"]
 
 [tool.poetry.dependencies]
-python = ">=3.7.1,<3.11"
+python = ">=3.8,<3.12"
 "RPi.GPIO" = "^0.7.0"
 spidev = "^3.5"
-Pillow = "^9.0.0"
+Pillow = "^10.0.1"
 cryptocompare = "^0.7.5"
 pandas = "^1.3.5"
 matplotlib = "^3.5.1"
