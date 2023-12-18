@@ -4,6 +4,7 @@ After=networking.service
 
 [Service]
 Type=simple
+User=tinyticker
 ExecStartPre=/usr/bin/mkdir -p /home/tinyticker/.local/share/tinyticker
 ExecStart=sh -c '! type comitup-cli || comitup-cli i | grep -q "CONNECTED" && /home/tinyticker/.local/bin/tinyticker-web --port 80 --config /home/tinyticker/.config/tinyticker/config.json --log-dir /home/tinyticker/ -vv'
 Restart=on-failure
