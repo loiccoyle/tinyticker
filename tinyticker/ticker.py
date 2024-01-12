@@ -383,6 +383,10 @@ class Sequence:
         while True:
             for ticker in self.tickers:
                 min_delta: pd.Timedelta = max(pd.to_timedelta("5m"), ticker._interval_dt)  # type: ignore
+                # when fetching daily data from yfinance, the timestamps are 00:00:00 of the day in question
+                # which covers the full day's trade from open to close, so we relax the outdated constraint.
+                if min_delta == pd.to_timedelta("1d"):
+                    min_delta *= 2
                 try:
                     response = ticker.single_tick()
                 except Exception as e:
