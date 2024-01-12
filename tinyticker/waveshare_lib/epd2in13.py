@@ -150,7 +150,7 @@ class EPD(EPDBase):
         self.ReadBusy()
         logger.debug("e-Paper busy release")
 
-    def init(self, lut):
+    def init(self):
         if CONFIG.module_init() != 0:
             return -1
         # EPD hardware init start
@@ -183,7 +183,7 @@ class EPD(EPDBase):
         # WRITE_LUT_REGISTER
         self.send_command(0x32)
         for count in range(30):
-            self.send_data(lut[count])
+            self.send_data(self.lut_full_update[count])
 
         return 0
 
