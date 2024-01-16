@@ -35,17 +35,23 @@ Flash the [tinyticker image](https://drive.google.com/drive/folders/1U-PGzkOtSyn
 
 > Note: to build your own image, see the [`pi-gen`](https://github.com/loiccoyle/pi-gen) repo.
 
-### Manual setup
+  ### Manual setup
+  > Note: this is much more involved than the recommended setup and will most likely require some debugging.
+
+ <details>
+  <summary>Expand</summary>
+
 
 I highly recommend using [comitup](https://github.com/davesteele/comitup) to setup the networking on your RPi.
 
-- Write the `comitup` [image](https://davesteele.github.io/comitup/latest/comitup-lite-img-latest.html) to your sd card
-- Boot up the RPi and setup the networking
-- ssh into your RPi, you'll probably want to change the password while you're at it
-- Enable the [SPI interface](https://www.raspberrypi-spy.co.uk/2014/08/enabling-the-spi-interface-on-the-raspberry-pi/)
-- (Optional) rename the hostname of your RPi by editing the `/etc/hostname` and `/etc/hosts` file
-- (Optional) rename the Wifi AP name by editing the `/etc/comitup.conf` file
-- Install the `BCM2835` driver:
+  - Write the `comitup` [image](https://davesteele.github.io/comitup/latest/comitup-lite-img-latest.html) to your sd card
+  - Boot up the RPi and setup the networking
+  - ssh into your RPi, you'll probably want to change the password while you're at it
+  - Enable the [SPI interface](https://www.raspberrypi-spy.co.uk/2014/08/enabling-the-spi-interface-on-the-raspberry-pi/)
+  - (Optional) rename the hostname of your RPi by editing the `/etc/hostname` and `/etc/hosts` file
+  - (Optional) rename the Wifi AP name by editing the `/etc/comitup.conf` file
+  - Install the `BCM2835` driver:
+
   ```sh
   curl http://www.airspayce.com/mikem/bcm2835/bcm2835-1.60.tar.gz | tar xzv
   cd bcm2835-1.60/
@@ -53,20 +59,39 @@ I highly recommend using [comitup](https://github.com/davesteele/comitup) to set
   make
   make install
   ```
-- Install `pip`:
+
+  - Install `pip`:
+
   ```sh
   sudo apt install python3-pip
   ```
-- Install dependency requirements:
+
+  - Install dependency requirements:
+
   ```sh
-  sudo apt install libatlas-base-dev libopenjp2-7 libtiff5 libxml2-dev libxslt1-dev
+  sudo apt install libxml2-dev libxslt1-dev libatlas-base-dev ninja-build patchelf libopenjp2-7 libtiff-dev libjpeg-dev
   ```
-- Install `tinyticker`:
+
+  - Install `tinyticker`:
+
   ```sh
   pip install tinyticker
   ```
-- To setup `tinyticker` to start on boot, copy over the [`systemd` unit files](./systemd) and enable them.
-- On boot, a qrcode linking to the `flask` app will be flashed on the display
-- Leave a star, reboot and HODL !
 
-Note: the Raspberry Pi zero isn't very fast so be patient :)
+  - To setup `tinyticker` to start on boot, copy over the [`systemd` unit files](./systemd) and enable them.
+  - On boot, a qrcode linking to the `flask` app will be flashed on the display
+  - Leave a star, reboot and HODL !
+</details>
+
+## 👢 First boot
+
+On first boot, you will need to connect your RPi to your wifi network.
+- Connect to the `tinyticker` wifi AP
+- Select the wifi network you want your RPi to connect to
+- Enter the wifi password
+
+Your RPi will now connect to your wifi and the `tinyticker` services will start.
+
+Once the web app is running, head over to `http://tinyticker.local` to configure it.
+
+> Note: the Raspberry Pi zero isn't very fast so be patient :)
