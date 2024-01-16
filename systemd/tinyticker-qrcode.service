@@ -4,7 +4,6 @@ After=networking.service
 
 [Service]
 Type=oneshot
-ExecStartPre=/usr/bin/mkdir -p /home/tinyticker/.local/share/tinyticker
 ExecStart=/home/tinyticker/.local/bin/tinyticker-web --port 80 --show-qrcode --config /home/tinyticker/.config/tinyticker/config.json
 Restart=on-failure
 RestartSec=30s
