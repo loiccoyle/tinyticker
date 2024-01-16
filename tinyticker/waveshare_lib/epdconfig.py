@@ -74,7 +74,7 @@ class RaspberryPi:
         GPIO.setup(self.RST_PIN, GPIO.OUT)
         GPIO.setup(self.DC_PIN, GPIO.OUT)
         GPIO.setup(self.CS_PIN, GPIO.OUT)
-        GPIO.setup(self.PWR_PIN, self.GPIO.OUT)
+        GPIO.setup(self.PWR_PIN, GPIO.OUT)
         GPIO.setup(self.BUSY_PIN, GPIO.IN)
 
         GPIO.output(self.PWR_PIN, 1)
