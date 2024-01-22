@@ -33,10 +33,12 @@ Shopping list:
 
 Flash the [tinyticker image](https://drive.google.com/drive/folders/1U-PGzkOtSynN6FGDq2MsXF9kXGdkzd0D) onto a SD card and you should be good to go.
 
-> Note: to build your own image, see the [`pi-gen`](https://github.com/loiccoyle/pi-gen) repo.
+> [!NOTE]
+> To build your own image, see the [`pi-gen`](https://github.com/loiccoyle/pi-gen) repo.
 
   ### Manual setup
-  > Note: this is much more involved than the recommended setup and will most likely require some debugging.
+  > [!NOTE]
+  > This is much more involved than the recommended setup and will most likely require some debugging.
 
  <details>
   <summary>Expand</summary>
@@ -94,4 +96,4 @@ Your RPi will now connect to your wifi and the `tinyticker` services will start.
 
 Once the web app is running, head over to `http://tinyticker.local` to configure it.
 
-> Note: the Raspberry Pi zero isn't very fast so be patient :)
+> The RPi zero isn't very fast, so be patient :)
