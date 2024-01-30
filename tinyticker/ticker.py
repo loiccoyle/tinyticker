@@ -380,13 +380,16 @@ class Sequence:
         Returns:
             The `Ticker` instance and the response from the API.
         """
+        # if all tickers are skipped, we want to sleep a bit
+        all_skipped_cooldown = 300  # 5min
+
+        all_skipped = False
         while True:
+            if all_skipped:
+                LOGGER.info(f"All tickers skipped, sleeping {all_skipped_cooldown}s.")
+                time.sleep(all_skipped_cooldown)
+            all_skipped = True
             for ticker in self.tickers:
-                min_delta: pd.Timedelta = max(pd.to_timedelta("5m"), ticker._interval_dt)  # type: ignore
-                # when fetching daily data from yfinance, the timestamps are 00:00:00 of the day in question
-                # which covers the full day's trade from open to close, so we relax the outdated constraint.
-                if min_delta == pd.to_timedelta("1d"):
-                    min_delta *= 2
                 try:
                     response = ticker.single_tick()
                 except Exception as e:
@@ -397,12 +400,21 @@ class Sequence:
                 ):
                     LOGGER.debug(f"{ticker} response empty, skipping.")
                     continue
-                if self.skip_outdated and (
-                    (utils.now() - response.historical.index[-1])  # type: ignore
-                    > min_delta
-                ):
-                    LOGGER.debug(f"{ticker} response outdated, skipping.")
-                    continue
+                if self.skip_outdated:
+                    # we want to skip the ticker if the last candle is too old, but because running
+                    # this code takes some time, we relax the min constraint a bit.
+                    outdated_min_delta = max(pd.to_timedelta("5m"), ticker._interval_dt)
+                    # when fetching daily data from yfinance, the timestamps are 00:00:00 of the day in question
+                    # which covers the full day's trade from open to close, so we relax the outdated constraint.
+                    if outdated_min_delta == pd.to_timedelta("1d"):
+                        outdated_min_delta *= 2
+                    if (
+                        (utils.now() - response.historical.index[-1])  # type: ignore
+                        > outdated_min_delta
+                    ):
+                        LOGGER.debug(f"{ticker} response outdated, skipping.")
+                        continue
+                all_skipped = False
                 yield (ticker, response)
                 time.sleep(ticker.wait_time)
 
