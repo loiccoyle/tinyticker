@@ -2,9 +2,9 @@ import argparse
 import json
 import logging
 import socket
-from datetime import datetime, timezone
 from urllib.request import urlopen
 
+import pandas as pd
 import qrcode
 from packaging.version import Version
 from PIL import Image, ImageChops
@@ -77,9 +77,10 @@ def check_for_update(current_version: str, **kwargs) -> bool:
     return pypy_version > this_version
 
 
-def now() -> datetime:
+def now() -> pd.Timestamp:
     """Return the current timestamp."""
-    return datetime.now(timezone.utc)
+    return pd.to_datetime("now", utc=True)
+    # return datetime.now(timezone.utc)
 
 
 def set_verbosity(logger: logging.Logger, verbosity: int) -> logging.Logger:

@@ -1,7 +1,8 @@
 import os
 import time
-from datetime import datetime, timezone
+from datetime import timezone
 from pathlib import Path
+from typing import Optional
 from unittest import TestCase
 
 import numpy as np
@@ -10,10 +11,12 @@ import pytest
 import pytz
 
 from tinyticker import utils
+from tinyticker import config, ticker
 
 # monkey patch the now function to be time indenpendent
-utils.__dict__["now"] = lambda: datetime(2021, 7, 22, 18, 00, 00, tzinfo=timezone.utc)
-from tinyticker import config, ticker
+utils.__dict__["now"] = lambda: pd.Timestamp(
+    2021, 7, 22, 18, 00, 00, tzinfo=timezone.utc
+)
 
 API_KEY = os.environ.get("CRYPTOCOMPARE_API_KEY", None)
 
@@ -24,7 +27,7 @@ def same(df1: pd.DataFrame, df2: pd.DataFrame) -> bool:
 
 class TestTicker(TestCase):
     @classmethod
-    def setUp(cls) -> None:
+    def setUpClass(cls) -> None:
         cls.data_dir = Path(__file__).parents[1] / "data"
         cls.stock_historical_path = cls.data_dir / "stock_historical.pkl"
         cls.crypto_historical_path = cls.data_dir / "crypto_historical.pkl"
@@ -48,13 +51,27 @@ class TestTicker(TestCase):
         )
 
     def test_stock_ticker_response(self):
-        self._test_ticker_response(self.stock_ticker, self.stock_historical)
+        self._test_ticker_response(
+            self.stock_ticker,
+            self.stock_historical,
+        )
 
     def test_crypto_ticker_response(self):
-        self._test_ticker_response(self.crypto_ticker, self.crypto_historical)
+        self._test_ticker_response(
+            self.crypto_ticker,
+            self.crypto_historical,
+        )
 
-    def _test_ticker_response(self, ticker: ticker.Ticker, expected: pd.DataFrame):
+    def _test_ticker_response(
+        self,
+        ticker: ticker.Ticker,
+        expected: pd.DataFrame,
+        overwrite_path: Optional[Path] = None,
+    ):
         resp = ticker.single_tick()
+        # used to update the expected data files
+        if overwrite_path is not None:
+            resp.historical.to_pickle(overwrite_path)
         assert isinstance(resp.historical, pd.DataFrame)
         assert resp.current_price is not None
         assert {"Open", "Close", "High", "Low", "Volume"}.issubset(
@@ -62,7 +79,7 @@ class TestTicker(TestCase):
         )
         assert resp.historical.index.inferred_type == "datetime64"
         assert len(resp.historical) == ticker.lookback
-        assert ticker.wait_time == pd.to_timedelta(ticker.interval).total_seconds()  # type: ignore
+        assert ticker.wait_time == pd.to_timedelta(ticker.interval).total_seconds()
         assert resp.historical.index.tzinfo == pytz.UTC  # type: ignore
         assert (resp.historical.index == expected.index).all()
         assert (resp.historical.columns == expected.columns).all()
@@ -106,7 +123,7 @@ class TestTicker(TestCase):
 
 class TestSequence(TestCase):
     @classmethod
-    def setUp(cls):
+    def setUpClass(cls):
         cls.data_dir = Path(__file__).parents[1] / "data"
         cls.config_path = cls.data_dir / "config.json"
         cls.sequence = ticker.Sequence(
@@ -135,15 +152,15 @@ class TestSequence(TestCase):
             tt_config, skip_empty=False, skip_outdated=False
         )
         assert len(sequence.tickers) == len(tt_config.tickers)
-        assert sequence.skip_empty == False
-        assert sequence.skip_outdated == False
+        assert sequence.skip_empty is False
+        assert sequence.skip_outdated is False
 
     def test_sequence_order(self):
         sequence = self.sequence
         # no wait time to speed up testing
-        for ticker in sequence.tickers:
-            ticker.wait_time = 0
-        for i, (ticker, _) in enumerate(self.sequence.start()):
-            assert ticker.symbol == sequence.tickers[i % 2].symbol
+        for ticker_ in sequence.tickers:
+            ticker_.wait_time = 0
+        for i, (ticker_, _) in enumerate(self.sequence.start()):
+            assert ticker_.symbol == sequence.tickers[i % 2].symbol
             if i == 5:
                 break

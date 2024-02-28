@@ -1,8 +1,9 @@
-import datetime
 import logging
+from datetime import timezone
 from pathlib import Path
 from unittest import TestCase
 
+import pandas as pd
 from PIL import Image
 
 from tinyticker import __version__, utils
@@ -11,8 +12,8 @@ from tinyticker import __version__, utils
 class TestUtils(TestCase):
     def test_now(self):
         now = utils.now()
-        assert isinstance(now, datetime.datetime)
-        assert now.tzinfo == datetime.timezone.utc
+        assert isinstance(now, pd.Timestamp)
+        assert now.tzinfo == timezone.utc
 
     def test_check_for_update(self):
         assert not utils.check_for_update(__version__)
