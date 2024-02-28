@@ -7,5 +7,5 @@ logger = logging.getLogger(__name__)
 
 logger.addHandler(logging.NullHandler())
 
-__version__ = "0.4.7"
+__version__ = "0.4.8"
 __all__ = ["Display", "Ticker"]
