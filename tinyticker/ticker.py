@@ -1,4 +1,5 @@
 import dataclasses as dc
+from datetime import datetime
 import logging
 import time
 from typing import Callable, Dict, Iterator, List, Optional, Tuple
@@ -18,7 +19,7 @@ YFINANCE_NON_STANDARD_INTERVALS: Dict[str, pd.Timedelta] = {
     "1wk": pd.to_timedelta("1W"),
     "1mo": pd.to_timedelta("30d"),
     "3mo": pd.to_timedelta("90d"),
-}  # type: ignore
+}
 
 INTERVAL_TIMEDELTAS: Dict[str, pd.Timedelta] = {
     interval: YFINANCE_NON_STANDARD_INTERVALS[interval]
@@ -38,7 +39,7 @@ INTERVAL_TIMEDELTAS: Dict[str, pd.Timedelta] = {
         "1mo",
         "3mo",
     ]
-}  # type: ignore
+}
 
 INTERVAL_LOOKBACKS = {
     "1m": 20,  # 20m
@@ -59,7 +60,7 @@ CRYPTO_INTERVAL_TIMEDELTAS: Dict[str, pd.Timedelta] = {
     "minute": pd.to_timedelta("1m"),
     "hour": pd.to_timedelta("1h"),
     "day": pd.to_timedelta("1d"),
-}  # type: ignore
+}
 
 LOGGER = logging.getLogger(__name__)
 
@@ -253,6 +254,27 @@ class Ticker:
 
         return self._current_price_fallback(historical, current_price)
 
+    def _get_yfinance_start_end(self) -> Tuple[pd.Timestamp, pd.Timestamp]:
+        end = utils.now()
+        # depending on the interval we need to increase the time range to compensate for the market
+        # being closed
+        start = end - self._interval_dt * self.lookback
+        if self._interval_dt < pd.to_timedelta("1d"):
+            # to compensate for the market being closed
+            # US market is open 6.5h a day, probably roughly the same for other markets
+            n_trade_days = (
+                self._interval_dt * self.lookback // pd.to_timedelta("6.5h") + 1
+            )
+            start -= pd.to_timedelta("1d") * n_trade_days
+        # if we passed a weekend, add 2 days and a bit more because the added days can themselves
+        # be weekends
+        start -= pd.to_timedelta("2d") * (end.week - start.week) * 1.5
+        # go back before weekend
+        # start.weekday() returns 6 for Sunday, and 5 for Saturday
+        # max(0, start.weekday() - 4) is 0 for Mon-Fri, 1 for Sat, 2 for Sun
+        start -= pd.to_timedelta("1d") * max(0, start.weekday() - 4)
+        return (start, end)
+
     def _tick_stock(
         self,
     ) -> Response:
@@ -262,26 +284,25 @@ class Ticker:
             The response from the API.
         """
         self._log.info("Stock tick.")
-        end = utils.now()
+        # end = utils.now()
         # We fetch more than desired to kinda compensate for market being closed
-        start = end - self._interval_dt * (2 * self.lookback)
+        # start = end - self._interval_dt * (2 * self.lookback)
+        start, end = self._get_yfinance_start_end()
         self._log.debug("interval: %s", self.interval)
         self._log.debug("lookback: %s", self.lookback)
         self._log.debug("start: %s", start)
         self._log.debug("end: %s", end)
         current_price_data: pd.DataFrame = yfinance.download(
             self.symbol,
-            start=end - pd.to_timedelta("2m"),  # type: ignore
+            start=end - pd.to_timedelta("2m"),
             end=end,
             interval="1m",
-            show_errors=False,
         )
         historical: pd.DataFrame = yfinance.download(
             self.symbol,
             start=start,
             end=end,
             interval=self.interval,
-            show_errors=False,
             timeout=None,  # type: ignore
         )
         if historical.empty:
