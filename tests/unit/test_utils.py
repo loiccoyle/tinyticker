@@ -1,4 +1,5 @@
 import logging
+from datetime import timezone
 from pathlib import Path
 from unittest import TestCase
 
@@ -12,7 +13,7 @@ class TestUtils(TestCase):
     def test_now(self):
         now = utils.now()
         assert isinstance(now, pd.Timestamp)
-        assert now.tzinfo.zone == "UTC"  # pyright: ignore
+        assert now.tzinfo == timezone.utc
 
     def test_check_for_update(self):
         assert not utils.check_for_update(__version__)
