@@ -283,9 +283,6 @@ class Ticker:
             The response from the API.
         """
         self._log.info("Stock tick.")
-        # end = utils.now()
-        # We fetch more than desired to kinda compensate for market being closed
-        # start = end - self._interval_dt * (2 * self.lookback)
         start, end = self._get_yfinance_start_end()
         self._log.debug("interval: %s", self.interval)
         self._log.debug("lookback: %s", self.lookback)
