@@ -63,6 +63,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Workflow dispatch
-        run: gh workflow run Build TinyTicker RPi image --json --ref refs/heads/main --repo loiccoyle/private.actionsrunner
+        run: gh workflow run "Build TinyTicker RPi image" --json --ref refs/heads/main --repo loiccoyle/private.actionsrunner
         env:
           GH_TOKEN: ${{ secrets.PRIVATE_RUNNER_ACCESS_TOKEN }}
