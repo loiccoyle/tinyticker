@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Literal
 from unittest import TestCase
 
 import pandas as pd
@@ -19,13 +20,14 @@ class EPDMock(EPDBase):
         self.width = 122
         self.height = 250
 
-    def init(self) -> None:
+    def init(self) -> Literal[0, -1]:
         self.is_init = True
+        return 0
 
-    def getbuffer(self, _: Image.Image) -> bytearray:
+    def getbuffer(self, image: Image.Image) -> bytearray:
         return bytearray()
 
-    def display(self, _: bytearray) -> None:
+    def display(self, image: bytearray) -> None:
         pass
 
     def Clear(self) -> None:
@@ -44,7 +46,7 @@ MODELS["mock"] = EPDModel(
 
 class TestDisplay(TestCase):
     @classmethod
-    def setUp(cls):
+    def setUpClass(cls):
         cls.display = Display("mock")
         cls.display.epd
         cls.data_dir = Path(__file__).parents[1] / "data"
@@ -78,7 +80,7 @@ class TestDisplay(TestCase):
             )
         ).all()
         assert ax.margins() == (0, 0)
-        assert ax.axison == False
+        assert ax.axison is False
 
     def test_plot(self):
         fig, ax = self.display.plot(self.historical, None)

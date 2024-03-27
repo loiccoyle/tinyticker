@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Optional
+from typing import Literal, Optional, List, Union
 
 from PIL import Image
 
@@ -13,23 +13,23 @@ class EPDBase:
         ...
 
     @abstractmethod
-    def init(self) -> None:
+    def init(self) -> Literal[0, -1]:
         ...
 
     @abstractmethod
-    def getbuffer(self, image: Image.Image) -> bytearray:
+    def getbuffer(
+        self, image: Image.Image
+    ) -> Union[
+        bytearray, List[int]
+    ]:  # some implementations return a list of ints, some a bytearray...
         ...
 
     @abstractmethod
-    def display(self, image: bytearray) -> None:
+    def Clear(self) -> None:
         ...
 
     @abstractmethod
-    def Clear() -> None:
-        ...
-
-    @abstractmethod
-    def sleep() -> None:
+    def sleep(self) -> None:
         ...
 
 
@@ -40,6 +40,10 @@ class EPDHighlight(EPDBase):
 
 
 class EPDPartial(EPDBase):
+    @abstractmethod
+    def display(self, image: bytearray) -> None:
+        ...
+
     @abstractmethod
     def displayPartial(self, image: bytearray) -> None:
         ...

@@ -8,7 +8,7 @@ from tinyticker import config
 
 class TestConfig(TestCase):
     @classmethod
-    def setUp(cls):
+    def setUpClass(cls):
         cls.test_dir = Path("test_config")
         if not cls.test_dir.is_dir():
             cls.test_dir.mkdir()
@@ -32,6 +32,6 @@ class TestConfig(TestCase):
         assert config_dict == tt_config.to_dict()
 
     @classmethod
-    def tearDown(cls):
+    def tearDownClass(cls):
         if cls.test_dir.is_dir():
             rmtree(cls.test_dir)
