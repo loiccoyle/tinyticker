@@ -148,12 +148,10 @@ class TestSequence(TestCase):
 
     def test_sequence_from_tt_config(self):
         tt_config = config.TinytickerConfig.from_file(self.config_path)
-        sequence = ticker.Sequence.from_tinyticker_config(
-            tt_config, skip_empty=False, skip_outdated=False
-        )
+        sequence = ticker.Sequence.from_tinyticker_config(tt_config)
         assert len(sequence.tickers) == len(tt_config.tickers)
-        assert sequence.skip_empty is False
-        assert sequence.skip_outdated is False
+        assert sequence.skip_empty is True
+        assert sequence.skip_outdated is True
 
     def test_sequence_order(self):
         sequence = self.sequence

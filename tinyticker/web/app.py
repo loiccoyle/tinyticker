@@ -11,7 +11,7 @@ from urllib.error import HTTPError, URLError
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
 
 from .. import __version__
-from ..config import PLOT_TYPES, TickerConfig, TinytickerConfig
+from ..config import PLOT_TYPES, SequenceConfig, TickerConfig, TinytickerConfig
 from ..paths import CONFIG_FILE, LOG_DIR
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from ..utils import check_for_update
@@ -109,6 +109,12 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         tickers["mav"] = request.args.getlist("mav", type=no_empty_int)
         tickers["volume"] = request.args.getlist("volume", type=str_to_bool)
 
+        sequence = SequenceConfig(
+            skip_outdated=request.args.get("skip_outdated", False, type=bool),
+            # Note: currently not toggleable from the web app
+            skip_empty=request.args.get("skip_empty", True, type=bool),
+        )
+
         # invert the ticker dict of list to list of dict and create ticker list
         tickers = [
             TickerConfig(**dict(zip(tickers, t))) for t in zip(*tickers.values())
@@ -118,6 +124,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
             flip=request.args.get("flip", default=False, type=bool),
             epd_model=request.args.get("epd_model", "EPD_v3"),
             tickers=tickers,
+            sequence=sequence,
         )
         LOGGER.debug(tt_config)
         tt_config.to_file(config_file)
