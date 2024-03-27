@@ -135,6 +135,7 @@
                 </div>
               </div>
               <div class="uk-width-1-1 uk-margin">
+                <label class="uk-form-label" for="skip_outdated" uk-tooltip="Typically happens when the market is closed."><input class="uk-checkbox uk-margin-small-right" type="checkbox" id="skip_outdated" name="skip_outdated" {% if sequence.skip_outdated | default(True) %}checked{% endif %}>Skip tickers with oudated data</label>
                 <button type="submit" value="submit" class="uk-button uk-button-primary uk-width-expand">Apply</button>
               </div>
             </div>

@@ -23,8 +23,15 @@ class TickerConfig:
 
 
 @dc.dataclass
+class SequenceConfig:
+    skip_outdated: bool = True
+    skip_empty: bool = True
+
+
+@dc.dataclass
 class TinytickerConfig:
     tickers: List[TickerConfig] = dc.field(default_factory=lambda: [TickerConfig()])
+    sequence: SequenceConfig = dc.field(default_factory=lambda: SequenceConfig())
     epd_model: str = "EPD_v3"
     api_key: Optional[str] = None
     flip: bool = False
@@ -44,6 +51,9 @@ class TinytickerConfig:
         data["tickers"] = [
             TickerConfig(**ticker_data) for ticker_data in data["tickers"]
         ]
+        data["sequence"] = SequenceConfig(
+            **data.get("sequence", dc.asdict(SequenceConfig()))
+        )
         return cls(**data)
 
     def to_json(self) -> str:

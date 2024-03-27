@@ -41,6 +41,10 @@
       "volume": false
     }
   ],
+  "sequence": {
+    "skip_outdated": true,
+    "skip_empty": true
+  },
   "epd_model": "EPDbc",
   "api_key": "SUPERSECRETKEY",
   "flip": true

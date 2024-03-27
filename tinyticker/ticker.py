@@ -340,14 +340,11 @@ class Ticker:
 
 class Sequence:
     @classmethod
-    def from_tinyticker_config(
-        cls, tt_config: TinytickerConfig, **kwargs
-    ) -> "Sequence":
+    def from_tinyticker_config(cls, tt_config: TinytickerConfig) -> "Sequence":
         """Create a `Sequence` from a `TinytickerConfig`.
 
         Args:
             tt_config: `TinytickerConfig` from which to create the `Sequence`.
-            **kwargs: Paseed to the `Sequence.__init__` method.
 
         Returns:
             The `Sequence` instance.
@@ -367,7 +364,8 @@ class Sequence:
                 )
                 for ticker in tt_config.tickers
             ],
-            **kwargs,
+            skip_empty=tt_config.sequence.skip_empty,
+            skip_outdated=tt_config.sequence.skip_outdated,
         )
 
     def __init__(
@@ -380,10 +378,9 @@ class Sequence:
 
         Args:
             tickers: list of `Ticker` instances.
-            skip_empty: if the response doesn't contain any data, move on to the
-                next ticker.
-            skip_outdated: if the last candle of the response is too old, move on to the
-                next ticker. This typically happens when the stock market closes.
+            skip_empty: if the response doesn't contain any data, move on to the next ticker.
+            skip_outdated: if the last candle of the response is too old, move on to the next
+                ticker. This typically happens when the stock market closes.
         """
         if len(tickers) == 0:
             raise ValueError("No tickers provided.")
@@ -436,4 +433,7 @@ class Sequence:
                 time.sleep(ticker.wait_time)
 
     def __str__(self):
-        return "Sequence: \n" + "\n".join([ticker.__str__() for ticker in self.tickers])
+        return (
+            f"Sequence(skip_outdated={self.skip_outdated}, skip_empty={self.skip_empty}): \n"
+            + "\n".join([ticker.__str__() for ticker in self.tickers])
+        )
