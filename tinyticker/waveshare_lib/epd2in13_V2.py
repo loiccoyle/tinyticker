@@ -30,7 +30,7 @@
 
 import logging
 
-from ._base import EPDPartial
+from ._base import EPDMonochrome
 from .epdconfig import CONFIG
 
 # Display resolution
@@ -40,7 +40,7 @@ EPD_HEIGHT = 250
 logger = logging.getLogger(__name__)
 
 
-class EPD(EPDPartial):
+class EPD(EPDMonochrome):
     def __init__(self):
         self.reset_pin = CONFIG.RST_PIN
         self.dc_pin = CONFIG.DC_PIN
@@ -370,7 +370,7 @@ class EPD(EPDPartial):
                     if image_monocolor.getpixel((x, y)) == 0:
                         newy = imwidth - newy - 1
                         buf[int(newx / 8) + newy * linewidth] &= ~(0x80 >> (y % 8))
-        return buf
+        return bytearray(buf)
 
     def display(self, image):
         self.send_command(0x24)

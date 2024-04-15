@@ -1,15 +1,22 @@
 from dataclasses import dataclass
 from typing import Type, Union
 
-from . import (epd2in13, epd2in13_V2, epd2in13_V3, epd2in13_V4, epd2in13b_V3,
-               epd2in13b_V4, epd2in13bc)
-from ._base import EPDBase, EPDHighlight, EPDPartial
+from . import (
+    epd2in13,
+    epd2in13_V2,
+    epd2in13_V3,
+    epd2in13_V4,
+    epd2in13b_V3,
+    epd2in13b_V4,
+    epd2in13bc,
+)
+from ._base import EPDMonochrome, EPDHighlight
 
 
 @dataclass
 class EPDModel:
     name: str
-    class_: Union[Type[EPDBase], Type[EPDHighlight], Type[EPDPartial]]
+    class_: Union[Type[EPDMonochrome], Type[EPDHighlight]]
     desc: str
 
 

@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Literal, Optional, List, Union
+from typing import Literal, Optional
 
 from PIL import Image
 
@@ -17,11 +17,7 @@ class EPDBase:
         ...
 
     @abstractmethod
-    def getbuffer(
-        self, image: Image.Image
-    ) -> Union[
-        bytearray, List[int]
-    ]:  # some implementations return a list of ints, some a bytearray...
+    def getbuffer(self, image: Image.Image) -> bytearray:
         ...
 
     @abstractmethod
@@ -33,21 +29,32 @@ class EPDBase:
         ...
 
 
+class EPDMonochrome(EPDBase):
+    """EPD with only black and white color"""
+
+    @abstractmethod
+    def display(self, image: bytearray) -> None:
+        ...
+
+
 class EPDHighlight(EPDBase):
+    """EPD with black and white color, and an extra color"""
+
     @abstractmethod
     def display(self, imageblack: bytearray, highlights: Optional[bytearray]) -> None:
         ...
 
 
-class EPDPartial(EPDBase):
-    @abstractmethod
-    def display(self, image: bytearray) -> None:
-        ...
-
-    @abstractmethod
-    def displayPartial(self, image: bytearray) -> None:
-        ...
-
-    @abstractmethod
-    def displayPartBaseImage(self, image: bytearray) -> None:
-        ...
+# Could be used later to utilize the partial refresh feature of some of the EPDs
+# class EPDPartial(EPDBase):
+#     @abstractmethod
+#     def display(self, image: bytearray) -> None:
+#         ...
+#
+#     @abstractmethod
+#     def displayPartial(self, image: bytearray) -> None:
+#         ...
+#
+#     @abstractmethod
+#     def displayPartBaseImage(self, image: bytearray) -> None:
+#         ...

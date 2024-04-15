@@ -128,7 +128,7 @@ class EPD(EPDHighlight):
                     newy = self.height - x - 1
                     if image_monocolor.getpixel((x, y)) == 0:
                         buf[int((newx + newy * self.width) / 8)] &= ~(0x80 >> (y % 8))
-        return buf
+        return bytearray(buf)
 
     def display(self, imageblack, highlights=None):
         self.send_command(0x10)

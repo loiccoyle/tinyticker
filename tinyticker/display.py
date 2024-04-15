@@ -108,7 +108,7 @@ class Display:
         fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
         for ax in axes:
             self._strip_ax(ax)
-        return fig, axes
+        return fig, axes  # type: ignore
 
     def _strip_ax(self, ax: plt.Axes) -> None:
         """Strip all visuals from `plt.Axes` object."""
@@ -171,14 +171,14 @@ class Display:
             # I think there is a bug with PIL, need to convert from "L"
             # https://stackoverflow.com/questions/32159076/python-pil-bitmap-png-from-array-with-mode-1
             highlight_image = Image.fromarray(highlight_image, mode="L").convert(
-                "1", dither=Image.NONE
+                "1", dither=Image.Dither.NONE
             )
             if self.flip:
                 highlight_image = highlight_image.rotate(180)
             self._log.debug("Highlight image size: %s", highlight_image.size)
 
         if image.mode != "1":
-            image = image.convert("1", dither=Image.NONE)
+            image = image.convert("1", dither=Image.Dither.NONE)
         if self.flip:
             image = image.rotate(180)
         self._log.debug("Image size: %s", image.size)

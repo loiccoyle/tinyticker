@@ -164,7 +164,7 @@ class EPD(EPDHighlight):
                 + str(self.height)
             )
             # return a blank buffer
-            return [0x00] * (int(self.width / 8) * self.height)
+            return bytearray([0x00] * (int(self.width / 8) * self.height))
 
         buf = bytearray(img.tobytes("raw"))
         return buf

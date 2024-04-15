@@ -8,13 +8,13 @@ from PIL import Image
 
 from tinyticker.config import TinytickerConfig
 from tinyticker.display import Display
-from tinyticker.waveshare_lib._base import EPDBase
+from tinyticker.waveshare_lib._base import EPDMonochrome
 from tinyticker.waveshare_lib.models import MODELS, EPDModel
 
 from .utils import expected_fig
 
 
-class EPDMock(EPDBase):
+class EPDMock(EPDMonochrome):
     def __init__(self) -> None:
         self.is_init = False
         self.width = 122
