@@ -20,6 +20,7 @@ MARKETCOLORS = mpf.make_marketcolors(
     ohlc="black",
     volume="black",
 )
+MARKETCOLORS["vcedge"] = {"up": "black", "down": "black"}
 STYLE = mpf.make_mpf_style(marketcolors=MARKETCOLORS, mavcolors=["k"])
 STYLE_HIGHLIGHT = mpf.make_mpf_style(marketcolors=MARKETCOLORS, mavcolors=["r"])
 TEXT_BBOX = {
