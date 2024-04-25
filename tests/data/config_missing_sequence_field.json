@@ -1,0 +1,47 @@
+{
+  "tickers": [
+    {
+      "symbol_type": "stock",
+      "symbol": "SPY",
+      "interval": "1h",
+      "lookback": 32,
+      "wait_time": 300,
+      "plot_type": "candle",
+      "mav": null,
+      "volume": false
+    },
+    {
+      "symbol_type": "crypto",
+      "symbol": "BTC",
+      "interval": "1h",
+      "lookback": 36,
+      "wait_time": 300,
+      "plot_type": "candle",
+      "mav": null,
+      "volume": false
+    },
+    {
+      "symbol_type": "crypto",
+      "symbol": "ETH",
+      "interval": "1h",
+      "lookback": 36,
+      "wait_time": 300,
+      "plot_type": "ohlc",
+      "mav": 3,
+      "volume": true
+    },
+    {
+      "symbol_type": "crypto",
+      "symbol": "DOGE",
+      "interval": "1h",
+      "lookback": 36,
+      "wait_time": 300,
+      "plot_type": "line",
+      "mav": null,
+      "volume": false
+    }
+  ],
+  "epd_model": "EPDbc",
+  "api_key": "SUPERSECRETKEY",
+  "flip": true
+}
