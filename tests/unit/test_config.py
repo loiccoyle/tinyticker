@@ -18,12 +18,14 @@ class TestConfig(TestCase):
         tt_config = config.TinytickerConfig.from_file(config_file)
         assert len(tt_config.tickers) == 4
         assert tt_config.epd_model == "EPDbc"
+        assert tt_config.to_dict().keys() == config.TinytickerConfig().to_dict().keys()
 
     def test_tt_config_missing_sequence_field(self):
         config_file = (
             Path(__file__).parents[1] / "data" / "config_missing_sequence_field.json"
         )
         tt_config = config.TinytickerConfig.from_file(config_file)
+        assert tt_config.to_dict().keys() == config.TinytickerConfig().to_dict().keys()
         assert tt_config.sequence == config.SequenceConfig()
 
     def test_tt_config_to_file(self):
