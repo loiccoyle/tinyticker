@@ -2,12 +2,12 @@ import os
 from io import BytesIO
 from pathlib import Path
 
-import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 
 UPDATE_REF_PLOTS = os.environ.get("TINYTICKER_UPDATE_REF_PLOTS", False)
 
 
-def expected_fig(fig: plt.Figure, reference: Path) -> bool:
+def expected_fig(fig: Figure, reference: Path) -> bool:
     """Helper function to compare the generated plot with the reference plot."""
     if UPDATE_REF_PLOTS:
         fig.savefig(reference, format="png")

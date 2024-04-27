@@ -1,7 +1,9 @@
 import logging
 from typing import Optional, Tuple
 
-import matplotlib
+import matplotlib as mpl
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import mplfinance as mpf
 import numpy as np
@@ -64,7 +66,7 @@ class Display:
         self.epd.Clear()
 
     @staticmethod
-    def fig_to_image(fig: plt.Figure) -> Image.Image:
+    def fig_to_image(fig: Figure) -> Image.Image:
         """Convert a `plt.Figure` to `PIL.Image.Image`.
 
         Args:
@@ -73,17 +75,15 @@ class Display:
         Returns:
             The `PIL.Image.Image` representation of the provided `plt.Figure`.
         """
-        matplotlib.use("Agg")
+        mpl.use("Agg")
         fig.canvas.draw()
         return Image.frombytes(
             "RGB",
             fig.canvas.get_width_height(),
-            fig.canvas.tostring_rgb(),
+            fig.canvas.buffer_rgba(),  # type: ignore
         )
 
-    def _create_fig_ax(
-        self, n_axes: int = 1, **kwargs
-    ) -> Tuple[plt.Figure, np.ndarray]:
+    def _create_fig_ax(self, n_axes: int = 1, **kwargs) -> Tuple[Figure, np.ndarray]:
         """Create the `plt.Figure` and `plt.Axes` used to plot the chart.
 
         Args:
@@ -111,15 +111,13 @@ class Display:
             self._strip_ax(ax)
         return fig, axes  # type: ignore
 
-    def _strip_ax(self, ax: plt.Axes) -> None:
+    def _strip_ax(self, ax: Axes) -> None:
         """Strip all visuals from `plt.Axes` object."""
         ax.axis(False)
         ax.margins(0, 0)
         ax.grid(False)
 
-    def text(
-        self, text: str, show: bool = False, **kwargs
-    ) -> Tuple[plt.Figure, plt.Axes]:
+    def text(self, text: str, show: bool = False, **kwargs) -> Tuple[Figure, Axes]:
         """Create a `plt.Figure` and `plt.Axes` with centered text.
 
         Args:
@@ -137,7 +135,7 @@ class Display:
             self.show_fig(fig)
         return fig, ax
 
-    def show_fig(self, fig: plt.Figure) -> None:
+    def show_fig(self, fig: Figure) -> None:
         """Show a `plt.Figure` on the display."""
         image = self.fig_to_image(fig)
         self.show_image(image)
@@ -201,7 +199,7 @@ class Display:
         type: str = "candle",
         volume: bool = False,
         **kwargs,
-    ) -> Tuple[plt.Figure, plt.Axes]:
+    ) -> Tuple[Figure, Axes]:
         """Plot symbol historical data chart.
 
         Args:
@@ -228,7 +226,7 @@ class Display:
         else:
             fig, axes = self._create_fig_ax(n_axes=1)
             volume_ax = False
-        ax: plt.Axes = axes[0]
+        ax: Axes = axes[0]
         # remove Nones, it doesn't play well with mplfinance
         kwargs = {key: value for key, value in kwargs.items() if value is not None}
         mpf.plot(

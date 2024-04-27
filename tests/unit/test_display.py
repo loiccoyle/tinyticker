@@ -96,5 +96,5 @@ class TestDisplay(TestCase):
         text = "Some text"
         fig, ax = self.display.text(text)
         self._check_fig_ax(fig, ax)
-        assert ax.texts[0]._text == text
+        assert ax.texts[0]._text == text  # type: ignore
         assert expected_fig(fig, self.text_plot_file)
