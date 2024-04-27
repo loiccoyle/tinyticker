@@ -29,6 +29,12 @@ def no_empty_str(data: str) -> Optional[str]:
     return data
 
 
+def no_empty_float(data: str) -> Optional[float]:
+    if data == "":
+        return None
+    return float(data)
+
+
 def no_empty_int(data: str) -> Optional[int]:
     if data == "":
         return None
@@ -108,6 +114,9 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         tickers["wait_time"] = request.args.getlist("wait_time", type=no_empty_int)
         tickers["mav"] = request.args.getlist("mav", type=no_empty_int)
         tickers["volume"] = request.args.getlist("volume", type=str_to_bool)
+        tickers["avg_buy_price"] = request.args.getlist(
+            "avg_buy_price", type=no_empty_float
+        )
 
         sequence = SequenceConfig(
             skip_outdated=request.args.get("skip_outdated", False, type=bool),
