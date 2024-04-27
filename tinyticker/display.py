@@ -77,11 +77,10 @@ class Display:
         """
         mpl.use("Agg")
         fig.canvas.draw()
-        return Image.frombytes(
-            "RGB",
-            fig.canvas.get_width_height(),
-            fig.canvas.buffer_rgba(),  # type: ignore
-        )
+        return Image.fromarray(
+            np.asarray(fig.canvas.buffer_rgba()),  # type: ignore
+            mode="RGBA",
+        ).convert("RGB")
 
     def _create_fig_ax(self, n_axes: int = 1, **kwargs) -> Tuple[Figure, np.ndarray]:
         """Create the `plt.Figure` and `plt.Axes` used to plot the chart.
