@@ -172,6 +172,7 @@ class Ticker:
         interval: Data time interval.
         lookback: How many intervals to look back.
         wait_time: Time to wait in between API calls.
+        avg_buy_price: Average buy price of the asset.
         **kwargs: Extra args are provided to the `Display.plot` method.
     """
 
@@ -183,6 +184,7 @@ class Ticker:
         interval: str = "1d",
         lookback: Optional[int] = None,
         wait_time: Optional[int] = None,
+        avg_buy_price: Optional[float] = None,
         **kwargs,
     ) -> None:
         self._log = logging.getLogger(__name__)
@@ -218,6 +220,7 @@ class Ticker:
             "crypto": self._tick_crypto,
             "stock": self._tick_stock,
         }
+        self.avg_buy_price = avg_buy_price
         self._display_kwargs = kwargs
 
     @property

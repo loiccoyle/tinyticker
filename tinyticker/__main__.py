@@ -81,11 +81,12 @@ def start_ticker(config_file: Path) -> None:
         for ticker, resp in sequence.start():
             logger.debug("API len(historical): %s", len(resp.historical))
             logger.debug("API current_price: %s", resp.current_price)
-            delta = (
-                100
-                * (resp.current_price - resp.historical.iloc[0]["Open"])
-                / resp.historical.iloc[0]["Open"]
+            delta_start = (
+                ticker.avg_buy_price
+                if ticker.avg_buy_price is not None
+                else resp.historical.iloc[0]["Open"]
             )
+            delta = 100 * (resp.current_price - delta_start) / delta_start
             xlim = None
             # if incomplete data, leave space for the missing data
             if len(resp.historical) < ticker.lookback:
