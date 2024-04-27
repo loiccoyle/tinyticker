@@ -3,7 +3,7 @@
     {
       "symbol_type": "stock",
       "symbol": "SPY",
-      "interval": "1h",
+      "interval": "1m",
       "lookback": 32,
       "wait_time": 300,
       "plot_type": "candle",
