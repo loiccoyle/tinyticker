@@ -364,6 +364,7 @@ class Sequence:
                     plot_type=ticker.plot_type,
                     mav=ticker.mav,
                     volume=ticker.volume,
+                    avg_buy_price=ticker.avg_buy_price,
                 )
                 for ticker in tt_config.tickers
             ],
