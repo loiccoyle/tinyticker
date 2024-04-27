@@ -9,7 +9,7 @@ repository = "https://github.com/loiccoyle/tinyticker"
 keywords = ["raspberry-pi", "ticker", "stock", "crypto", "epaper", "finance"]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"
+python = ">=3.9"
 "RPi.GPIO" = "^0.7.0"
 spidev = "^3.5"
 Pillow = "^10.0.1"
@@ -21,6 +21,7 @@ Flask = "^2.0.2"
 yfinance = "^0.2.0"
 qrcode = "^7.3.1"
 packaging = "^23.0"
+numpy = "^1.26"
 
 [tool.poetry.scripts]
 tinyticker = 'tinyticker.__main__:main'
