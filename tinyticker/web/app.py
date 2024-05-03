@@ -16,7 +16,7 @@ from ..paths import CONFIG_FILE, LOG_DIR
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from ..utils import check_for_update
 from ..waveshare_lib.models import MODELS
-from .command import COMMANDS, reboot, refresh
+from .command import COMMANDS, reboot
 
 LOGGER = logging.getLogger(__name__)
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
@@ -111,7 +111,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
 
         sequence = SequenceConfig(
             skip_outdated=request.args.get("skip_outdated", False, type=bool),
-            # Note: currently not toggleable from the web app
+            # NOTE: currently not toggleable from the web app
             skip_empty=request.args.get("skip_empty", True, type=bool),
         )
 
@@ -127,8 +127,9 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
             sequence=sequence,
         )
         LOGGER.debug(tt_config)
+        # writing the config to file, the main ticker process is monitoring this file
+        # and will refresh the ticker process
         tt_config.to_file(config_file)
-        refresh()
         return redirect("/", code=302)
 
     @app.route("/command")

@@ -8,6 +8,9 @@ from pathlib import Path
 from time import sleep
 from typing import List
 
+from watchdog.events import FileModifiedEvent, FileSystemEventHandler
+from watchdog.observers import Observer
+
 from . import __version__, logger
 from .config import TinytickerConfig
 from .display import Display
@@ -147,9 +150,22 @@ def main():
     def refresh(*_) -> None:
         """Kill the ticker process, it gets restarted in the main thread."""
         logger.info("Refreshing ticker process.")
-        tick_process.kill()
-        tick_process.join()
-        tick_process.close()
+        if not tick_process._closed and tick_process.is_alive():  # type: ignore
+            tick_process.kill()
+            tick_process.join()
+            tick_process.close()
+
+    class ConfigModifiedHandler(FileSystemEventHandler):
+        def on_modified(self, event):
+            logger.info(f"{event.src_path} was changed, refreshing ticker thread.")
+            refresh()
+
+    observer = Observer()
+    config_modified_handler = ConfigModifiedHandler()
+    observer.schedule(
+        config_modified_handler, config_file, event_filter=[FileModifiedEvent]
+    )
+    observer.start()
 
     signal.signal(signal.SIGUSR2, refresh)
 
@@ -158,6 +174,10 @@ def main():
         logger.info("Exiting.")
         if PID_FILE.is_file():
             PID_FILE.unlink()
+        observer.stop()
+        observer.join()
+        tick_process.kill()
+        tick_process.join()
 
     atexit.register(cleanup)
 
