@@ -102,13 +102,10 @@ class EPD(EPDHighlight):
         return 0
 
     def getbuffer(self, image):
-        imwidth, imheight = image.size
-        if imwidth == self.width and imheight == self.height:
-            image = image.convert("1")
-        elif imwidth == self.height and imheight == self.width:
-            # image has correct dimensions, but needs to be rotated
-            image = image.rotate(90, expand=True).convert("1")
-        else:
+        image = image.convert("1")
+        if (image.height, image.width) == (self.width, self.height):
+            image = image.rotate(90, expand=True)
+        if (image.height, image.width) != (self.height, self.width):
             logger.warning(
                 "Wrong image dimensions: must be "
                 + str(self.width)
