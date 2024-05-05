@@ -81,12 +81,21 @@ def start_ticker(config_file: Path) -> None:
         for ticker, resp in sequence.start():
             logger.debug("API len(historical): %s", len(resp.historical))
             logger.debug("API current_price: %s", resp.current_price)
-            delta_start = (
-                ticker.avg_buy_price
-                if ticker.avg_buy_price is not None
-                else resp.historical.iloc[0]["Open"]
+            delta_range_start = resp.historical.iloc[0]["Open"]
+            delta_range = (
+                100 * (resp.current_price - delta_range_start) / delta_range_start
             )
-            delta = 100 * (resp.current_price - delta_start) / delta_start
+
+            top_string = f"{ticker.symbol}: $ {resp.current_price:.2f}"
+            if ticker.avg_buy_price is not None:
+                # calculate the delta from the average buy price
+                delta_abp = (
+                    100
+                    * (resp.current_price - ticker.avg_buy_price)
+                    / ticker.avg_buy_price
+                )
+                top_string += f" {delta_abp:+.2f}%"
+
             xlim = None
             # if incomplete data, leave space for the missing data
             if len(resp.historical) < ticker.lookback:
@@ -95,10 +104,8 @@ def start_ticker(config_file: Path) -> None:
             logger.debug("xlim: %s", xlim)
             display.plot(
                 resp.historical,
-                resp.current_price,
-                top_string=f"{ticker.symbol}: $",
-                sub_string=f"{len(resp.historical)}x{ticker.interval}",
-                delta=delta,
+                top_string=top_string,
+                sub_string=f"{len(resp.historical)}x{ticker.interval} {delta_range:+.2f}%",
                 show=True,
                 xlim=xlim,
                 type=ticker._display_kwargs.pop("plot_type", "candle"),
