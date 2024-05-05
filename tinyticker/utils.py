@@ -80,7 +80,6 @@ def check_for_update(current_version: str, **kwargs) -> bool:
 def now() -> pd.Timestamp:
     """Return the current timestamp."""
     return pd.to_datetime("now", utc=True)
-    # return datetime.now(timezone.utc)
 
 
 def set_verbosity(logger: logging.Logger, verbosity: int) -> logging.Logger:
@@ -91,7 +90,7 @@ def set_verbosity(logger: logging.Logger, verbosity: int) -> logging.Logger:
         verbosity: verbosity level, 1, or 2.
 
     Return:
-        The `logger` object with configured verbosity.
+        The `logging.Logger` object with configured verbosity.
     """
     verbose_map = {1: logging.INFO, 2: logging.DEBUG}
     level = verbose_map[verbosity]
