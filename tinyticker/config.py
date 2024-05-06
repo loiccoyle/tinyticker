@@ -20,6 +20,7 @@ class TickerConfig:
     plot_type: str = "candle"
     mav: Optional[int] = None
     volume: bool = False
+    avg_buy_price: Optional[float] = None
 
 
 @dc.dataclass
