@@ -26,6 +26,38 @@
     <!-- JS FILES -->
     <script src="js/uikit.min.js"></script>
     <script src="js/uikit-icons.min.js"></script>
+    <script>
+      /**
+       * Compares two semver strings.
+       *
+       * @param {string} v1 - The first version.
+       * @param {string} v2 - The second version.
+       * @returns {boolean} - Returns true if v1 is greater than v2, otherwise returns false.
+       */
+      function isGreater(v1, v2) {
+        let [v1major, v1minor, v1patch] = v1.split(".").map(Number);
+        let [v2major, v2minor, v2patch] = v2.split(".").map(Number);
+        return (
+          v1major > v2major ||
+          (v1major == v2major &&
+            (v1minor > v2minor || (v1minor == v2minor && v1patch > v2patch)))
+        );
+      }
+
+      async function checkForUpdate(currentVersion) {
+        const url = "https://pypi.org/pypi/tinyticker/json";
+        const response = await fetch(url);
+        const data = await response.json();
+        const pypiVersion = data.info.version;
+        return isGreater(pypiVersion, currentVersion);
+      }
+
+      checkForUpdate("{{version}}").then((isUpdateAvailable) => {
+        document.getElementById("updateDiv").style.display = isUpdateAvailable
+          ? "block"
+          : "none";
+      });
+    </script>
   </head>
   <body class="uk-background-muted uk-padding-small">
     <div class="uk-flex uk-flex-center uk-flex-middle">
@@ -33,25 +65,25 @@
         <div class="uk-width-1-1 uk-text-center">
           <p class="uk-text-large">🚀 TinyTicker Dashboard 🚀</p>
         </div>
-        {% if update_available %}
-          <div
-            class="uk-background-default uk-alert uk-padding-small uk-margin-small"
-          >
-            <div class="uk-width-1-1 uk-text-center">
-              <p class="uk-text-large">🥳 Update available 🥳</p>
-            </div>
-            <form class="uk-form-stacked" action="/command">
-              <button
-                type="submit"
-                name="command"
-                value="update"
-                class="uk-button uk-button-primary uk-width-expand uk-margin-small-bottom"
-              >
-                Update
-              </button>
-            </form>
+        <div
+          id="updateDiv"
+          class="uk-background-default uk-alert uk-padding-small uk-margin-small"
+          style="display: none"
+        >
+          <div class="uk-width-1-1 uk-text-center">
+            <p class="uk-text-large">🥳 Update available 🥳</p>
           </div>
-        {% endif %}
+          <form class="uk-form-stacked" action="/command">
+            <button
+              type="submit"
+              name="command"
+              value="update"
+              class="uk-button uk-button-primary uk-width-expand uk-margin-small-bottom"
+            >
+              Update
+            </button>
+          </form>
+        </div>
         <div class="uk-width-large">
           <p class="uk-text-large">Config</p>
           <form action="/set_hostname">
