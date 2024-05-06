@@ -149,14 +149,11 @@ class EPD(EPDHighlight):
 
     # image converted to bytearray
     def getbuffer(self, image):
-        img = image
-        imwidth, imheight = img.size
-        if imwidth == self.width and imheight == self.height:
-            img = img.convert("1")
-        elif imwidth == self.height and imheight == self.width:
-            # image has correct dimensions, but needs to be rotated
-            img = img.rotate(90, expand=True).convert("1")
-        else:
+        if image.mode != "1":
+            image = image.convert("1")
+        if (image.height, image.width) == (self.width, self.height):
+            image = image.rotate(90, expand=True)
+        if (image.height, image.width) != (self.height, self.width):
             logger.warning(
                 "Wrong image dimensions: must be "
                 + str(self.width)
@@ -166,7 +163,7 @@ class EPD(EPDHighlight):
             # return a blank buffer
             return bytearray([0x00] * (int(self.width / 8) * self.height))
 
-        buf = bytearray(img.tobytes("raw"))
+        buf = bytearray(image.tobytes("raw"))
         return buf
 
     # display image
