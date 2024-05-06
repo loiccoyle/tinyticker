@@ -82,39 +82,6 @@ class EPD(EPDMonochrome):
         0x00,
     ]
 
-    lut_partial_update = [
-        0x18,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x0F,
-        0x01,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-    ]
-
     # Hardware reset
     def reset(self):
         CONFIG.digital_write(self.reset_pin, 1)
