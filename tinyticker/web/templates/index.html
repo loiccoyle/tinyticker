@@ -238,6 +238,7 @@
                         id="lookback"
                         name="lookback"
                         min="1"
+                        uk-tooltip="Number of intervals to look back for."
                         {#- If the look back is None then it has not been set so use the default lookback for the interval #}
                         {% if ticker.lookback is none %}placeholder="{{ interval_lookbacks[ticker.interval] }}"{% else %}value="{{ ticker.lookback }}"{% endif %}
                       />
@@ -250,6 +251,7 @@
                         id="wait_time"
                         name="wait_time"
                         min="1"
+                        uk-tooltip="Time to wait on this ticker."
                         {#- If the wait_time is None then it has not been set so use the default wait_time for the interval #}
                         {% if ticker.wait_time is none %}placeholder="{{ interval_wait_times[ticker.interval] }}"{% else %}value="{{ ticker.wait_time }}"{% endif %}
                       />
@@ -262,7 +264,8 @@
                         id="mav"
                         name="mav"
                         min="1"
-                        {% if ticker.mav is none %}placeholder="3"{% else %}value="{{ ticker.mav }}"{% endif %}
+                        uk-tooltip="Optional, number of intervals to include in the moving average."
+                        value="{{ ticker.mav if ticker.mav is not none }}"
                       />
                       <label class="uk-form-label" for="avg_buy_price"
                         >Average buy price</label
