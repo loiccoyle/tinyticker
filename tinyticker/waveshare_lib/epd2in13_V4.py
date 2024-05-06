@@ -120,6 +120,7 @@ class EPD(EPDMonochrome):
     parameter:
     """
 
+    # NOTE: Unused
     def TurnOnDisplay_Fast(self):
         self.send_command(0x22)  # Display Update Control
         self.send_data(0xC7)  # fast:0x0c, quality:0x0f, 0xcf
@@ -131,6 +132,7 @@ class EPD(EPDMonochrome):
     parameter:
     """
 
+    # NOTE: Unused
     def TurnOnDisplayPart(self):
         self.send_command(0x22)  # Display Update Control
         self.send_data(0xFF)  # fast:0x0c, quality:0x0f, 0xcf
@@ -174,11 +176,6 @@ class EPD(EPDMonochrome):
         self.send_data(y & 0xFF)
         self.send_data((y >> 8) & 0xFF)
 
-    """
-    function : Initialize the e-Paper register
-    parameter:
-    """
-
     def init(self):
         if CONFIG.module_init() != 0:
             return -1
@@ -219,6 +216,7 @@ class EPD(EPDMonochrome):
     parameter:
     """
 
+    # NOTE: Unused
     def init_fast(self):
         if CONFIG.module_init() != 0:
             return -1
@@ -253,12 +251,6 @@ class EPD(EPDMonochrome):
 
         return 0
 
-    """
-    function : Sends the image buffer in RAM to e-Paper and displays
-    parameter:
-        image : Image data
-    """
-
     def display(self, image):
         self.send_command(0x24)
         self.send_data2(image)
@@ -270,6 +262,7 @@ class EPD(EPDMonochrome):
         image : Image data
     """
 
+    # NOTE: Unused
     def display_fast(self, image):
         self.send_command(0x24)
         self.send_data2(image)
@@ -281,6 +274,7 @@ class EPD(EPDMonochrome):
         image : Image data
     """
 
+    # NOTE: Unused
     def displayPartial(self, image):
         CONFIG.digital_write(self.reset_pin, 0)
         CONFIG.delay_ms(1)
@@ -310,6 +304,7 @@ class EPD(EPDMonochrome):
         image : Image data
     """
 
+    # NOTE: Unused
     def displayPartBaseImage(self, image):
         self.send_command(0x24)
         self.send_data2(image)
@@ -317,11 +312,6 @@ class EPD(EPDMonochrome):
         self.send_command(0x26)
         self.send_data2(image)
         self.TurnOnDisplay()
-
-    """
-    function : Clear screen
-    parameter:
-    """
 
     def Clear(self, color=0xFF):
         if self.width % 8 == 0:
@@ -333,11 +323,6 @@ class EPD(EPDMonochrome):
         self.send_command(0x24)
         self.send_data2([color] * int(self.height * linewidth))
         self.TurnOnDisplay()
-
-    """
-    function : Enter sleep mode
-    parameter:
-    """
 
     def sleep(self):
         self.send_command(0x10)  # enter deep sleep

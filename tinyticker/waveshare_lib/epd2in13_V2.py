@@ -247,6 +247,7 @@ class EPD(EPDMonochrome):
         self.send_command(0x20)
         self.ReadBusy()
 
+    # NOTE: unused
     def TurnOnDisplayPart(self):
         self.send_command(0x22)
         self.send_data(0x0C)
@@ -348,6 +349,7 @@ class EPD(EPDMonochrome):
         self.send_data2(image)
         self.TurnOnDisplay()
 
+    # NOTE: unused
     def displayPartial(self, image):
         if self.width % 8 == 0:
             linewidth = int(self.width / 8)
@@ -366,6 +368,7 @@ class EPD(EPDMonochrome):
         self.send_data2(buf)
         self.TurnOnDisplayPart()
 
+    # NOTE: unused
     def displayPartBaseImage(self, image):
         self.send_command(0x24)
         self.send_data2(image)
