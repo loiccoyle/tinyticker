@@ -1,3 +1,4 @@
+import math
 from abc import abstractmethod
 from typing import Literal, Optional
 
@@ -20,7 +21,6 @@ class EPDBase:
         """
         ...
 
-    @abstractmethod
     def getbuffer(self, image: Image.Image) -> bytearray:
         """Converts the given image to a buffer compatible with the EPD display.
 
@@ -30,7 +30,16 @@ class EPDBase:
         Returns:
             The converted buffer.
         """
-        ...
+        if image.mode != "1":
+            image = image.convert("1")
+        if (image.height, image.width) == (self.width, self.height):
+            image = image.rotate(90, expand=True)
+        if (image.height, image.width) != (self.height, self.width):
+            # return a blank buffer
+            return bytearray([0xFF] * (math.ceil(self.width / 8) * self.height))
+
+        buf = bytearray(image.tobytes("raw"))
+        return buf
 
     @abstractmethod
     def Clear(self) -> None:

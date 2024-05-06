@@ -212,34 +212,6 @@ class EPD(EPDMonochrome):
         self.send_data((y >> 8) & 0xFF)
         self.ReadBusy()
 
-    def getbuffer(self, image):
-        if self.width % 8 == 0:
-            linewidth = int(self.width / 8)
-        else:
-            linewidth = int(self.width / 8) + 1
-
-        buf = [0xFF] * (linewidth * self.height)
-        image_monocolor = image.convert("1")
-        imwidth, imheight = image_monocolor.size
-
-        if imwidth == self.width and imheight == self.height:
-            logger.debug("Vertical")
-            for y in range(imheight):
-                for x in range(imwidth):
-                    if image_monocolor.getpixel((x, y)) == 0:
-                        # x = imwidth - x
-                        buf[int(x / 8) + y * linewidth] &= ~(0x80 >> (x % 8))
-        elif imwidth == self.height and imheight == self.width:
-            logger.debug("Horizontal")
-            for y in range(imheight):
-                for x in range(imwidth):
-                    newx = y
-                    newy = self.height - x - 1
-                    if image_monocolor.getpixel((x, y)) == 0:
-                        # newy = imwidth - newy - 1
-                        buf[int(newx / 8) + newy * linewidth] &= ~(0x80 >> (y % 8))
-        return bytearray(buf)
-
     def display(self, image):
         if self.width % 8 == 0:
             linewidth = int(self.width / 8)

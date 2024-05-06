@@ -560,33 +560,6 @@ class EPD(EPDMonochrome):
         return 0
 
     """
-    function : Display images
-    parameter:
-        image : Image data
-    """
-
-    def getbuffer(self, image):
-        img = image
-        imwidth, imheight = img.size
-        if imwidth == self.width and imheight == self.height:
-            img = img.convert("1")
-        elif imwidth == self.height and imheight == self.width:
-            # image has correct dimensions, but needs to be rotated
-            img = img.rotate(90, expand=True).convert("1")
-        else:
-            logger.warning(
-                "Wrong image dimensions: must be "
-                + str(self.width)
-                + "x"
-                + str(self.height)
-            )
-            # return a blank buffer
-            return bytearray([0x00] * (int(self.width / 8) * self.height))
-
-        buf = bytearray(img.tobytes("raw"))
-        return buf
-
-    """
     function : Sends the image buffer in RAM to e-Paper and displays
     parameter:
         image : Image data

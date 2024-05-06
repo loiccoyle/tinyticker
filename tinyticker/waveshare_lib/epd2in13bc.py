@@ -101,23 +101,6 @@ class EPD(EPDHighlight):
         self.send_data(self.height & 0xFF)
         return 0
 
-    def getbuffer(self, image):
-        image = image.convert("1")
-        if (image.height, image.width) == (self.width, self.height):
-            image = image.rotate(90, expand=True)
-        if (image.height, image.width) != (self.height, self.width):
-            logger.warning(
-                "Wrong image dimensions: must be "
-                + str(self.width)
-                + "x"
-                + str(self.height)
-            )
-            # return a blank buffer
-            return bytearray([0x00] * (int(self.width / 8) * self.height))
-
-        buf = bytearray(image.tobytes("raw"))
-        return buf
-
     def display(self, imageblack, highlights=None):
         self.send_command(0x10)
         for i in range(0, int(self.width * self.height / 8)):
