@@ -20,6 +20,7 @@ class TickerConfig:
     plot_type: str = "candle"
     mav: Optional[int] = None
     volume: bool = False
+    avg_buy_price: Optional[float] = None
 
 
 @dc.dataclass
@@ -32,7 +33,7 @@ class SequenceConfig:
 class TinytickerConfig:
     tickers: List[TickerConfig] = dc.field(default_factory=lambda: [TickerConfig()])
     sequence: SequenceConfig = dc.field(default_factory=lambda: SequenceConfig())
-    epd_model: str = "EPD_v3"
+    epd_model: str = "EPD_v4"
     api_key: Optional[str] = None
     flip: bool = False
 

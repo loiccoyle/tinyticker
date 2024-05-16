@@ -4,6 +4,8 @@ import sys
 from pathlib import Path
 from typing import List
 
+from waitress import serve
+
 from ..config import TinytickerConfig
 from ..display import Display
 from ..paths import CONFIG_FILE, LOG_DIR
@@ -95,7 +97,8 @@ def main():
 
     LOGGER.info("Starting tinyticker-web")
     app = create_app(config_file=args.config, log_dir=args.log_dir)
-    app.run(host="0.0.0.0", port=args.port, debug=False, threaded=True)
+    serve(app, port=args.port)
+    # app.run(host="0.0.0.0", port=args.port, debug=False, threaded=True)
     LOGGER.info("Stopping tinyticker-web")
 
 

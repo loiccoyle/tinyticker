@@ -4,9 +4,7 @@ import subprocess
 import sys
 import threading
 from pathlib import Path
-from socket import timeout
 from typing import Optional
-from urllib.error import HTTPError, URLError
 
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
 
@@ -14,7 +12,6 @@ from .. import __version__
 from ..config import PLOT_TYPES, SequenceConfig, TickerConfig, TinytickerConfig
 from ..paths import CONFIG_FILE, LOG_DIR
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
-from ..utils import check_for_update
 from ..waveshare_lib.models import MODELS
 from .command import COMMANDS, reboot
 
@@ -27,6 +24,12 @@ def no_empty_str(data: str) -> Optional[str]:
     if data == "":
         return None
     return data
+
+
+def no_empty_float(data: str) -> Optional[float]:
+    if data == "":
+        return None
+    return float(data)
 
 
 def no_empty_int(data: str) -> Optional[int]:
@@ -67,13 +70,6 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
     @app.route("/")
     def index():
         tt_config = TinytickerConfig.from_file(config_file)
-        # TODO: performing this query on the server will reduce responsiveness
-        try:
-            update_available = check_for_update(current_version=__version__, timeout=1)
-            LOGGER.info("Update available: %s", update_available)
-        except (HTTPError, URLError, timeout):
-            update_available = False
-            LOGGER.warning("Update check failed", exc_info=True)
         return render_template(
             "index.html",
             hostname=hostname,
@@ -84,7 +80,6 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
             interval_wait_times=INTERVAL_WAIT_TIMES,
             interval_options=INTERVAL_LOOKBACKS.keys(),
             epd_model_options=MODELS.values(),
-            update_available=update_available,
             version=__version__,
             **tt_config.to_dict(),
         )
@@ -108,6 +103,9 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         tickers["wait_time"] = request.args.getlist("wait_time", type=no_empty_int)
         tickers["mav"] = request.args.getlist("mav", type=no_empty_int)
         tickers["volume"] = request.args.getlist("volume", type=str_to_bool)
+        tickers["avg_buy_price"] = request.args.getlist(
+            "avg_buy_price", type=no_empty_float
+        )
 
         sequence = SequenceConfig(
             skip_outdated=request.args.get("skip_outdated", False, type=bool),

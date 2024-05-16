@@ -6,7 +6,7 @@ from unittest import TestCase
 import pandas as pd
 from PIL import Image
 
-from tinyticker import __version__, utils
+from tinyticker import utils
 
 
 class TestUtils(TestCase):
@@ -14,10 +14,6 @@ class TestUtils(TestCase):
         now = utils.now()
         assert isinstance(now, pd.Timestamp)
         assert now.tzinfo == timezone.utc
-
-    def test_check_for_update(self):
-        assert not utils.check_for_update(__version__)
-        assert utils.check_for_update("0.0.1")
 
     def test_trim(self):
         trim_file = Path(__file__).parents[1] / "data" / "trim.jpg"

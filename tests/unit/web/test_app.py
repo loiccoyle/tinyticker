@@ -64,6 +64,7 @@ def test_config(client: FlaskClient):
         "wait_time": [10, 20],
         "mav": [3, ""],
         "volume": [1, ""],
+        "avg_buy_price": ["", 100],
         "flip": True,
         "epd_model": "EPD_V3",
         "api_key": "SOMEKEY",
