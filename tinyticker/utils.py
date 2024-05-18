@@ -1,12 +1,9 @@
 import argparse
-import json
 import logging
 import socket
-from urllib.request import urlopen
 
 import pandas as pd
 import qrcode
-from packaging.version import Version
 from PIL import Image, ImageChops
 
 
