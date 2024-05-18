@@ -7,7 +7,6 @@ Useful link:
 https://www.waveshare.com/wiki/Main_Page#Display-e-Paper
 """
 
-from .epdconfig import CONFIG
 from .models import MODELS
 
-__all__ = ["CONFIG", "MODELS"]
+__all__ = ["MODELS"]

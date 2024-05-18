@@ -28,9 +28,10 @@
 #
 
 import logging
+from typing import Type
 
 from ._base import EPDMonochrome
-from .epdconfig import CONFIG
+from .device import RaspberryPi
 
 # Display resolution
 EPD_WIDTH = 176
@@ -47,11 +48,12 @@ logger = logging.getLogger(__name__)
 # NOTE: this display is black and white but also supports 4 gray levels which are
 # currently not used for tinyticker
 class EPD(EPDMonochrome):
-    def __init__(self):
-        self.reset_pin = CONFIG.RST_PIN
-        self.dc_pin = CONFIG.DC_PIN
-        self.busy_pin = CONFIG.BUSY_PIN
-        self.cs_pin = CONFIG.CS_PIN
+    def __init__(self, device: Type[RaspberryPi] = RaspberryPi):
+        self.device = device()
+        self.reset_pin = self.device.RST_PIN
+        self.dc_pin = self.device.DC_PIN
+        self.busy_pin = self.device.BUSY_PIN
+        self.cs_pin = self.device.CS_PIN
         self.width = EPD_WIDTH
         self.height = EPD_HEIGHT
         self.GRAY1 = GRAY1  # white
@@ -223,29 +225,29 @@ class EPD(EPDMonochrome):
 
     # Hardware reset
     def reset(self):
-        CONFIG.digital_write(self.reset_pin, 1)
-        CONFIG.delay_ms(200)
-        CONFIG.digital_write(self.reset_pin, 0)
-        CONFIG.delay_ms(2)
-        CONFIG.digital_write(self.reset_pin, 1)
-        CONFIG.delay_ms(200)
+        self.device.digital_write(self.reset_pin, 1)
+        self.device.delay_ms(200)
+        self.device.digital_write(self.reset_pin, 0)
+        self.device.delay_ms(2)
+        self.device.digital_write(self.reset_pin, 1)
+        self.device.delay_ms(200)
 
     def send_command(self, command):
-        CONFIG.digital_write(self.dc_pin, 0)
-        CONFIG.digital_write(self.cs_pin, 0)
-        CONFIG.spi_writebyte([command])
-        CONFIG.digital_write(self.cs_pin, 1)
+        self.device.digital_write(self.dc_pin, 0)
+        self.device.digital_write(self.cs_pin, 0)
+        self.device.spi_writebyte([command])
+        self.device.digital_write(self.cs_pin, 1)
 
     def send_data(self, data):
-        CONFIG.digital_write(self.dc_pin, 1)
-        CONFIG.digital_write(self.cs_pin, 0)
-        CONFIG.spi_writebyte([data])
-        CONFIG.digital_write(self.cs_pin, 1)
+        self.device.digital_write(self.dc_pin, 1)
+        self.device.digital_write(self.cs_pin, 0)
+        self.device.spi_writebyte([data])
+        self.device.digital_write(self.cs_pin, 1)
 
     def ReadBusy(self):
         logger.debug("e-Paper busy")
-        while CONFIG.digital_read(self.busy_pin) == 1:  #  1: idle, 0: busy
-            CONFIG.delay_ms(20)
+        while self.device.digital_read(self.busy_pin) == 1:  #  1: idle, 0: busy
+            self.device.delay_ms(20)
         logger.debug("e-Paper busy release")
 
     def TurnOnDisplay(self):
@@ -278,7 +280,7 @@ class EPD(EPDMonochrome):
             self.send_data(self.LUT_DATA_4Gray[i])
 
     def init(self):
-        if CONFIG.module_init() != 0:
+        if self.device.module_init() != 0:
             return -1
 
         # EPD hardware init start
@@ -303,7 +305,7 @@ class EPD(EPDMonochrome):
         return 0
 
     def init_Fast(self):
-        if CONFIG.module_init() != 0:
+        if self.device.module_init() != 0:
             return -1
 
         # EPD hardware init start
@@ -348,7 +350,7 @@ class EPD(EPDMonochrome):
         return 0
 
     def Init_4Gray(self):
-        if CONFIG.module_init() != 0:
+        if self.device.module_init() != 0:
             return -1
         self.reset()
 
@@ -674,5 +676,5 @@ class EPD(EPDMonochrome):
         self.send_command(0x10)
         self.send_data(0x01)
 
-        CONFIG.delay_ms(2000)
-        CONFIG.module_exit()
+        self.device.delay_ms(2000)
+        self.device.module_exit()

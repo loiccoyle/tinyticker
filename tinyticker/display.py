@@ -11,7 +11,7 @@ import pandas as pd
 from PIL import Image
 
 from .config import TinytickerConfig
-from .waveshare_lib import CONFIG, MODELS
+from .waveshare_lib import MODELS
 from .waveshare_lib._base import EPDHighlight
 
 MARKETCOLORS = mpf.make_marketcolors(
@@ -263,9 +263,3 @@ class Display:
         if show:
             self.show_fig(fig)
         return fig, ax
-
-    def __del__(self):
-        try:
-            CONFIG.module_exit()
-        except Exception:
-            pass
