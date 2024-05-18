@@ -124,6 +124,3 @@ class RaspberryPi:
             self.GPIO_BUSY_PIN.close()
         except Exception:
             pass
-
-
-CONFIG = RaspberryPi()
