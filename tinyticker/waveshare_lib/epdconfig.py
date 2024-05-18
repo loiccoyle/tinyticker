@@ -112,11 +112,11 @@ class RaspberryPi:
         self.GPIO_DC_PIN.off()
         self.GPIO_PWR_PIN.off()
 
-        self.GPIO_RST_PIN.close()
-        self.GPIO_DC_PIN.close()
-        # self.GPIO_CS_PIN.close()
-        self.GPIO_PWR_PIN.close()
-        self.GPIO_BUSY_PIN.close()
+        # self.GPIO_RST_PIN.close()
+        # self.GPIO_DC_PIN.close()
+        # # self.GPIO_CS_PIN.close()
+        # self.GPIO_PWR_PIN.close()
+        # self.GPIO_BUSY_PIN.close()
 
         logger.debug("close 5V, Module enters 0 power consumption ...")
 
