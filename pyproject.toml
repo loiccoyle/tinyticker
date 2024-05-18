@@ -10,7 +10,6 @@ keywords = ["raspberry-pi", "ticker", "stock", "crypto", "epaper", "finance"]
 
 [tool.poetry.dependencies]
 python = ">=3.9"
-"RPi.GPIO" = "^0.7.0"
 spidev = "^3.5"
 Pillow = "^10.0.1"
 cryptocompare = "^0.7.5"
@@ -24,6 +23,7 @@ packaging = "^23.0"
 numpy = "^1.26"
 watchdog = "^4.0.0"
 waitress = "^3.0.0"
+gpiozero = "^2.0.1"
 
 [tool.poetry.scripts]
 tinyticker = 'tinyticker.__main__:main'
