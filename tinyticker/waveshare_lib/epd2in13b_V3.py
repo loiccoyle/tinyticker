@@ -33,22 +33,20 @@ from typing import Type
 from ._base import EPDHighlight
 from .device import RaspberryPi
 
-# Display resolution
-EPD_WIDTH = 104
-EPD_HEIGHT = 212
 
 logger = logging.getLogger(__name__)
 
 
 class EPD(EPDHighlight):
+    width = 104
+    height = 212
+
     def __init__(self, device: Type[RaspberryPi] = RaspberryPi):
         self.device = device()
         self.reset_pin = self.device.RST_PIN
         self.dc_pin = self.device.DC_PIN
         self.busy_pin = self.device.BUSY_PIN
         self.cs_pin = self.device.CS_PIN
-        self.width = EPD_WIDTH
-        self.height = EPD_HEIGHT
 
     # Hardware reset
     def reset(self):

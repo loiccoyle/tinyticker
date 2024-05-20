@@ -33,22 +33,19 @@ from typing import Type
 from ._base import EPDMonochrome
 from .device import RaspberryPi
 
-# Display resolution
-EPD_WIDTH = 122
-EPD_HEIGHT = 250
-
 logger = logging.getLogger(__name__)
 
 
 class EPD(EPDMonochrome):
+    width = 122
+    height = 250
+
     def __init__(self, device: Type[RaspberryPi] = RaspberryPi):
         self.device = device()
         self.reset_pin = self.device.RST_PIN
         self.dc_pin = self.device.DC_PIN
         self.busy_pin = self.device.BUSY_PIN
         self.cs_pin = self.device.CS_PIN
-        self.width = EPD_WIDTH
-        self.height = EPD_HEIGHT
 
     lut_full_update = [
         0x22,
@@ -157,8 +154,8 @@ class EPD(EPDMonochrome):
         # EPD hardware init start
         self.reset()
         self.send_command(0x01)  # DRIVER_OUTPUT_CONTROL
-        self.send_data((EPD_HEIGHT - 1) & 0xFF)
-        self.send_data(((EPD_HEIGHT - 1) >> 8) & 0xFF)
+        self.send_data((self.height - 1) & 0xFF)
+        self.send_data(((self.height - 1) >> 8) & 0xFF)
         self.send_data(0x00)  # GD = 0 SM = 0 TB = 0
 
         self.send_command(0x0C)  # BOOSTER_SOFT_START_CONTROL
