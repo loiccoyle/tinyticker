@@ -35,11 +35,12 @@ from .device import RaspberryPi
 
 logger = logging.getLogger(__name__)
 
+FULL_UPDATE = 0
+
 
 class EPD(EPDMonochrome):
     width = 122
     height = 250
-    FULL_UPDATE = 0
     lut_full_update = [
         0x80,
         0x60,
@@ -249,12 +250,12 @@ class EPD(EPDMonochrome):
         self.send_command(0x20)
         self.ReadBusy()
 
-    def init(self, update=0):
+    def init(self, update=FULL_UPDATE):
         if self.device.module_init() != 0:
             return -1
         # EPD hardware init start
         self.reset()
-        if update == self.FULL_UPDATE:
+        if update == FULL_UPDATE:
             self.ReadBusy()
             self.send_command(0x12)  # soft reset
             self.ReadBusy()
