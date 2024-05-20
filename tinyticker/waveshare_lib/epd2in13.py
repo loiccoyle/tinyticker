@@ -39,14 +39,6 @@ logger = logging.getLogger(__name__)
 class EPD(EPDMonochrome):
     width = 122
     height = 250
-
-    def __init__(self, device: Type[RaspberryPi] = RaspberryPi):
-        self.device = device()
-        self.reset_pin = self.device.RST_PIN
-        self.dc_pin = self.device.DC_PIN
-        self.busy_pin = self.device.BUSY_PIN
-        self.cs_pin = self.device.CS_PIN
-
     lut_full_update = [
         0x22,
         0x55,
@@ -79,6 +71,13 @@ class EPD(EPDMonochrome):
         0x00,
         0x00,
     ]
+
+    def __init__(self, device: Type[RaspberryPi] = RaspberryPi):
+        self.device = device()
+        self.reset_pin = self.device.RST_PIN
+        self.dc_pin = self.device.DC_PIN
+        self.busy_pin = self.device.BUSY_PIN
+        self.cs_pin = self.device.CS_PIN
 
     # Hardware reset
     def reset(self):
