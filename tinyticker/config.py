@@ -62,3 +62,24 @@ class TinytickerConfig:
 
     def to_dict(self) -> dict:
         return dc.asdict(self)
+
+
+def load_config_safe(config_file: Path) -> TinytickerConfig:
+    """Load the config file safely.
+
+    If the file does not exist or it cannot be parsed, overwrite it with the default
+    config.
+
+    Returns:
+        The tinyticker config.
+    """
+    try:
+        tt_config = TinytickerConfig.from_file(config_file)
+    except (FileNotFoundError, TypeError) as e:
+        LOGGER.error("Failed to load config file: %s", e)
+        LOGGER.info("Using default config and writing it to %s", config_file)
+        tt_config = TinytickerConfig()
+        if not config_file.parent.is_dir():
+            config_file.parent.mkdir(parents=True)
+        tt_config.to_file(config_file)
+    return tt_config

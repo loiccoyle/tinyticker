@@ -9,7 +9,13 @@ from typing import Optional
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
 
 from .. import __version__
-from ..config import PLOT_TYPES, SequenceConfig, TickerConfig, TinytickerConfig
+from ..config import (
+    PLOT_TYPES,
+    SequenceConfig,
+    TickerConfig,
+    TinytickerConfig,
+    load_config_safe,
+)
 from ..paths import CONFIG_FILE, LOG_DIR
 from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
 from ..waveshare_lib.models import MODELS
@@ -69,7 +75,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
 
     @app.route("/")
     def index():
-        tt_config = TinytickerConfig.from_file(config_file)
+        tt_config = load_config_safe(config_file)
         return render_template(
             "index.html",
             hostname=hostname,

@@ -42,6 +42,7 @@ class Display:
 
     @classmethod
     def from_tinyticker_config(cls, tt_config: TinytickerConfig) -> "Display":
+        """Create a `Display` object from a `TinytickerConfig` object."""
         return cls(model=tt_config.epd_model, flip=tt_config.flip)
 
     def __init__(
@@ -152,7 +153,7 @@ class Display:
             self.epd.display(self.epd.getbuffer(image))
 
     def show_image(self, image: Image.Image) -> None:
-        """Show a `PIL.Image.Image` on the display.
+        """Show a `PIL.Image.Image` on the display and put it to sleep.
 
         Args:
             image: The image to display.
@@ -197,7 +198,7 @@ class Display:
         volume: bool = False,
         **kwargs,
     ) -> Tuple[Figure, Axes]:
-        """Plot symbol historical data chart.
+        """Plot an asset's historical data chart.
 
         Args:
             historical: API response, `pd.DataFrame` containing the historical

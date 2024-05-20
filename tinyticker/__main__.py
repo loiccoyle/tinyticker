@@ -12,7 +12,7 @@ from watchdog.events import FileModifiedEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
 from . import __version__, logger
-from .config import TinytickerConfig
+from .config import load_config_safe
 from .display import Display
 from .paths import CONFIG_FILE, PID_FILE
 from .ticker import Sequence
@@ -74,7 +74,7 @@ def start_ticker(config_file: Path) -> None:
     """
     logger.info("Starting ticker process")
     # Read config values
-    tt_config = TinytickerConfig.from_file(config_file)
+    tt_config = load_config_safe(config_file)
 
     display = Display.from_tinyticker_config(tt_config)
     sequence = Sequence.from_tinyticker_config(tt_config)
@@ -131,11 +131,9 @@ def main():
     if args.verbose > 0:
         set_verbosity(logger, args.verbose)
 
-    # if the config file is not present, write the default values
-    if not config_file.is_file():
-        config_file.parent.mkdir(parents=True)
-        # write defaults to file
-        TinytickerConfig().to_file(config_file)
+    # make sure the config file exists and can be parsed before setting up the file
+    # monitor
+    load_config_safe(config_file)
 
     # write the process pid to file.
     pid = os.getpid()
