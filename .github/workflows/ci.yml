@@ -40,6 +40,7 @@ jobs:
         run: poetry run pytest -q tests -v
         env:
           CRYPTOCOMPARE_API_KEY: ${{secrets.CRYPTOCOMPARE_API_KEY}}
+          GPIOZERO_PIN_FACTORY: mock
 
   publish:
     name: Publish to pypi
@@ -61,7 +62,7 @@ jobs:
 
       - name: Publish Package
         shell: bash
-        run : poetry publish --build
+        run: poetry publish --build
 
   trigger_image_build:
     name: Trigger tinyticker disk image build

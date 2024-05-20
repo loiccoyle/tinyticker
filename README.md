@@ -38,12 +38,11 @@ Flash the [tinyticker image](https://drive.google.com/drive/folders/1U-PGzkOtSyn
 
 ### Manual setup
 
-  > [!NOTE]
-  > This is much more involved than the recommended setup and will most likely require some debugging.
+> [!NOTE]
+> This is much more involved than the recommended setup and will most likely require some debugging.
 
  <details>
   <summary>Expand</summary>
-
 
 I highly recommend using [comitup](https://github.com/davesteele/comitup) to setup the networking on your RPi.
 

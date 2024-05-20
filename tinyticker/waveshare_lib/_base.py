@@ -1,8 +1,10 @@
 import math
 from abc import abstractmethod
-from typing import Literal, Optional
+from typing import Literal, Optional, Type
 
 from PIL import Image
+
+from .device import RaspberryPi
 
 
 class EPDBase:
@@ -10,7 +12,7 @@ class EPDBase:
     height: int
 
     @abstractmethod
-    def __init__(self) -> None: ...
+    def __init__(self, device: Type[RaspberryPi] = RaspberryPi) -> None: ...
 
     @abstractmethod
     def init(self) -> Literal[0, -1]:
@@ -69,12 +71,14 @@ class EPDHighlight(EPDBase):
     """EPD with black and white color, and an extra color"""
 
     @abstractmethod
-    def display(self, imageblack: bytearray, highlights: Optional[bytearray]) -> None:
+    def display(
+        self, imageblack: bytearray, highlights: Optional[bytearray] = None
+    ) -> None:
         """Displays the given image on the e-paper display.
 
         Args:
             image: The image data to display.
-            highlights: The highlight data to display.
+            highlights: The extra color image data to display.
         """
         ...
 

@@ -11,7 +11,7 @@ import pandas as pd
 from PIL import Image
 
 from .config import TinytickerConfig
-from .waveshare_lib import CONFIG, MODELS
+from .waveshare_lib import MODELS
 from .waveshare_lib._base import EPDHighlight
 
 MARKETCOLORS = mpf.make_marketcolors(
@@ -190,8 +190,6 @@ class Display:
     def plot(
         self,
         historical: pd.DataFrame,
-        current_price: Optional[float],
-        delta: Optional[float] = None,
         top_string: Optional[str] = None,
         sub_string: Optional[str] = None,
         show: bool = False,
@@ -204,10 +202,8 @@ class Display:
         Args:
             historical: API response, `pd.DataFrame` containing the historical
                 price of the symbol.
-            current_price: API response, the current price of the symbol.
-            delta: relative percentage change.
-            top_string: Contents of the top left string, the `current_price` will be
-                appended if provided.
+            top_string: Contents of the top left string, '{}' will be replaced with the current
+                price.
             sub_string: Contents of a smaller text box below `top_string`.
             show: display the plot on the ePaper display.
             type: the chart type, see `mplfinance.plot`.
@@ -238,16 +234,11 @@ class Display:
             linecolor="k",
             **kwargs,
         )
-        # Fall back to using the last closing price
-        if current_price is None:
-            current_price = historical.iloc[-1]["Close"]
-        if top_string is not None:
-            top_string += f" {current_price:.2f}"
-        else:
-            top_string = str(current_price)
 
-        if delta is not None:
-            top_string += f" {delta:+.2f}%"
+        # Fall back to using the last closing price
+        if top_string is None:
+            top_string = str(historical["Close"].iloc[-1])
+
         ax.text(
             0,
             1,
@@ -272,9 +263,3 @@ class Display:
         if show:
             self.show_fig(fig)
         return fig, ax
-
-    def __del__(self):
-        try:
-            CONFIG.module_exit()
-        except Exception:
-            pass

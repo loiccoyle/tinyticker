@@ -27,19 +27,13 @@
 # THE SOFTWARE.
 #
 
-# type: ignore
-# ^ required because RPi.GPIO can only be installed on an rpi.
 import logging
 import time
 
 import spidev
+import gpiozero
 
 logger = logging.getLogger(__name__)
-
-try:
-    import RPi.GPIO as GPIO
-except RuntimeError:
-    logger.warning("Not on RPi, could not import RPI.GPIO. Display will not work.")
 
 
 class RaspberryPi:
@@ -52,12 +46,45 @@ class RaspberryPi:
 
     def __init__(self):
         self.SPI = spidev.SpiDev()
+        self.GPIO_RST_PIN = gpiozero.LED(self.RST_PIN)
+        self.GPIO_DC_PIN = gpiozero.LED(self.DC_PIN)
+        # self.GPIO_CS_PIN     = gpiozero.LED(self.CS_PIN)
+        self.GPIO_PWR_PIN = gpiozero.LED(self.PWR_PIN)
+        self.GPIO_BUSY_PIN = gpiozero.Button(self.BUSY_PIN, pull_up=False)
 
     def digital_write(self, pin, value):
-        GPIO.output(pin, value)
+        if pin == self.RST_PIN:
+            if value:
+                self.GPIO_RST_PIN.on()
+            else:
+                self.GPIO_RST_PIN.off()
+        elif pin == self.DC_PIN:
+            if value:
+                self.GPIO_DC_PIN.on()
+            else:
+                self.GPIO_DC_PIN.off()
+        # elif pin == self.CS_PIN:
+        #     if value:
+        #         self.GPIO_CS_PIN.on()
+        #     else:
+        #         self.GPIO_CS_PIN.off()
+        elif pin == self.PWR_PIN:
+            if value:
+                self.GPIO_PWR_PIN.on()
+            else:
+                self.GPIO_PWR_PIN.off()
 
     def digital_read(self, pin):
-        return GPIO.input(pin)
+        if pin == self.BUSY_PIN:
+            return self.GPIO_BUSY_PIN.value
+        elif pin == self.RST_PIN:
+            return self.GPIO_RST_PIN.value
+        elif pin == self.DC_PIN:
+            return self.GPIO_DC_PIN.value
+        # elif pin == self.CS_PIN:
+        #     return self.GPIO_CS_PIN.value
+        elif pin == self.PWR_PIN:
+            return self.GPIO_PWR_PIN.value
 
     def delay_ms(self, delaytime):
         time.sleep(delaytime / 1000.0)
@@ -69,15 +96,7 @@ class RaspberryPi:
         self.SPI.writebytes2(data)
 
     def module_init(self):
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setwarnings(False)
-        GPIO.setup(self.RST_PIN, GPIO.OUT)
-        GPIO.setup(self.DC_PIN, GPIO.OUT)
-        GPIO.setup(self.CS_PIN, GPIO.OUT)
-        GPIO.setup(self.PWR_PIN, GPIO.OUT)
-        GPIO.setup(self.BUSY_PIN, GPIO.IN)
-
-        GPIO.output(self.PWR_PIN, 1)
+        self.GPIO_PWR_PIN.on()
 
         # SPI device, bus = 0, device = 0
         self.SPI.open(0, 0)
@@ -89,11 +108,19 @@ class RaspberryPi:
         logger.debug("spi end")
         self.SPI.close()
 
+        self.GPIO_RST_PIN.off()
+        self.GPIO_DC_PIN.off()
+        self.GPIO_PWR_PIN.off()
+
         logger.debug("close 5V, Module enters 0 power consumption ...")
-        GPIO.output(self.RST_PIN, 0)
-        GPIO.output(self.DC_PIN, 0)
 
-        GPIO.cleanup([self.RST_PIN, self.DC_PIN, self.CS_PIN, self.BUSY_PIN, self.PWR_PIN])
-
-
-CONFIG = RaspberryPi()
+    def __del__(self):
+        try:
+            self.module_exit()
+            self.GPIO_RST_PIN.close()
+            self.GPIO_DC_PIN.close()
+            # self.GPIO_CS_PIN.close()
+            self.GPIO_PWR_PIN.close()
+            self.GPIO_BUSY_PIN.close()
+        except Exception:
+            pass

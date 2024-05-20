@@ -28,9 +28,10 @@
 #
 
 import logging
+from typing import Type
 
 from ._base import EPDHighlight
-from .epdconfig import CONFIG
+from .device import RaspberryPi
 
 # Display resolution
 EPD_WIDTH = 104
@@ -40,43 +41,44 @@ logger = logging.getLogger(__name__)
 
 
 class EPD(EPDHighlight):
-    def __init__(self):
-        self.reset_pin = CONFIG.RST_PIN
-        self.dc_pin = CONFIG.DC_PIN
-        self.busy_pin = CONFIG.BUSY_PIN
-        self.cs_pin = CONFIG.CS_PIN
+    def __init__(self, device: Type[RaspberryPi] = RaspberryPi):
+        self.device = device()
+        self.reset_pin = self.device.RST_PIN
+        self.dc_pin = self.device.DC_PIN
+        self.busy_pin = self.device.BUSY_PIN
+        self.cs_pin = self.device.CS_PIN
         self.width = EPD_WIDTH
         self.height = EPD_HEIGHT
 
     # Hardware reset
     def reset(self):
-        CONFIG.digital_write(self.reset_pin, 1)
-        CONFIG.delay_ms(200)
-        CONFIG.digital_write(self.reset_pin, 0)
-        CONFIG.delay_ms(5)
-        CONFIG.digital_write(self.reset_pin, 1)
-        CONFIG.delay_ms(200)
+        self.device.digital_write(self.reset_pin, 1)
+        self.device.delay_ms(200)
+        self.device.digital_write(self.reset_pin, 0)
+        self.device.delay_ms(5)
+        self.device.digital_write(self.reset_pin, 1)
+        self.device.delay_ms(200)
 
     def send_command(self, command):
-        CONFIG.digital_write(self.dc_pin, 0)
-        CONFIG.digital_write(self.cs_pin, 0)
-        CONFIG.spi_writebyte([command])
-        CONFIG.digital_write(self.cs_pin, 1)
+        self.device.digital_write(self.dc_pin, 0)
+        self.device.digital_write(self.cs_pin, 0)
+        self.device.spi_writebyte([command])
+        self.device.digital_write(self.cs_pin, 1)
 
     def send_data(self, data):
-        CONFIG.digital_write(self.dc_pin, 1)
-        CONFIG.digital_write(self.cs_pin, 0)
-        CONFIG.spi_writebyte([data])
-        CONFIG.digital_write(self.cs_pin, 1)
+        self.device.digital_write(self.dc_pin, 1)
+        self.device.digital_write(self.cs_pin, 0)
+        self.device.spi_writebyte([data])
+        self.device.digital_write(self.cs_pin, 1)
 
     def ReadBusy(self):
         logger.debug("e-Paper busy")
-        while CONFIG.digital_read(self.busy_pin) == 0:  # 0: idle, 1: busy
-            CONFIG.delay_ms(100)
+        while self.device.digital_read(self.busy_pin) == 0:  # 0: idle, 1: busy
+            self.device.delay_ms(100)
         logger.debug("e-Paper busy release")
 
     def init(self):
-        if CONFIG.module_init() != 0:
+        if self.device.module_init() != 0:
             return -1
 
         self.reset()
@@ -120,12 +122,12 @@ class EPD(EPDHighlight):
         self.send_command(0x10)
         for _ in range(0, int(self.width * self.height / 8)):
             self.send_data(0xFF)
-        self.send_command(0x92)
+        # self.send_command(0x92)
 
         self.send_command(0x13)
         for _ in range(0, int(self.width * self.height / 8)):
             self.send_data(0xFF)
-        self.send_command(0x92)
+        # self.send_command(0x92)
 
         self.send_command(0x12)  # REFRESH
         self.ReadBusy()
@@ -136,5 +138,5 @@ class EPD(EPDHighlight):
         self.send_command(0x07)  # DEEP_SLEEP
         self.send_data(0xA5)  # check code
 
-        CONFIG.delay_ms(2000)
-        CONFIG.module_exit()
+        self.device.delay_ms(2000)
+        self.device.module_exit()
