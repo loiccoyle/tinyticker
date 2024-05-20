@@ -30,7 +30,7 @@ class EPDMock(EPDMonochrome):
     def display(self, image: bytearray) -> None:
         pass
 
-    def Clear(self) -> None:
+    def clear(self) -> None:
         pass
 
     def sleep(self) -> None:

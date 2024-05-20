@@ -197,10 +197,6 @@ class EPD(EPDHighlight):
 
         self.TurnOnDisplay()
 
-    # Compatible with older version functions
-    def Clear(self):
-        self.clear()
-
     # sleep
     def sleep(self):
         self.send_command(0x10)  # DEEP_SLEEP

@@ -63,7 +63,7 @@ class Display:
         """Initialize the ePaper display module."""
         self._log.info("Init ePaper display.")
         self.epd.init()
-        self.epd.Clear()
+        self.epd.clear()
 
     @staticmethod
     def fig_to_image(fig: Figure) -> Image.Image:
