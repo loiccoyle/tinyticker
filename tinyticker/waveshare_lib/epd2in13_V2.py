@@ -48,7 +48,6 @@ class EPD(EPDMonochrome):
         self.cs_pin = self.device.CS_PIN
 
     FULL_UPDATE = 0
-    PART_UPDATE = 1
     lut_full_update = [
         0x80,
         0x60,
