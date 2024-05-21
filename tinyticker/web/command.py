@@ -86,13 +86,13 @@ def wifi_reset() -> None:
 @register
 def update() -> None:
     """Update tinyticker with pip."""
-    args = ["install", "--upgrade", "tinyticker"]
-    # rpi requires an added flag to update system packages
+    # the `--break-system-packages` flag is required to update system packages on rpi
     # https://www.raspberrypi.com/documentation/computers/os.html#about-python-virtual-environments
-    error = pipmain(args + ["--break-system-packages"])
-    if error:
-        # if for some reason we are not running on an rpi, try again without the flag
-        error = pipmain(args)
+    # it should be safe as we are installing in the user pkgs and this user is solely dedicated
+    # to running tinyticker
+    args = ["install", "--user", "--upgrade", "tinyticker", "--break-system-packages"]
+    LOGGER.info(f"Updating tinyticker with: pip {' '.join(args)}")
+    error = pipmain(args)
     if not error:
         LOGGER.info("Update successful, restarting the services.")
         restart()
