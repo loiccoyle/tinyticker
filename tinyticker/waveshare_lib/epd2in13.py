@@ -1,8 +1,6 @@
 import logging
-from typing import Type
 
 from ._base import EPDMonochrome
-from .device import RaspberryPi
 
 logger = logging.getLogger(__name__)
 
@@ -42,13 +40,6 @@ class EPD(EPDMonochrome):
         0x00,
         0x00,
     ]
-
-    def __init__(self, device: Type[RaspberryPi] = RaspberryPi):
-        self.device = device()
-        self.reset_pin = self.device.RST_PIN
-        self.dc_pin = self.device.DC_PIN
-        self.busy_pin = self.device.BUSY_PIN
-        self.cs_pin = self.device.CS_PIN
 
     # Hardware reset
     def reset(self):
