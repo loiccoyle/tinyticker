@@ -27,13 +27,6 @@
     <script src="js/uikit.min.js"></script>
     <script src="js/uikit-icons.min.js"></script>
     <script src="js/index.js"></script>
-    <script>
-      checkForUpdate("{{version}}").then((isUpdateAvailable) => {
-        document.getElementById("updateDiv").style.display = isUpdateAvailable
-          ? "block"
-          : "none";
-      });
-    </script>
   </head>
   <body class="uk-background-muted uk-padding-small">
     <div class="uk-flex uk-flex-center uk-flex-middle">
@@ -162,6 +155,7 @@
                         class="uk-select"
                         id="symbol_type"
                         name="symbol_type"
+                        onchange="hide_prepost(this)"
                       >
                         {%- for symbol_type_option in symbol_type_options -%}
                           <option
@@ -256,8 +250,7 @@
                         value="{{ ticker.avg_buy_price if ticker.avg_buy_price is not none }}"
                         uk-tooltip="Optional, used to display percentage change from buy price."
                       />
-                      <label class="uk-form-label" for="volume"
-                        >Show trade volume
+                      <label class="uk-form-label" for="volume">
                         <input
                           type="hidden"
                           name="volume"
@@ -269,6 +262,25 @@
                           {% if ticker.volume | default(False) %}checked{% endif %}
                           onclick="this.previousElementSibling.value=1-this.previousElementSibling.value"
                         />
+                        Show trade volume
+                      </label>
+                      <label
+                        class="uk-form-label"
+                        for="volume"
+                        uk-tooltip="Show pre/post market stock data."
+                      >
+                        <input
+                          type="hidden"
+                          name="prepost"
+                          value="{{ 1 if ticker.prepost | default(false) else 0 }}"
+                        />
+                        <input
+                          class="uk-checkbox"
+                          type="checkbox"
+                          {% if ticker.prepost| default(False) %}checked{% endif %}
+                          onclick="this.previousElementSibling.value=1-this.previousElementSibling.value"
+                        />
+                        Fetch pre/post market data
                       </label>
                     </div>
                   {%- endfor -%}
@@ -346,4 +358,16 @@
       </span>
     </div>
   </body>
+  <script>
+    checkForUpdate("{{version}}").then((isUpdateAvailable) => {
+      document.getElementById("updateDiv").style.display = isUpdateAvailable
+        ? "block"
+        : "none";
+    });
+
+    // run hide_prepost on all tickers
+    document.querySelectorAll("#symbol_type").forEach((element) => {
+      hide_prepost(element);
+    });
+  </script>
 </html>

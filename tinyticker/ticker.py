@@ -173,6 +173,7 @@ class Ticker:
         lookback: How many intervals to look back.
         wait_time: Time to wait in between API calls.
         avg_buy_price: Average buy price of the asset.
+        prepost: Include pre/post market data, only relevant for "stock" tickers.
         **kwargs: Extra args are provided to the `Display.plot` method.
     """
 
@@ -185,6 +186,7 @@ class Ticker:
         lookback: Optional[int] = None,
         wait_time: Optional[int] = None,
         avg_buy_price: Optional[float] = None,
+        prepost: bool = False,
         **kwargs,
     ) -> None:
         self._log = logging.getLogger(__name__)
@@ -209,7 +211,7 @@ class Ticker:
             self.lookback = INTERVAL_LOOKBACKS[self.interval]
         else:
             self._log.debug("lookback not None")
-            self.lookback = lookback  # type: int
+            self.lookback = lookback
         self._log.debug("lookback: %s", self.lookback)
         if wait_time is None:
             self.wait_time = int(self._interval_dt.value * 1e-9)
@@ -221,6 +223,7 @@ class Ticker:
             "stock": self._tick_stock,
         }
         self.avg_buy_price = avg_buy_price
+        self.prepost = prepost
         self._display_kwargs = kwargs
 
     @property
@@ -296,6 +299,7 @@ class Ticker:
             start=end - pd.to_timedelta("2m"),
             end=end,
             interval="1m",
+            prepost=self.prepost,
         )
         historical: pd.DataFrame = yfinance.download(
             self.symbol,
@@ -303,6 +307,7 @@ class Ticker:
             end=end,
             interval=self.interval,
             timeout=None,  # type: ignore
+            prepost=self.prepost,
         )
         if historical.empty:
             raise ValueError("No historical data returned from yfinance API.")
