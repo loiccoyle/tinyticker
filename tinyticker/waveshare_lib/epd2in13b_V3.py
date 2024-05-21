@@ -19,18 +19,6 @@ class EPD(EPDHighlight):
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(200)
 
-    def send_command(self, command):
-        self.device.digital_write(self.dc_pin, 0)
-        self.device.digital_write(self.cs_pin, 0)
-        self.device.spi_writebyte([command])
-        self.device.digital_write(self.cs_pin, 1)
-
-    def send_data(self, data):
-        self.device.digital_write(self.dc_pin, 1)
-        self.device.digital_write(self.cs_pin, 0)
-        self.device.spi_writebyte([data])
-        self.device.digital_write(self.cs_pin, 1)
-
     def ReadBusy(self):
         logger.debug("e-Paper busy")
         self.send_command(0x71)

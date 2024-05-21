@@ -21,6 +21,28 @@ class EPDBase:
     @abstractmethod
     def init(self) -> Literal[0, -1]: ...
 
+    def send_command(self, command: int) -> None:
+        """Send command to the e-Paper.
+
+        Args:
+            command: The command to send.
+        """
+        self.device.digital_write(self.dc_pin, 0)
+        self.device.digital_write(self.cs_pin, 0)
+        self.device.spi_writebyte([command])
+        self.device.digital_write(self.cs_pin, 1)
+
+    def send_data(self, data: int) -> None:
+        """Send data to the e-Paper.
+
+        Args:
+            data: The data to send.
+        """
+        self.device.digital_write(self.dc_pin, 1)
+        self.device.digital_write(self.cs_pin, 0)
+        self.device.spi_writebyte([data])
+        self.device.digital_write(self.cs_pin, 1)
+
     @abstractmethod
     def getbuffer(self, image: Image.Image) -> bytearray: ...
 
