@@ -434,6 +434,7 @@ class Sequence:
                         continue
                 all_skipped = False
                 yield (ticker, response)
+                LOGGER.info(f"Sleeping {ticker.wait_time}s.")
                 time.sleep(ticker.wait_time)
 
     def __str__(self):
