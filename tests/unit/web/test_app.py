@@ -65,6 +65,7 @@ def test_config(client: FlaskClient):
         "mav": [3, ""],
         "volume": [1, ""],
         "avg_buy_price": ["", 100],
+        "prepost": [1, ""],
         "flip": True,
         "epd_model": "EPD_V3",
         "api_key": "SOMEKEY",
