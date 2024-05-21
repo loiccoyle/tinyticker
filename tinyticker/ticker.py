@@ -370,6 +370,7 @@ class Sequence:
                     mav=ticker.mav,
                     volume=ticker.volume,
                     avg_buy_price=ticker.avg_buy_price,
+                    prepost=ticker.prepost,
                 )
                 for ticker in tt_config.tickers
             ],
