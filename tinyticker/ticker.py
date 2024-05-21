@@ -157,7 +157,7 @@ def get_cryptocompare(
     LOGGER.debug("crypto historical length: %s", len(historical))
     if len(historical) > lookback:
         historical = historical.iloc[-lookback:]
-    LOGGER.debug("crypto historical length pruned: %s", len(historical))
+        LOGGER.debug("crypto historical length pruned: %s", len(historical))
     return historical
 
 
@@ -205,10 +205,8 @@ class Ticker:
             cryptocompare.cryptocompare._set_api_key_parameter(self.api_key)
         self.symbol = symbol
         if lookback is None:
-            self._log.debug("lookback None")
             self.lookback = INTERVAL_LOOKBACKS[self.interval]
         else:
-            self._log.debug("lookback not None")
             self.lookback = lookback  # type: int
         self._log.debug("lookback: %s", self.lookback)
         if wait_time is None:
@@ -246,7 +244,7 @@ class Ticker:
         Returns:
             The response from the API.
         """
-        self._log.info("Crypto tick.")
+        self._log.info("Crypto tick: %s", self.symbol)
         historical = get_cryptocompare(self.symbol, self._interval_dt, self.lookback)
         current = cryptocompare.get_price(self.symbol, CRYPTO_CURRENCY)
         if current is not None:
@@ -285,7 +283,7 @@ class Ticker:
         Returns:
             The response from the API.
         """
-        self._log.info("Stock tick.")
+        self._log.info("Stock tick: %s", self.symbol)
         start, end = self._get_yfinance_start_end()
         self._log.debug("interval: %s", self.interval)
         self._log.debug("lookback: %s", self.lookback)
