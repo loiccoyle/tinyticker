@@ -130,6 +130,7 @@ def main():
 
     if args.verbose > 0:
         set_verbosity(logger, args.verbose)
+    logger.info("Tinyticker version: %s", __version__)
 
     # make sure the config file exists and can be parsed before setting up the file
     # monitor
@@ -144,14 +145,6 @@ def main():
     PID_FILE.write_text(str(pid))
 
     logger.debug("Args: %s", args)
-
-    #  setup signal handlers
-    def restart(*_) -> None:
-        """Restart both the ticker and the main thread."""
-        logger.info("Restarting.")
-        os.execv(sys.argv[0], sys.argv)
-
-    signal.signal(signal.SIGUSR1, restart)
 
     def refresh(*_) -> None:
         """Kill the ticker process, it gets restarted in the main thread."""
