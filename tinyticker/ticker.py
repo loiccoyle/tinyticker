@@ -396,8 +396,8 @@ class Sequence:
         Returns:
             The `Ticker` instance and the response from the API.
         """
-        # if all tickers are skipped, we want to sleep a bit
-        all_skipped_cooldown = 300  # 5min
+        # if all tickers are skipped, we want to sleep for the smallest wait time
+        all_skipped_cooldown = min(ticker.wait_time for ticker in self.tickers)
 
         all_skipped = False
         while True:
