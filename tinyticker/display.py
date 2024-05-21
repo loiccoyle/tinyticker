@@ -2,12 +2,12 @@ import logging
 from typing import Optional, Tuple
 
 import matplotlib as mpl
-from matplotlib.figure import Figure
-from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import mplfinance as mpf
 import numpy as np
 import pandas as pd
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 from PIL import Image
 
 from .config import TinytickerConfig
