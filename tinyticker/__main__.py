@@ -125,6 +125,7 @@ def start_ticker(config_file: Path) -> None:
 
 
 def main():
+    logger.info("Tinyticker version: %s", __version__)
     args = parse_args(sys.argv[1:])
     config_file: Path = args.config
 
