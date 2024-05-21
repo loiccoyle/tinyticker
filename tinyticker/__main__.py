@@ -146,14 +146,6 @@ def main():
 
     logger.debug("Args: %s", args)
 
-    #  setup signal handlers
-    def restart(*_) -> None:
-        """Restart both the ticker and the main thread."""
-        logger.info("Restarting.")
-        os.execv(sys.argv[0], sys.argv)
-
-    signal.signal(signal.SIGUSR1, restart)
-
     def refresh(*_) -> None:
         """Kill the ticker process, it gets restarted in the main thread."""
         logger.info("Refreshing ticker process.")

@@ -50,14 +50,10 @@ def try_command(command: Union[List[str], str]) -> None:
 
 @register
 def restart() -> None:
-    """Restart the tinyticker process."""
-    if PID_FILE.is_file():
-        LOGGER.info("Sending SIGUSR1 to tinyticker.")
-        with open(PID_FILE, "r") as pid_file:
-            pid = int(pid_file.readline())
-        os.kill(pid, signal.SIGUSR1)
-    else:
-        LOGGER.info("tinyticker is not runnning.")
+    """Restart the tinyticker and tinyticker-web systemd services."""
+    LOGGER.info("Restarting services.")
+    try_command("systemctl --user restart tinyticker")
+    try_command("systemctl --user restart tinyticker-web")
 
 
 @register
@@ -97,6 +93,9 @@ def update() -> None:
     if error:
         # if for some reason we are not running on an rpi, try again without the flag
         error = pipmain(args)
+    if not error:
+        LOGGER.info("Update successful, restarting the services.")
+        restart()
 
 
 @register
