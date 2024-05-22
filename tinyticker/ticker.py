@@ -157,7 +157,7 @@ def get_cryptocompare(
     LOGGER.debug("crypto historical length: %s", len(historical))
     if len(historical) > lookback:
         historical = historical.iloc[-lookback:]
-    LOGGER.debug("crypto historical length pruned: %s", len(historical))
+        LOGGER.debug("crypto historical length pruned: %s", len(historical))
     return historical
 
 
@@ -207,16 +207,14 @@ class Ticker:
             cryptocompare.cryptocompare._set_api_key_parameter(self.api_key)
         self.symbol = symbol
         if lookback is None:
-            self._log.debug("lookback None")
             self.lookback = INTERVAL_LOOKBACKS[self.interval]
         else:
-            self._log.debug("lookback not None")
             self.lookback = lookback
         self._log.debug("lookback: %s", self.lookback)
         if wait_time is None:
             self.wait_time = int(self._interval_dt.value * 1e-9)
         else:
-            self.wait_time = wait_time  # type: int
+            self.wait_time = wait_time
         self._log.debug("wait_time: %s", self.wait_time)
         self._symbol_type_map: Dict[str, Callable] = {
             "crypto": self._tick_crypto,
@@ -249,7 +247,7 @@ class Ticker:
         Returns:
             The response from the API.
         """
-        self._log.info("Crypto tick.")
+        self._log.info("Crypto tick: %s", self.symbol)
         historical = get_cryptocompare(self.symbol, self._interval_dt, self.lookback)
         current = cryptocompare.get_price(self.symbol, CRYPTO_CURRENCY)
         if current is not None:
@@ -288,7 +286,7 @@ class Ticker:
         Returns:
             The response from the API.
         """
-        self._log.info("Stock tick.")
+        self._log.info("Stock tick: %s", self.symbol)
         start, end = self._get_yfinance_start_end()
         self._log.debug("interval: %s", self.interval)
         self._log.debug("lookback: %s", self.lookback)
@@ -404,8 +402,8 @@ class Sequence:
         Returns:
             The `Ticker` instance and the response from the API.
         """
-        # if all tickers are skipped, we want to sleep a bit
-        all_skipped_cooldown = 300  # 5min
+        # if all tickers are skipped, we want to sleep for the smallest wait time
+        all_skipped_cooldown = min(ticker.wait_time for ticker in self.tickers)
 
         all_skipped = False
         while True:

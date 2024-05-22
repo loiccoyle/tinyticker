@@ -30,8 +30,8 @@
 import logging
 import time
 
-import spidev
 import gpiozero
+import spidev
 
 logger = logging.getLogger(__name__)
 
