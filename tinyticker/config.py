@@ -21,6 +21,7 @@ class TickerConfig:
     mav: Optional[int] = None
     volume: bool = False
     avg_buy_price: Optional[float] = None
+    prepost: bool = False
 
 
 @dc.dataclass
