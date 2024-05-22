@@ -30,6 +30,7 @@ TEXT_BBOX = {
     "facecolor": "white",
     "edgecolor": "white",
 }
+mpl.use("Agg")
 
 
 class Display:
@@ -76,7 +77,6 @@ class Display:
         Returns:
             The `PIL.Image.Image` representation of the provided `plt.Figure`.
         """
-        mpl.use("Agg")
         fig.canvas.draw()
         return Image.fromarray(
             np.asarray(fig.canvas.buffer_rgba()),  # type: ignore
