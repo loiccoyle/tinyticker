@@ -407,30 +407,23 @@ class EPD(EPDMonochrome):
         return 0
 
     def getbuffer(self, image):
-        # TODO: this is the old way waveshare did it, replace with the implementation of epd2in13_V4.py
-
-        # logger.debug("bufsiz = ",int(self.width/8) * self.height)
-        buf = [0xFF] * (int(self.width / 8) * self.height)
-        image_monocolor = image.convert("1")
-        imwidth, imheight = image_monocolor.size
-        pixels = image_monocolor.load()
-        # logger.debug("imwidth = %d, imheight = %d",imwidth,imheight)
+        imwidth, imheight = image.size
         if imwidth == self.width and imheight == self.height:
-            logger.debug("Vertical")
-            for y in range(imheight):
-                for x in range(imwidth):
-                    # Set the bits for the column of pixels at the current position.
-                    if pixels[x, y] == 0:
-                        buf[int((x + y * self.width) / 8)] &= ~(0x80 >> (x % 8))
+            image = image.convert("1")
         elif imwidth == self.height and imheight == self.width:
-            logger.debug("Horizontal")
-            for y in range(imheight):
-                for x in range(imwidth):
-                    newx = y
-                    newy = self.height - x - 1
-                    if pixels[x, y] == 0:
-                        buf[int((newx + newy * self.width) / 8)] &= ~(0x80 >> (y % 8))
-        return bytearray(buf)
+            # image has correct dimensions, but needs to be rotated
+            image = image.rotate(90, expand=True).convert("1")
+        else:
+            logger.warning(
+                "Wrong image dimensions: must be "
+                + str(self.width)
+                + "x"
+                + str(self.height)
+            )
+            # return a blank buffer
+            return bytearray([0x00] * (int(self.width / 8) * self.height))
+
+        return bytearray(image.tobytes("raw"))
 
     def getbuffer_4Gray(self, image):
         # logger.debug("bufsiz = ",int(self.width/8) * self.height)
