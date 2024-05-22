@@ -101,6 +101,7 @@ class TestTinyticker(TestCase):
         for i, (ticker, resp) in enumerate(
             tqdm(self.sequence.start(), total=len(self.sequence.tickers))
         ):
+            print(f"Showing ticker: {ticker}")
             show_ticker(ticker, resp, self.display)
             if i == len(self.sequence.tickers) - 1:
                 break
