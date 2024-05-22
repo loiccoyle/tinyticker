@@ -18,7 +18,7 @@ from ..config import (
 )
 from ..paths import CONFIG_FILE, LOG_DIR
 from ..tickers import SYMBOL_TYPES
-from ..tickers._base import INTERVAL_TIMEDELTAS, INTERVAL_LOOKBACKS
+from ..tickers._base import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS
 from ..waveshare_lib.models import MODELS
 from .command import COMMANDS, reboot
 

@@ -4,11 +4,10 @@ from typing import Iterator, List, Tuple
 
 import pandas as pd
 
-from .config import TinytickerConfig
-from .tickers._base import TickerBase, TickerResponse
-from .tickers import get_ticker_from_symbol_type
 from . import utils
-
+from .config import TinytickerConfig
+from .tickers import get_ticker_from_symbol_type
+from .tickers._base import TickerBase, TickerResponse
 
 LOGGER = logging.getLogger(__name__)
 
