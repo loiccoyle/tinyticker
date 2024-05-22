@@ -89,7 +89,10 @@ class TestTinyticker(TestCase):
         tickers = _create_tickers()
 
         cls.tt_config = TinytickerConfig(
-            api_key=_get_api_key(), epd_model=epd_model, tickers=tickers
+            api_key=_get_api_key(),
+            epd_model=epd_model,
+            tickers=tickers,
+            flip=True,
         )
         cls.sequence = Sequence.from_tinyticker_config(cls.tt_config)
         cls.display = Display.from_tinyticker_config(cls.tt_config)
@@ -101,7 +104,7 @@ class TestTinyticker(TestCase):
         for i, (ticker, resp) in enumerate(
             tqdm(self.sequence.start(), total=len(self.sequence.tickers))
         ):
-            print(f"Showing ticker: {ticker}")
+            print(f"Showing ticker: {ticker.config}")
             show_ticker(ticker, resp, self.display)
             if i == len(self.sequence.tickers) - 1:
                 break
