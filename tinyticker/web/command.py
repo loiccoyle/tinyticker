@@ -57,6 +57,18 @@ def restart() -> None:
 
 
 @register
+def skip_current() -> None:
+    """Skip over the current ticker and display the next on."""
+    if PID_FILE.is_file():
+        LOGGER.info("Sending SIGUSR2 to tinyticker.")
+        with open(PID_FILE, "r") as pid_file:
+            pid = int(pid_file.readline())
+        os.kill(pid, signal.SIGUSR1)
+    else:
+        LOGGER.info("tinyticker is not runnning.")
+
+
+@register
 def refresh() -> None:
     """Refresh tinyticker's ticker process."""
     if PID_FILE.is_file():
