@@ -106,7 +106,6 @@ class Sequence:
                 # we want to sleep for the ticker's wait time and check every second if we
                 # should skip the next ticker.
                 for _ in range(ticker.wait_time):
-                    print(self._skip_current)
                     if self._skip_current:
                         LOGGER.info(f"Skipping {ticker}.")
                         self._skip_current = False
