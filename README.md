@@ -82,8 +82,6 @@ I highly recommend using [comitup](https://github.com/davesteele/comitup) to set
   ```
 
   - To setup `tinyticker` to start on boot, copy over the [`systemd` unit files](./systemd) and enable them.
-  - On boot, a qrcode linking to the `flask` app will be flashed on the display
-  - Leave a star, reboot and HODL !
 
 </details>
 
@@ -98,5 +96,3 @@ On first boot, you will need to connect your RPi to your wifi network.
 Your RPi will now connect to your wifi and the `tinyticker` services will start.
 
 Once the web app is running, head over to `http://tinyticker.local` to configure it.
-
-> The RPi zero isn't very fast, so be patient :)
