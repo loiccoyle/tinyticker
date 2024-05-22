@@ -90,7 +90,7 @@ class TestTinyticker(TestCase):
         self.display = Display.from_tinyticker_config(self.tt_config)
 
     @pytest.mark.skipif(
-        os.uname().nodename != "Tinyticker", reason="Not on Tinyticker rpi"
+        os.uname().nodename != "TinyTicker", reason="Not on Tinyticker rpi"
     )
     def test_tinyticker(self):
         for i, (ticker, resp) in enumerate(self.sequence.start()):
