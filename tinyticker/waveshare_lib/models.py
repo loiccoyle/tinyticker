@@ -11,7 +11,7 @@ from . import (
     epd2in13bc,
     epd2in7_V2,
 )
-from ._base import EPDMonochrome, EPDHighlight
+from ._base import EPDHighlight, EPDMonochrome
 
 
 @dataclass

@@ -3,7 +3,7 @@ function add_ticker() {
   let last_ticker = tickers[tickers.length - 1];
   let new_ticker = last_ticker.cloneNode(true);
   new_ticker.className += " uk-animation-slide-right";
-  new_ticker.addEventListener("animationend", function() {
+  new_ticker.addEventListener("animationend", function () {
     new_ticker.classList.remove("uk-animation-slide-right");
   });
   last_ticker.insertAdjacentElement("afterend", new_ticker);
@@ -15,10 +15,20 @@ function remove_ticker(element) {
     return;
   }
   let ticker = element.parentNode.parentNode;
-  ticker.addEventListener("animationend", function() {
+  ticker.addEventListener("animationend", function () {
     ticker.parentNode.removeChild(ticker);
   });
   ticker.className += " uk-animation-slide-top uk-animation-reverse";
+}
+
+function hide_prepost(element) {
+  // if the symbol type is not a stock then hide the prepost checkbox
+  let prepost = element.parentElement.querySelector('[name="prepost"]');
+  if (element.value !== "stock") {
+    prepost.parentElement.style.display = "none";
+  } else {
+    prepost.parentElement.style.display = "block";
+  }
 }
 
 /**
@@ -45,4 +55,3 @@ async function checkForUpdate(currentVersion) {
   const pypiVersion = data.info.version;
   return isGreater(pypiVersion, currentVersion);
 }
-
