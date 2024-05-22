@@ -1,3 +1,4 @@
+import logging
 from typing import Optional, Tuple
 
 import pandas as pd
@@ -6,11 +7,16 @@ import yfinance
 from .. import utils
 from ._base import TickerBase
 
+LOGGER = logging.getLogger(__name__)
+
 
 class TickerStock(TickerBase):
     @classmethod
     def from_config(cls, tt_config, ticker_config) -> "TickerStock":
         return TickerStock(ticker_config)
+
+    def __init__(self, config) -> None:
+        super().__init__(config)
 
     def _get_yfinance_start_end(self) -> Tuple[pd.Timestamp, pd.Timestamp]:
         end = utils.now()
@@ -34,7 +40,7 @@ class TickerStock(TickerBase):
         return (start, end)
 
     def _single_tick(self) -> Tuple[pd.DataFrame, Optional[float]]:
-        self._log.info("Stock tick: %s", self.config.symbol)
+        LOGGER.info("Stock tick: %s", self.config.symbol)
         start, end = self._get_yfinance_start_end()
         current_price_data: pd.DataFrame = yfinance.download(
             self.config.symbol,

@@ -65,8 +65,6 @@ class TickerResponse:
 
 
 class TickerBase:
-    config: TickerConfig
-
     @classmethod
     def from_config(
         cls, tt_config: TinytickerConfig, ticker_config: TickerConfig

@@ -16,6 +16,8 @@ CRYPTO_INTERVAL_TIMEDELTAS: Dict[str, pd.Timedelta] = {
     "day": pd.to_timedelta("1d"),
 }
 
+LOGGER = logging.getLogger(__name__)
+
 
 def get_cryptocompare(
     token: str,
@@ -37,7 +39,6 @@ def get_cryptocompare(
         A `pd.DataFrame` containing the Open, Close, High, Low and Volume historical
             data, with a time index.
     """
-    logger = logging.getLogger(__name__)
 
     max_timedelta = pd.Timedelta(0)
     crypto_interval = "minute"
@@ -67,7 +68,7 @@ def get_cryptocompare(
         raise ValueError(
             f"No historical data returned from cryptocompare API for {token}"
         )
-    logger.debug("crypto historical data columns: %s", historical.columns)
+    LOGGER.debug("crypto historical data columns: %s", historical.columns)
     historical.set_index("time", inplace=True)
     historical.index = pd.to_datetime(historical.index.to_numpy(), unit="s", utc=True)
     historical.drop(
@@ -85,7 +86,7 @@ def get_cryptocompare(
         inplace=True,
     )
     if crypto_interval_dt != interval_dt:
-        logger.debug("resampling historical data")
+        LOGGER.debug("resampling historical data")
         # resample the crypto data to get the desired interval
         historical_index = historical.index
         historical: pd.DataFrame = historical.resample(interval_dt).agg(
@@ -98,10 +99,10 @@ def get_cryptocompare(
             }
         )  # type: ignore
         historical.index = historical_index[::scale_factor]
-    logger.debug("crypto historical length: %s", len(historical))
+    LOGGER.debug("crypto historical length: %s", len(historical))
     if len(historical) > lookback:
         historical = historical.iloc[-lookback:]
-        logger.debug("crypto historical length pruned: %s", len(historical))
+        LOGGER.debug("crypto historical length pruned: %s", len(historical))
     return historical
 
 
@@ -118,7 +119,7 @@ class TickerCrypto(TickerBase):
         super().__init__(config)
 
     def _single_tick(self) -> Tuple[pd.DataFrame, Optional[float]]:
-        self._log.info("Crypto tick: %s", self.config.symbol)
+        LOGGER.info("Crypto tick: %s", self.config.symbol)
         historical = get_cryptocompare(
             self.config.symbol,
             self.interval_dt,
