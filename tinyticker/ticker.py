@@ -157,7 +157,7 @@ def get_cryptocompare(
     LOGGER.debug("crypto historical length: %s", len(historical))
     if len(historical) > lookback:
         historical = historical.iloc[-lookback:]
-    LOGGER.debug("crypto historical length pruned: %s", len(historical))
+        LOGGER.debug("crypto historical length pruned: %s", len(historical))
     return historical
 
 
@@ -173,6 +173,7 @@ class Ticker:
         lookback: How many intervals to look back.
         wait_time: Time to wait in between API calls.
         avg_buy_price: Average buy price of the asset.
+        prepost: Include pre/post market data, only relevant for "stock" tickers.
         **kwargs: Extra args are provided to the `Display.plot` method.
     """
 
@@ -185,6 +186,7 @@ class Ticker:
         lookback: Optional[int] = None,
         wait_time: Optional[int] = None,
         avg_buy_price: Optional[float] = None,
+        prepost: bool = False,
         **kwargs,
     ) -> None:
         self._log = logging.getLogger(__name__)
@@ -205,22 +207,21 @@ class Ticker:
             cryptocompare.cryptocompare._set_api_key_parameter(self.api_key)
         self.symbol = symbol
         if lookback is None:
-            self._log.debug("lookback None")
             self.lookback = INTERVAL_LOOKBACKS[self.interval]
         else:
-            self._log.debug("lookback not None")
-            self.lookback = lookback  # type: int
+            self.lookback = lookback
         self._log.debug("lookback: %s", self.lookback)
         if wait_time is None:
             self.wait_time = int(self._interval_dt.value * 1e-9)
         else:
-            self.wait_time = wait_time  # type: int
+            self.wait_time = wait_time
         self._log.debug("wait_time: %s", self.wait_time)
         self._symbol_type_map: Dict[str, Callable] = {
             "crypto": self._tick_crypto,
             "stock": self._tick_stock,
         }
         self.avg_buy_price = avg_buy_price
+        self.prepost = prepost
         self._display_kwargs = kwargs
 
     @property
@@ -246,7 +247,7 @@ class Ticker:
         Returns:
             The response from the API.
         """
-        self._log.info("Crypto tick.")
+        self._log.info("Crypto tick: %s", self.symbol)
         historical = get_cryptocompare(self.symbol, self._interval_dt, self.lookback)
         current = cryptocompare.get_price(self.symbol, CRYPTO_CURRENCY)
         if current is not None:
@@ -285,7 +286,7 @@ class Ticker:
         Returns:
             The response from the API.
         """
-        self._log.info("Stock tick.")
+        self._log.info("Stock tick: %s", self.symbol)
         start, end = self._get_yfinance_start_end()
         self._log.debug("interval: %s", self.interval)
         self._log.debug("lookback: %s", self.lookback)
@@ -296,6 +297,7 @@ class Ticker:
             start=end - pd.to_timedelta("2m"),
             end=end,
             interval="1m",
+            prepost=self.prepost,
         )
         historical: pd.DataFrame = yfinance.download(
             self.symbol,
@@ -303,6 +305,7 @@ class Ticker:
             end=end,
             interval=self.interval,
             timeout=None,  # type: ignore
+            prepost=self.prepost,
         )
         if historical.empty:
             raise ValueError("No historical data returned from yfinance API.")
@@ -365,6 +368,7 @@ class Sequence:
                     mav=ticker.mav,
                     volume=ticker.volume,
                     avg_buy_price=ticker.avg_buy_price,
+                    prepost=ticker.prepost,
                 )
                 for ticker in tt_config.tickers
             ],
@@ -398,8 +402,8 @@ class Sequence:
         Returns:
             The `Ticker` instance and the response from the API.
         """
-        # if all tickers are skipped, we want to sleep a bit
-        all_skipped_cooldown = 300  # 5min
+        # if all tickers are skipped, we want to sleep for the smallest wait time
+        all_skipped_cooldown = min(ticker.wait_time for ticker in self.tickers)
 
         all_skipped = False
         while True:
