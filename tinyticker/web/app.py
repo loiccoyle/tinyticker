@@ -112,6 +112,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         tickers["avg_buy_price"] = request.args.getlist(
             "avg_buy_price", type=no_empty_float
         )
+        tickers["prepost"] = request.args.getlist("prepost", type=str_to_bool)
 
         sequence = SequenceConfig(
             skip_outdated=request.args.get("skip_outdated", False, type=bool),
