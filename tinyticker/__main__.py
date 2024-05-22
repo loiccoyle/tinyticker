@@ -106,6 +106,14 @@ def start_ticker(config_file: Path) -> None:
         config_file: config file path.
     """
     logger.info("Starting ticker process")
+
+    def skip_current(*_):
+        logger.info("Skip current ticker.")
+        if sequence is not None:
+            sequence._skip_current = True
+
+    signal.signal(signal.SIGUSR1, skip_current)
+
     # Read config values
     tt_config = load_config_safe(config_file)
 
@@ -184,7 +192,20 @@ def main():
 
     atexit.register(cleanup)
 
-    # start ticking
+    def skip_ticker(*_):
+        """Skip the current ticker."""
+        logger.info("Sending signal to skip the current ticker.")
+        # forward the signal to the ticker process
+        if (
+            tick_process is not None
+            and tick_process.is_alive()
+            and tick_process.pid is not None
+        ):
+            os.kill(tick_process.pid, signal.SIGUSR1)
+
+    signal.signal(signal.SIGUSR1, skip_ticker)
+
+    # start ticking, we pass the config file so that is can be reloaded on refresh
     tick_process = start_ticker_process(config_file)
     while True:
         if tick_process._closed or not tick_process.is_alive():  # type: ignore
