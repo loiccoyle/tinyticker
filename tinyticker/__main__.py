@@ -53,7 +53,7 @@ Note:
     return parser.parse_args(args)
 
 
-def start_ticker_process(sequence, display) -> multiprocessing.Process:
+def start_ticker_process(config_file: Path) -> multiprocessing.Process:
     """Create and start the ticker process.
 
     Args:
@@ -62,9 +62,7 @@ def start_ticker_process(sequence, display) -> multiprocessing.Process:
     Returns:
         The ticker process.
     """
-    tick_process = multiprocessing.Process(
-        target=start_ticker, args=(sequence, display)
-    )
+    tick_process = multiprocessing.Process(target=start_ticker, args=(config_file,))
     tick_process.start()
     return tick_process
 
@@ -101,14 +99,20 @@ def show_ticker(ticker: TickerBase, resp: TickerResponse, display: Display):
     )
 
 
-def start_ticker(sequence, display) -> None:
+def start_ticker(config_file: Path) -> None:
     """Start ticking.
 
     Args:
         config_file: config file path.
     """
     logger.info("Starting ticker process")
+    # Read config values
+    tt_config = load_config_safe(config_file)
+
+    display = Display.from_tinyticker_config(tt_config)
+    sequence = Sequence.from_tinyticker_config(tt_config)
     logger.debug(sequence)
+
     try:
         for ticker, resp in sequence.start():
             logger.debug("API len(historical): %s", len(resp.historical))
@@ -180,22 +184,11 @@ def main():
 
     atexit.register(cleanup)
 
-    tt_config = load_config_safe(config_file)
-    sequence = Sequence.from_tinyticker_config(tt_config)
-    display = Display.from_tinyticker_config(tt_config)
-
-    def skip_ticker(*_):
-        """Skip the current ticker."""
-        logger.info("Skip current ticker.")
-        sequence._skip_current = True
-
-    signal.signal(signal.SIGUSR1, skip_ticker)
-
     # start ticking
-    tick_process = start_ticker_process(sequence, display)
+    tick_process = start_ticker_process(config_file)
     while True:
         if tick_process._closed or not tick_process.is_alive():  # type: ignore
-            tick_process = start_ticker_process(config_file, sequence)
+            tick_process = start_ticker_process(config_file)
         else:
             sleep(1)
 
