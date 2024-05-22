@@ -6,8 +6,8 @@ import pandas as pd
 
 from . import utils
 from .config import TinytickerConfig
-from .tickers import get_ticker_from_symbol_type
 from .tickers._base import TickerBase, TickerResponse
+from .tickers import Ticker
 
 LOGGER = logging.getLogger(__name__)
 
@@ -26,11 +26,7 @@ class Sequence:
         tickers = []
         for ticker_config in tt_config.tickers:
             try:
-                tickers.append(
-                    get_ticker_from_symbol_type(ticker_config.symbol_type).from_config(
-                        tt_config, ticker_config
-                    )
-                )
+                tickers.append(Ticker(tt_config=tt_config, ticker_config=ticker_config))
             except Exception as e:
                 LOGGER.error(f"Failed to create ticker: {e}")
                 continue
@@ -65,7 +61,7 @@ class Sequence:
         """Start iterating through the tickers.
 
         Returns:
-            The `Ticker` instance and the response from the API.
+            The `Ticker` instance and its response.
         """
         # if all tickers are skipped, we want to sleep for the smallest wait time
         all_skipped_cooldown = min(ticker.wait_time for ticker in self.tickers)

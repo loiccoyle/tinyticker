@@ -46,6 +46,8 @@ class TestSequence(TestCase):
         assert len(sequence.tickers) == len(tt_config.tickers)
         assert sequence.skip_empty is True
         assert sequence.skip_outdated is True
+        assert isinstance(sequence.tickers[0], TickerStock)
+        assert isinstance(sequence.tickers[1], TickerCrypto)
 
     def test_sequence_order(self):
         sequence = self.sequence
