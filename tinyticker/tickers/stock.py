@@ -48,6 +48,7 @@ class TickerStock(TickerBase):
             end=end,
             interval="1m",
             prepost=self.config.prepost,
+            progress=False,
         )
         historical: pd.DataFrame = yfinance.download(
             self.config.symbol,
@@ -56,6 +57,7 @@ class TickerStock(TickerBase):
             interval=self.config.interval,
             timeout=None,  # type: ignore
             prepost=self.config.prepost,
+            progress=False,
         )
         if historical.empty:
             raise ValueError(
