@@ -7,6 +7,7 @@
   <a href="https://pypi.org/project/tinyticker/"><img src="https://img.shields.io/pypi/v/tinyticker"></a>
   <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
   <a href="https://github.com/loiccoyle/tinyticker/actions/workflows/ci.yml"><img src="https://github.com/loiccoyle/tinyticker/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://discord.com/channels/1239232827237597184/1239232827841839297"><img alt="Discord" src="https://img.shields.io/discord/1239232827237597184?logo=discord&logoSize=auto&label=%20"></a>
 </p>
 <hr/>
 
