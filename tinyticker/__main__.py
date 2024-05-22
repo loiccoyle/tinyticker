@@ -15,7 +15,7 @@ from . import __version__, logger
 from .config import load_config_safe
 from .display import Display
 from .paths import CONFIG_FILE, PID_FILE
-from .ticker import Sequence
+from .sequence import Sequence
 from .utils import RawTextArgumentDefaultsHelpFormatter, set_verbosity
 
 
@@ -89,13 +89,13 @@ def start_ticker(config_file: Path) -> None:
                 100 * (resp.current_price - delta_range_start) / delta_range_start
             )
 
-            top_string = f"{ticker.symbol}: $ {resp.current_price:.2f}"
-            if ticker.avg_buy_price is not None:
+            top_string = f"{ticker.config.symbol}: $ {resp.current_price:.2f}"
+            if ticker.config.avg_buy_price is not None:
                 # calculate the delta from the average buy price
                 delta_abp = (
                     100
-                    * (resp.current_price - ticker.avg_buy_price)
-                    / ticker.avg_buy_price
+                    * (resp.current_price - ticker.config.avg_buy_price)
+                    / ticker.config.avg_buy_price
                 )
                 top_string += f" {delta_abp:+.2f}%"
 
@@ -108,11 +108,12 @@ def start_ticker(config_file: Path) -> None:
             display.plot(
                 resp.historical,
                 top_string=top_string,
-                sub_string=f"{len(resp.historical)}x{ticker.interval} {delta_range:+.2f}%",
+                sub_string=f"{len(resp.historical)}x{ticker.config.interval} {delta_range:+.2f}%",
                 show=True,
                 xlim=xlim,
-                type=ticker._display_kwargs.pop("plot_type", "candle"),
-                **ticker._display_kwargs,
+                type=ticker.config.plot_type,
+                mav=ticker.config.mav,
+                volume=ticker.config.volume,
             )
     except Exception as exc:
         logger.error(exc, stack_info=True)
