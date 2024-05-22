@@ -11,7 +11,6 @@ from unittest import TestCase
 
 import pandas as pd
 import pytest
-from tqdm import tqdm
 
 from tinyticker import (
     Display,
@@ -101,10 +100,10 @@ class TestTinyticker(TestCase):
         os.uname().nodename != "TinyTicker", reason="Not on Tinyticker rpi"
     )
     def test_tinyticker(self):
-        for i, (ticker, resp) in enumerate(
-            tqdm(self.sequence.start(), total=len(self.sequence.tickers))
-        ):
-            print(f"Showing ticker: {ticker.config}")
+        for i, (ticker, resp) in enumerate(self.sequence.start()):
+            print(
+                f"Showing ticker #{i+1}/{len(self.sequence.tickers)}: {ticker.config}"
+            )
             show_ticker(ticker, resp, self.display)
             if i == len(self.sequence.tickers) - 1:
                 break

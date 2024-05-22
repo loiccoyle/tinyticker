@@ -31,7 +31,6 @@ tinyticker-web = 'tinyticker.web.__main__:main'
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
-tqdm = "^4.66.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
