@@ -1,7 +1,7 @@
 import dataclasses as dc
 import logging
 import time
-from typing import Dict, Iterable, Iterator, Optional, Tuple
+from typing import Dict, Iterator, Optional, Tuple
 
 import pandas as pd
 
