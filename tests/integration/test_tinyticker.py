@@ -79,15 +79,16 @@ def _create_tickers():
 
 
 class TestTinyticker(TestCase):
-    def class_setup(self):
+    @classmethod
+    def setUpClass(cls) -> None:
         epd_model = "EPDbc"  # the EPD model I have
         tickers = _create_tickers()
 
-        self.tt_config = TinytickerConfig(
+        cls.tt_config = TinytickerConfig(
             api_key=_get_api_key(), epd_model=epd_model, tickers=tickers
         )
-        self.sequence = Sequence.from_tinyticker_config(self.tt_config)
-        self.display = Display.from_tinyticker_config(self.tt_config)
+        cls.sequence = Sequence.from_tinyticker_config(cls.tt_config)
+        cls.display = Display.from_tinyticker_config(cls.tt_config)
 
     @pytest.mark.skipif(
         os.uname().nodename != "TinyTicker", reason="Not on Tinyticker rpi"
