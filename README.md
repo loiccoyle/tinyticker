@@ -25,6 +25,7 @@ Shopping list:
   - [Waveshare ePaper 2.13in Black & White](https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT)
   - [Waveshare ePaper 2.13in Black, White & Red](<https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT_(B)>)
   - [Waveshare ePaper 2.13in Black, White & Yellow](<https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT_(C)>)
+  - [Waveshare ePaper 2.7in Black & White](https://www.waveshare.com/wiki/2.7inch_e-Paper_HAT)
 - A micro sd card
 
 ## 📦 Installation
