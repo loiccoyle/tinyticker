@@ -64,6 +64,9 @@ def _create_tickers():
         symbol,
         symbol_type,
     ), plot_type, wait_time, prepost, avg_buy_price, mav, volume in iter:
+        # prepost does nothing for crypto tickers
+        if prepost and symbol_type == "crypto":
+            continue
         tickers.append(
             TickerConfig(
                 symbol=symbol,
