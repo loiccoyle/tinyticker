@@ -9,6 +9,7 @@ from . import (
     epd2in13b_V3,
     epd2in13b_V4,
     epd2in13bc,
+    epd2in7,
     epd2in7_V2,
 )
 from ._base import EPDHighlight, EPDMonochrome
@@ -56,6 +57,11 @@ MODELS = [
         name="EPDbc",
         class_=epd2in13bc.EPD,
         desc="Black, White and Yellow 2.13 inch",
+    ),
+    EPDModel(
+        name="EPD_2in7",
+        class_=epd2in7.EPD,
+        desc="Black and White 2.7 inch",
     ),
     EPDModel(
         name="EPD_2in7_v2",
