@@ -56,6 +56,7 @@ class Sequence:
         self.tickers = tickers
         self.skip_empty = skip_empty
         self.skip_outdated = skip_outdated
+        self._skip_current = False
 
     def start(self) -> Iterator[Tuple[TickerBase, TickerResponse]]:
         """Start iterating through the tickers.
@@ -99,8 +100,15 @@ class Sequence:
                         continue
                 all_skipped = False
                 yield (ticker, response)
+
                 LOGGER.info(f"Sleeping {ticker.wait_time}s.")
-                time.sleep(ticker.wait_time)
+                # we want to sleep for the ticker's wait time and check every second if we should skip the next ticker.
+                for _ in range(ticker.wait_time):
+                    if self._skip_current:
+                        LOGGER.info(f"Skipping {ticker}.")
+                        self._skip_current = False
+                        continue
+                    time.sleep(1)
 
     def __str__(self):
         return (
