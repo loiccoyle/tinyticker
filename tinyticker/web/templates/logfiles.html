@@ -51,23 +51,19 @@
     </script>
   </head>
   <body class="uk-background-muted uk-height-1-1 uk-padding-small">
-    <div class="uk-flex uk-flex-center uk-flex-middle">
-      <div class="uk-width-1-1">
-        <div class="uk-text-center">
-          <p class="uk-text-large">🚀 TinyTicker Log Files 🚀</p>
-        </div>
-        <ul uk-accordion="multiple: true">
-        {% for log_file in log_files %}
-          <li>
-            <a class="uk-accordion-title uk-inline" href>
-              {{ log_file }}
-            </a>
-            <a href="/get-log/{{ log_file }}" class="uk-icon-link" uk-icon="download"></a>
-            <pre id="content-{{ log_file }}" class="uk-height-large uk-accordion-content"></pre>
-          </li>
-        {% endfor %}
-        </ul>
-      </div>
+    <div class="uk-text-center uk-margin">
+      <h3>🚀 TinyTicker Log Files 🚀</h3>
     </div>
+    <ul uk-accordion="multiple: true">
+    {% for log_file in log_files %}
+      <li>
+        <a class="uk-accordion-title uk-inline" href>
+          {{ log_file }}
+        </a>
+        <a href="/get-log/{{ log_file }}" class="uk-icon-link" uk-icon="download"></a>
+        <pre id="content-{{ log_file }}" class="uk-height-large uk-accordion-content"></pre>
+      </li>
+    {% endfor %}
+    </ul>
   </body>
 </html>
