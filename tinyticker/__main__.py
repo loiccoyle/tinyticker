@@ -1,11 +1,10 @@
 import argparse
+import asyncio
 import atexit
-import multiprocessing
 import os
 import signal
 import sys
 from pathlib import Path
-from time import sleep
 from typing import List
 
 from watchdog.events import FileModifiedEvent, FileSystemEventHandler
@@ -53,20 +52,6 @@ Note:
     return parser.parse_args(args)
 
 
-def start_ticker_process(config_file: Path) -> multiprocessing.Process:
-    """Create and start the ticker process.
-
-    Args:
-        config_file: config file path.
-
-    Returns:
-        The ticker process.
-    """
-    tick_process = multiprocessing.Process(target=start_ticker, args=(config_file,))
-    tick_process.start()
-    return tick_process
-
-
 def show_ticker(ticker: TickerBase, resp: TickerResponse, display: Display):
     delta_range_start = resp.historical.iloc[0]["Open"]
     delta_range = 100 * (resp.current_price - delta_range_start) / delta_range_start
@@ -99,7 +84,7 @@ def show_ticker(ticker: TickerBase, resp: TickerResponse, display: Display):
     )
 
 
-def start_ticker(config_file: Path) -> None:
+async def start_ticker(config_file: Path) -> None:
     """Start ticking.
 
     Args:
@@ -108,11 +93,17 @@ def start_ticker(config_file: Path) -> None:
     logger.info("Starting ticker process")
 
     def next_ticker(*_):
-        logger.info("Skip current ticker.")
-        if sequence is not None:
-            sequence._skip_current = True
+        logger.info("Next ticker.")
+        if sequence is not None and sequence.current_index is not None:
+            sequence.go_to_index((sequence.current_index + 1) % len(sequence.tickers))
+
+    def prev_ticker(*_):
+        logger.info("Previous ticker.")
+        if sequence is not None and sequence.current_index is not None:
+            sequence.go_to_index((sequence.current_index - 1) % len(sequence.tickers))
 
     signal.signal(signal.SIGUSR1, next_ticker)
+    signal.signal(signal.SIGUSR2, prev_ticker)
 
     # Read config values
     tt_config = load_config_safe(config_file)
@@ -122,9 +113,9 @@ def start_ticker(config_file: Path) -> None:
     logger.debug(sequence)
 
     try:
-        for ticker, resp in sequence.start():
-            logger.debug("API len(historical): %s", len(resp.historical))
-            logger.debug("API current_price: %s", resp.current_price)
+        async for ticker, resp in sequence.start():
+            logger.debug("Ticker response len(historical): %s", len(resp.historical))
+            logger.debug("Ticker response current_price: %s", resp.current_price)
             show_ticker(ticker, resp, display)
     except Exception as exc:
         logger.error(exc, stack_info=True)
@@ -136,7 +127,7 @@ def start_ticker(config_file: Path) -> None:
         )
 
 
-def main():
+async def run():
     args = parse_args(sys.argv[1:])
     config_file: Path = args.config
 
@@ -158,18 +149,11 @@ def main():
 
     logger.debug("Args: %s", args)
 
-    def refresh(*_) -> None:
-        """Kill the ticker process, it gets restarted in the main thread."""
-        logger.info("Refreshing ticker process.")
-        if not tick_process._closed and tick_process.is_alive():  # type: ignore
-            tick_process.kill()
-            tick_process.join()
-            tick_process.close()
-
     class ConfigModifiedHandler(FileSystemEventHandler):
         def on_modified(self, event):
-            logger.info(f"{event.src_path} was changed, refreshing ticker thread.")
-            refresh()
+            logger.info(f"{event.src_path} was changed, cancelling ticker task.")
+            if tick_task and not tick_task.done():
+                tick_task.cancel()
 
     observer = Observer()
     config_modified_handler = ConfigModifiedHandler()
@@ -178,8 +162,6 @@ def main():
     )
     observer.start()
 
-    signal.signal(signal.SIGUSR2, refresh)
-
     def cleanup():
         """Remove the PID file on exit."""
         logger.info("Exiting.")
@@ -187,31 +169,26 @@ def main():
             PID_FILE.unlink()
         observer.stop()
         observer.join()
-        tick_process.kill()
-        tick_process.join()
 
     atexit.register(cleanup)
 
-    def skip_ticker(*_):
-        """Skip the current ticker."""
-        logger.info("Sending signal to skip the current ticker.")
-        # forward the signal to the ticker process
-        if (
-            tick_process is not None
-            and tick_process.is_alive()
-            and tick_process.pid is not None
-        ):
-            os.kill(tick_process.pid, signal.SIGUSR1)
-
-    signal.signal(signal.SIGUSR1, skip_ticker)
-
     # start ticking, we pass the config file so that is can be reloaded on refresh
-    tick_process = start_ticker_process(config_file)
+    tick_task = None
     while True:
-        if tick_process._closed or not tick_process.is_alive():  # type: ignore
-            tick_process = start_ticker_process(config_file)
-        else:
-            sleep(1)
+        if not tick_task or tick_task.done():
+            try:
+                tick_task = asyncio.create_task(start_ticker(config_file))
+                await tick_task
+            except asyncio.CancelledError:
+                logger.info("Task cancelled.")
+
+
+def main():
+    try:
+        asyncio.run(run())
+    except KeyboardInterrupt:
+        logger.info("Exiting.")
+        sys.exit(0)
 
 
 if __name__ == "__main__":

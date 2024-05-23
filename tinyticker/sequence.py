@@ -1,13 +1,14 @@
+import asyncio
 import logging
 import time
-from typing import Iterator, List, Tuple
+from typing import AsyncGenerator, List, Optional, Tuple
 
 import pandas as pd
 
 from . import utils
 from .config import TinytickerConfig
-from .tickers._base import TickerBase, TickerResponse
 from .tickers import Ticker
+from .tickers._base import TickerBase, TickerResponse
 
 LOGGER = logging.getLogger(__name__)
 
@@ -56,9 +57,25 @@ class Sequence:
         self.tickers = tickers
         self.skip_empty = skip_empty
         self.skip_outdated = skip_outdated
-        self._next_ticker = False
 
-    def start(self) -> Iterator[Tuple[TickerBase, TickerResponse]]:
+        self.current_index: Optional[int] = None
+        self._skip_ticker = False
+        self._got_to_index: Optional[int] = None
+
+    def go_to_index(self, index: int) -> None:
+        """Skip to a specific ticker.
+        Args:
+            index: index of the ticker to skip to.
+        """
+        if index < 0 or index >= len(self.tickers):
+            LOGGER.error(f"Invalid index {index}.")
+            return
+        self._skip_ticker = True
+        self._go_to_index = index
+
+    async def start(
+        self,
+    ) -> AsyncGenerator[Tuple[TickerBase, TickerResponse], None]:
         """Start iterating through the tickers.
 
         Returns:
@@ -73,7 +90,15 @@ class Sequence:
                 LOGGER.info(f"All tickers skipped, sleeping {all_skipped_cooldown}s.")
                 time.sleep(all_skipped_cooldown)
             all_skipped = True
-            for ticker in self.tickers:
+            for i, ticker in enumerate(self.tickers):
+                if self._skip_ticker:
+                    if self._go_to_index == i % len(self.tickers):
+                        self._skip_ticker = False
+                    else:
+                        LOGGER.debug(f"Skipping {ticker}.")
+                        continue
+                self.current_index = i % len(self.tickers)
+
                 try:
                     response = ticker.single_tick()
                 except Exception as e:
@@ -104,13 +129,12 @@ class Sequence:
 
                 LOGGER.info(f"Sleeping {ticker.wait_time}s.")
                 # we want to sleep for the ticker's wait time and check every second if we
-                # should skip the next ticker.
+                # should skip this ticker.
                 for _ in range(ticker.wait_time):
-                    if self._next_ticker:
-                        LOGGER.info(f"Skipping {ticker}.")
-                        self._next_ticker = False
+                    if self._skip_ticker:
+                        LOGGER.info(f"Stop waiting, skipping {ticker}.")
                         break
-                    time.sleep(1)
+                    await asyncio.sleep(1)
 
     def __str__(self):
         return (
