@@ -58,9 +58,9 @@ def restart() -> None:
 
 @register
 def next_ticker() -> None:
-    """Skip over the current ticker and display the next on."""
+    """Skip the current ticker and display the next on."""
     if PID_FILE.is_file():
-        LOGGER.info("Sending SIGUSR2 to tinyticker.")
+        LOGGER.info("Sending SIGUSR1 to tinyticker.")
         with open(PID_FILE, "r") as pid_file:
             pid = int(pid_file.readline())
         os.kill(pid, signal.SIGUSR1)
