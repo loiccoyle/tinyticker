@@ -108,9 +108,9 @@ def start_ticker(config_file: Path) -> None:
     logger.info("Starting ticker process")
 
     def next_ticker(*_):
-        logger.info("Skip current ticker.")
-        if sequence is not None:
-            sequence._skip_current = True
+        logger.info("Next ticker.")
+        if sequence is not None and sequence.current_index is not None:
+            sequence.go_to_index(sequence.current_index + 1)
 
     signal.signal(signal.SIGUSR1, next_ticker)
 
