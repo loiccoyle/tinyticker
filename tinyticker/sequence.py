@@ -1,6 +1,7 @@
+import asyncio
 import logging
 import time
-from typing import Iterator, List, Optional, Tuple
+from typing import AsyncGenerator, List, Optional, Tuple
 
 import pandas as pd
 
@@ -72,7 +73,9 @@ class Sequence:
         self._skip_ticker = True
         self._go_to_index = index
 
-    def start(self) -> Iterator[Tuple[TickerBase, TickerResponse]]:
+    async def start(
+        self,
+    ) -> AsyncGenerator[Tuple[TickerBase, TickerResponse], None]:
         """Start iterating through the tickers.
 
         Returns:
@@ -131,7 +134,7 @@ class Sequence:
                     if self._skip_ticker:
                         LOGGER.info(f"Stop waiting, skipping {ticker}.")
                         break
-                    time.sleep(1)
+                    await asyncio.sleep(1)
 
     def __str__(self):
         return (
