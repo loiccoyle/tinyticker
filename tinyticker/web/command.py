@@ -57,7 +57,7 @@ def restart() -> None:
 
 
 @register
-def skip_current() -> None:
+def next_ticker() -> None:
     """Skip over the current ticker and display the next on."""
     if PID_FILE.is_file():
         LOGGER.info("Sending SIGUSR2 to tinyticker.")

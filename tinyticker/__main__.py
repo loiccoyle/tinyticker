@@ -107,12 +107,12 @@ def start_ticker(config_file: Path) -> None:
     """
     logger.info("Starting ticker process")
 
-    def skip_current(*_):
+    def next_ticker(*_):
         logger.info("Skip current ticker.")
         if sequence is not None:
             sequence._skip_current = True
 
-    signal.signal(signal.SIGUSR1, skip_current)
+    signal.signal(signal.SIGUSR1, next_ticker)
 
     # Read config values
     tt_config = load_config_safe(config_file)
