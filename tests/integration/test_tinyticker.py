@@ -7,7 +7,7 @@ import os
 import typing
 from datetime import timezone
 from itertools import product
-from unittest import TestCase
+from unittest import IsolatedAsyncioTestCase
 
 import pandas as pd
 import pytest
@@ -19,7 +19,6 @@ from tinyticker import (
     TinytickerConfig,
     utils,
 )
-from tinyticker.__main__ import show_ticker
 from tinyticker.config import PLOT_TYPES
 from tinyticker.paths import CONFIG_FILE
 
@@ -81,29 +80,27 @@ def _create_tickers():
     return tickers
 
 
-class TestTinyticker(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
+class TestTinyticker(IsolatedAsyncioTestCase):
+    @pytest.mark.skipif(
+        os.uname().nodename != "TinyTicker", reason="Not on Tinyticker rpi"
+    )
+    async def test_tinyticker(self):
         epd_model = "EPDbc"  # the EPD model I have
         tickers = _create_tickers()
 
-        cls.tt_config = TinytickerConfig(
+        tt_config = TinytickerConfig(
             api_key=_get_api_key(),
             epd_model=epd_model,
             tickers=tickers,
             flip=True,
         )
-        cls.sequence = Sequence.from_tinyticker_config(cls.tt_config)
-        cls.display = Display.from_tinyticker_config(cls.tt_config)
+        sequence = Sequence.from_tinyticker_config(tt_config)
+        display = Display.from_tinyticker_config(tt_config)
 
-    @pytest.mark.skipif(
-        os.uname().nodename != "TinyTicker", reason="Not on Tinyticker rpi"
-    )
-    def test_tinyticker(self):
-        for i, (ticker, resp) in enumerate(self.sequence.start()):
-            print(
-                f"Showing ticker #{i+1}/{len(self.sequence.tickers)}: {ticker.config}"
-            )
-            show_ticker(ticker, resp, self.display)
-            if i == len(self.sequence.tickers) - 1:
+        i = 0
+        async for ticker, resp in sequence.start():
+            print(f"Showing ticker #{i+1}/{len(sequence.tickers)}: {ticker.config}")
+            display.show(ticker, resp)
+            if i == len(sequence.tickers) - 1:
                 break
+            i += 1

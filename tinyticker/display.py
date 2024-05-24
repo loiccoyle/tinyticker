@@ -1,121 +1,55 @@
+"""Contains the `Display` class for displaying ticker responses on an e-Paper display.
+
+It is basically a wrapper around the e-Paper display module, adjusting the layout's generated
+image to the model's capabalities.
+"""
+
 import logging
 from typing import Optional, Tuple
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import mplfinance as mpf
 import numpy as np
-import pandas as pd
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from PIL import Image
 
 from .config import TinytickerConfig
-from .waveshare_lib import MODELS
+from .layouts import LAYOUTS, _create_fig_ax, _fig_to_image
+from .tickers._base import TickerBase, TickerResponse
 from .waveshare_lib._base import EPDHighlight
-
-MARKETCOLORS = mpf.make_marketcolors(
-    up="white",
-    down="black",
-    edge="black",
-    wick="black",
-    ohlc="black",
-    volume="black",
-)
-MARKETCOLORS["vcedge"] = {"up": "black", "down": "black"}
-STYLE = mpf.make_mpf_style(marketcolors=MARKETCOLORS, mavcolors=["k"])
-STYLE_HIGHLIGHT = mpf.make_mpf_style(marketcolors=MARKETCOLORS, mavcolors=["r"])
-TEXT_BBOX = {
-    "boxstyle": "square,pad=0",
-    "facecolor": "white",
-    "edgecolor": "white",
-}
-mpl.use("Agg")
+from .waveshare_lib.models import MODELS, EPDModel
 
 
 class Display:
-    """Display the API response on the e-Paper display.
+    """Display the ticker response on the e-Paper display.
 
     Args:
-        model: epd model name.
+        epd: e-Paper display model.
         flip: Flip the display.
     """
 
     @classmethod
     def from_tinyticker_config(cls, tt_config: TinytickerConfig) -> "Display":
         """Create a `Display` object from a `TinytickerConfig` object."""
-        return cls(model=tt_config.epd_model, flip=tt_config.flip)
+        epd = MODELS[tt_config.epd_model].EPD()
+        return cls(epd, flip=tt_config.flip)
 
     def __init__(
         self,
-        model: str = "EPD_v2",
+        epd: EPDModel,
         flip: bool = False,
     ) -> None:
-        if model not in MODELS:
-            raise KeyError(
-                f"Model '{model}' not found. Available models: {list(MODELS.keys())}"
-            )
         self._log = logging.getLogger(__name__)
         self.flip = flip
-        self.epd = MODELS[model].class_()
+        self.epd = epd
         self.has_highlight = isinstance(self.epd, EPDHighlight)
         self.init_epd()
+        self.layout = LAYOUTS["default"]
 
     def init_epd(self):
         """Initialize the ePaper display module."""
         self._log.info("Init ePaper display.")
         self.epd.init()
         self.epd.Clear()
-
-    @staticmethod
-    def fig_to_image(fig: Figure) -> Image.Image:
-        """Convert a `plt.Figure` to `PIL.Image.Image`.
-
-        Args:
-            fig: The `plt.Figure` to convert.
-
-        Returns:
-            The `PIL.Image.Image` representation of the provided `plt.Figure`.
-        """
-        fig.canvas.draw()
-        return Image.fromarray(
-            np.asarray(fig.canvas.buffer_rgba()),  # type: ignore
-            mode="RGBA",
-        ).convert("RGB")
-
-    def _create_fig_ax(self, n_axes: int = 1, **kwargs) -> Tuple[Figure, np.ndarray]:
-        """Create the `plt.Figure` and `plt.Axes` used to plot the chart.
-
-        Args:
-            n_axes: the number of subplot axes to create.
-            **kwargs: passed to `plt.subplots`.
-
-        Returns:
-            The `plt.Figure` and an array of `plt.Axes`.
-        """
-        dpi = plt.rcParams.get("figure.dpi", 96)
-        px = 1 / dpi
-        self._log.debug("Plot width: %s", self.epd.width)
-        self._log.debug("Plot height: %s", self.epd.height)
-        fig, axes = plt.subplots(
-            n_axes,
-            1,
-            figsize=(self.epd.height * px, self.epd.width * px),
-            sharex=True,
-            **kwargs,
-        )
-        if not isinstance(axes, np.ndarray):
-            axes = np.array([axes])
-        fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
-        for ax in axes:
-            self._strip_ax(ax)
-        return fig, axes  # type: ignore
-
-    def _strip_ax(self, ax: Axes) -> None:
-        """Strip all visuals from `plt.Axes` object."""
-        ax.axis(False)
-        ax.margins(0, 0)
-        ax.grid(False)
 
     def text(self, text: str, show: bool = False, **kwargs) -> Tuple[Figure, Axes]:
         """Create a `plt.Figure` and `plt.Axes` with centered text.
@@ -128,7 +62,7 @@ class Display:
         Returns:
             The `plt.Figure` and `plt.Axes` with the text.
         """
-        fig, ax = self._create_fig_ax(n_axes=1)
+        fig, ax = _create_fig_ax((self.epd.height, self.epd.width), n_axes=1)
         ax = ax[0]
         ax.text(0, 0, text, ha="center", va="center", wrap=True, **kwargs)
         if show:
@@ -137,7 +71,7 @@ class Display:
 
     def show_fig(self, fig: Figure) -> None:
         """Show a `plt.Figure` on the display."""
-        image = self.fig_to_image(fig)
+        image = _fig_to_image(fig)
         self.show_image(image)
 
     def _show_image(
@@ -192,79 +126,6 @@ class Display:
         self._log.info("Display sleep.")
         self.epd.sleep()
 
-    def plot(
-        self,
-        historical: pd.DataFrame,
-        top_string: Optional[str] = None,
-        sub_string: Optional[str] = None,
-        show: bool = False,
-        type: str = "candle",
-        volume: bool = False,
-        **kwargs,
-    ) -> Tuple[Figure, Axes]:
-        """Plot an asset's historical data chart.
-
-        Args:
-            historical: API response, `pd.DataFrame` containing the historical
-                price of the symbol.
-            top_string: Contents of the top left string, '{}' will be replaced with the current
-                price.
-            sub_string: Contents of a smaller text box below `top_string`.
-            show: display the plot on the ePaper display.
-            type: the chart type, see `mplfinance.plot`.
-            volume: also plot the trade volume data.
-            **kwargs: passed to `mplfinance.plot`.
-
-        Returns:
-            The `plt.Figure` and `plt.Axes` of the plot.
-        """
-        if volume:
-            fig, axes = self._create_fig_ax(
-                n_axes=2, gridspec_kw={"height_ratios": [3, 1]}
-            )
-            volume_ax = axes[1]
-        else:
-            fig, axes = self._create_fig_ax(n_axes=1)
-            volume_ax = False
-        ax: Axes = axes[0]
-        # remove Nones, it doesn't play well with mplfinance
-        kwargs = {key: value for key, value in kwargs.items() if value is not None}
-        mpf.plot(
-            historical,
-            type=type,
-            ax=ax,
-            update_width_config={"line_width": 1},
-            style=STYLE_HIGHLIGHT if self.has_highlight else STYLE,
-            volume=volume_ax,
-            linecolor="k",
-            **kwargs,
-        )
-
-        # Fall back to using the last closing price
-        if top_string is None:
-            top_string = str(historical["Close"].iloc[-1])
-
-        ax.text(
-            0,
-            1,
-            top_string,
-            transform=ax.transAxes,
-            fontsize=10,
-            weight="bold",
-            bbox=TEXT_BBOX,
-        )
-        if sub_string is not None:
-            ax.text(
-                0,
-                0.88,
-                sub_string,
-                transform=ax.transAxes,
-                fontsize=8,
-                weight="bold",
-                bbox=TEXT_BBOX,
-            )
-
-        fig.tight_layout(pad=0)
-        if show:
-            self.show_fig(fig)
-        return fig, ax
+    def show(self, ticker: TickerBase, resp: TickerResponse) -> None:
+        image = self.layout.func((self.epd.height, self.epd.width), ticker, resp)
+        self.show_image(image)
