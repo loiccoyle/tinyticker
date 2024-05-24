@@ -1,5 +1,6 @@
 import logging
 import socket
+import stat
 import subprocess
 import sys
 import threading
@@ -7,6 +8,7 @@ from pathlib import Path
 from typing import Optional
 
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
+from werkzeug.utils import secure_filename
 
 from .. import __version__
 from ..config import (
@@ -21,6 +23,7 @@ from ..tickers import SYMBOL_TYPES
 from ..tickers._base import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS
 from ..waveshare_lib.models import MODELS
 from .command import COMMANDS, reboot
+from .startup import STARTUP_DIR
 
 LOGGER = logging.getLogger(__name__)
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
@@ -194,5 +197,47 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
     @app.errorhandler(500)
     def internal_error(_):
         sys.exit(1)
+
+    @app.route("/startup/add", methods=["POST", "GET"])
+    def upload_startup_script():
+        print(request.files)
+        if request.method == "GET":
+            return redirect("/startup")
+
+        # this endpoint should receive the script and add it into the startup folder
+        # the script should be run on startup
+        # check if the post request has the file part
+        for _, file in request.files.items():
+            # If the user does not select a file, the browser submits an
+            # empty file without a filename.
+            if not file or not file.filename:
+                continue
+            else:
+                filename = secure_filename(file.filename)
+                startup_file = STARTUP_DIR / filename
+                file.save(startup_file)
+                # make the file executable
+                startup_file.chmod(
+                    startup_file.stat().st_mode
+                    | stat.S_IXUSR
+                    | stat.S_IXGRP
+                    | stat.S_IXOTH
+                )
+        return redirect("/startup")
+
+    @app.route("/startup/remove/<filename>")
+    def remove_startup_script(filename):
+        file = STARTUP_DIR / secure_filename(filename)
+        file.unlink()
+        return redirect("/startup")
+
+    @app.route("/startup/get/<filename>")
+    def get_startup_script(filename):
+        return send_from_directory(STARTUP_DIR, filename, mimetype="text/plain")
+
+    @app.route("/startup")
+    def startup_scippts():
+        files = sorted([path.name for path in STARTUP_DIR.glob("*")])
+        return render_template("startup.html", files=files)
 
     return app
