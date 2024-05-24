@@ -73,28 +73,36 @@
         </div>
       </div>
     </div>
-    <script>
-      function updateScriptContent(file) {
-        fetch(`/startup/get/${file}`)
-          .then((response) => response.text())
-          .then((content) => {
-            document.getElementById(`content-${file}`).textContent = content;
-          });
-      }
-
-      {% for file in files %}
-      updateScriptContent('{{ file }}');
-      {% endfor %}
-
-      UIkit.upload(".js-upload", {
-        url: "/startup/add",
-        multiple: true,
-        name: "file",
-        completeAll: function () {
-          location.reload();
-        },
-      });
-    </script>
+    <p class="uk-text-center uk-text-small">
+      Check out some
+      <a
+        href="https://github.com/loiccoyle/tinyticker/tree/main/startup_scripts"
+        target="_parent"
+        class="uk-link"
+        >example</a
+      >
+    </p>
   </body>
-</html>
+  <script>
+    function updateScriptContent(file) {
+      fetch(`/startup/get/${file}`)
+        .then((response) => response.text())
+        .then((content) => {
+          document.getElementById(`content-${file}`).textContent = content;
+        });
+    }
 
+    {% for file in files %}
+      updateScriptContent('{{ file }}');
+    {% endfor %}
+
+    UIkit.upload(".js-upload", {
+      url: "/startup/add",
+      multiple: true,
+      name: "file",
+      completeAll: function () {
+        location.reload();
+      },
+    });
+  </script>
+</html>
