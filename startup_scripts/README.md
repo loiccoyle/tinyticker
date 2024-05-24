@@ -4,6 +4,7 @@ This folder contains scripts that can be uploaded onto a Raspberry Pi running `T
 They will be run as the `tinyticker-web` web interface starts up.
 
 To upload files on the Raspberry Pi, head over to [`http://tinyticker.local/startup`](http://tinyticker.local/startup) and drop the files there.
+They will be saved to the `~/.config/tinyticker/startup` folder on the Raspberry pi.
 
 - **[`buttons_2in7.py`](buttons_2in7.py)**
 
