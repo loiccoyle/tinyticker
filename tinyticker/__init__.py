@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 logger.addHandler(logging.NullHandler())
 
-__version__ = "0.7.0"
+__version__ = "0.7.1"
 __all__ = [
     "Display",
     "Sequence",
