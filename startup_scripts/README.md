@@ -1,6 +1,6 @@
 # Startup Scripts
 
-This folder contains scripts that can be uploaded onto a Raspberry Pi to running `Tinyticker` to enable extra functionality.
+This folder contains scripts that can be uploaded onto a Raspberry Pi running `Tinyticker` to enable extra functionality.
 They will be run as the `tinyticker-web` web interface starts up.
 
 To upload files on the Raspberry Pi, head over to [`http://tinyticker.local/startup`](http://tinyticker.local/startup) and drop the files there.
