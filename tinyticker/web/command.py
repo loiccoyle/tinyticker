@@ -57,13 +57,35 @@ def restart() -> None:
 
 
 @register
-def refresh() -> None:
-    """Refresh tinyticker's ticker process."""
+def next_ticker() -> None:
+    """Skip the current ticker and display the next one."""
+    if PID_FILE.is_file():
+        LOGGER.info("Sending SIGUSR1 to tinyticker.")
+        with open(PID_FILE, "r") as pid_file:
+            pid = int(pid_file.readline())
+        os.kill(pid, signal.SIGUSR1)
+    else:
+        LOGGER.info("tinyticker is not runnning.")
+
+
+@register
+def previous_ticker() -> None:
+    """Skip the current ticker and display the previous one."""
     if PID_FILE.is_file():
         LOGGER.info("Sending SIGUSR2 to tinyticker.")
         with open(PID_FILE, "r") as pid_file:
             pid = int(pid_file.readline())
         os.kill(pid, signal.SIGUSR2)
+    else:
+        LOGGER.info("tinyticker is not runnning.")
+
+
+@register
+def refresh() -> None:
+    """Refresh tinyticker's ticker process."""
+    if PID_FILE.is_file():
+        LOGGER.info("Touching config file.")
+        CONFIG_FILE.touch()
     else:
         LOGGER.info("tinyticker is not runnning.")
 

@@ -15,6 +15,7 @@ from ..utils import (
 )
 from . import logger
 from .app import create_app
+from .startup import STARTUP_DIR, run_scripts
 
 
 def parse_args(args: List[str]) -> argparse.Namespace:
@@ -78,6 +79,11 @@ def main():
 
     if not args.log_dir.is_dir():
         args.log_dir.mkdir(parents=True)
+    if not STARTUP_DIR.is_dir():
+        STARTUP_DIR.mkdir(parents=True)
+
+    logger.info("Running startup scripts.")
+    processes = run_scripts()
 
     if args.show_qrcode:
         logger.info("Generating qrcode.")
@@ -94,10 +100,16 @@ def main():
         sys.exit()
 
     logger.info("Starting tinyticker-web")
-    app = create_app(config_file=args.config, log_dir=args.log_dir)
-    serve(app, port=args.port)
-    # app.run(host="0.0.0.0", port=args.port, debug=False, threaded=True)
-    logger.info("Stopping tinyticker-web")
+    try:
+        app = create_app(config_file=args.config, log_dir=args.log_dir)
+        serve(app, port=args.port)
+    except Exception as e:
+        logger.error("Error: %s", e)
+        logger.exception(e)
+    finally:
+        for process in processes:
+            process.terminate()
+        logger.info("Stopping tinyticker-web")
 
 
 if __name__ == "__main__":
