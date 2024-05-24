@@ -7,14 +7,16 @@ STARTUP_DIR = Path.home() / ".config" / "tinyticker" / "startup"
 
 
 def run_scripts():
-    files = STARTUP_DIR.glob("*")
-    LOGGER.debug("Running startup scripts: %s", [file.name for file in files])
-    return [
-        subprocess.Popen(
-            f"./{file}",
-            shell=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        for file in files
-    ]
+    scripts = STARTUP_DIR.glob("*")
+    LOGGER.debug("Running startup scripts: %s", [file.name for file in scripts])
+    processes = []
+    for file in scripts:
+        if file.is_file() and not file.name.startswith("."):
+            LOGGER.debug("Running startup script: %s", file.name)
+            processes.append(
+                subprocess.Popen(
+                    f"./{file}",
+                    shell=True,
+                )
+            )
+    return processes
