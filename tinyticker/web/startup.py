@@ -11,7 +11,7 @@ def run_scripts():
     LOGGER.debug("Running startup scripts: %s", [file.name for file in files])
     return [
         subprocess.Popen(
-            f"bash {file}",
+            f"./{file}",
             shell=True,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
