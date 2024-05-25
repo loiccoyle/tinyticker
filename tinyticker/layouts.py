@@ -171,9 +171,10 @@ def default(
         bbox=TEXT_BBOX,
         verticalalignment="top",
     )
+    ax_height = ax.get_position().height * dimensions[1]
     ax.text(
         0,
-        (dimensions[1] - top_text.get_window_extent().height + 1) / dimensions[1],
+        (ax_height - top_text.get_window_extent().height + 1) / ax_height,
         sub_string,
         transform=ax.transAxes,
         fontsize=8,
