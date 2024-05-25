@@ -137,6 +137,9 @@ def default(
     sub_string = f"{len(resp.historical)}x{ticker.config.interval} {delta_range:+.2f}%"
 
     kwargs = {}
+    if ticker.config.mav:
+        kwargs["mav"] = ticker.config.mav
+
     # if incomplete data, leave space for the missing data
     if len(resp.historical) < ticker.lookback:
         # the floats are to leave padding left and right of the edge candles
@@ -160,7 +163,6 @@ def default(
         style=STYLE,
         volume=volume_ax,
         linecolor="k",
-        mav=ticker.config.mav,
         **kwargs,
     )
 
