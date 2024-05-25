@@ -17,6 +17,7 @@ class TickerStock(TickerBase):
 
     def __init__(self, config) -> None:
         super().__init__(config)
+        self._yf_ticker = yfinance.Ticker(self.config.symbol)
 
     def _get_yfinance_start_end(self) -> Tuple[pd.Timestamp, pd.Timestamp]:
         end = utils.now()
@@ -42,31 +43,20 @@ class TickerStock(TickerBase):
     def _single_tick(self) -> Tuple[pd.DataFrame, Optional[float]]:
         LOGGER.info("Stock tick: %s", self.config.symbol)
         start, end = self._get_yfinance_start_end()
-        current_price_data: pd.DataFrame = yfinance.download(
-            self.config.symbol,
-            start=end - pd.to_timedelta("2m"),
-            end=end,
-            interval="1m",
-            prepost=self.config.prepost,
-            progress=False,
+        current_price: Optional[float] = self._yf_ticker.fast_info.get(
+            "lastPrice", None
         )
-        historical: pd.DataFrame = yfinance.download(
-            self.config.symbol,
+        historical = self._yf_ticker.history(
             start=start,
             end=end,
             interval=self.config.interval,
-            timeout=None,  # type: ignore
+            timeout=None,
             prepost=self.config.prepost,
-            progress=False,
         )
         if historical.empty:
             raise ValueError(
                 f"No historical data returned from yfinance API for {self.config.symbol}."
             )
-        if not current_price_data.empty:
-            current_price = current_price_data.iloc[-1]["Close"]
-        else:
-            current_price = None
         # drop the extra data
         if len(historical) > self.lookback:
             historical = historical.iloc[-self.lookback :]

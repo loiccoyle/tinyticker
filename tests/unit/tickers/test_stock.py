@@ -45,5 +45,5 @@ class TestTickerStock(TestCase):
             lookback=1,
         )
         ticker = TickerStock(config)
-        with pytest.raises(ValueError):
+        with pytest.raises(KeyError):
             ticker.single_tick()
