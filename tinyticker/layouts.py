@@ -160,6 +160,7 @@ def default(
         style=STYLE,
         volume=volume_ax,
         linecolor="k",
+        mav=ticker.config.mav,
         **kwargs,
     )
 
