@@ -45,10 +45,11 @@ class TickerStock(TickerBase):
         prepost_range = historical["Volume"] == 0
         # When in prepost, the high & lows can be off
         to_correct_high = (
-            historical["High"].diff()[prepost_range] > historical["High"].std()
+            historical.loc[prepost_range, "High"]
+            > historical["High"].mean() + historical["High"].std()
         )
         to_correct_low = (
-            historical["Low"].diff()[prepost_range]
+            historical.loc[prepost_range, "Low"]
             < historical["Low"].mean() - historical["Low"].std()
         )
         # we could also set them to the avg of the previous and next high/low
