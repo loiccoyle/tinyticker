@@ -7,7 +7,6 @@ import dataclasses as dc
 import logging
 from typing import Callable, Optional, Tuple
 
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import mplfinance as mpf
 import numpy as np
@@ -16,8 +15,6 @@ from matplotlib.figure import Figure
 from PIL import Image
 
 from .tickers._base import TickerBase, TickerResponse
-
-mpl.use("Agg")
 
 MARKETCOLORS = mpf.make_marketcolors(
     up="white",
@@ -153,7 +150,6 @@ def default(
         volume_ax = False
     ax: Axes
     volume_ax: Axes | bool
-    # remove Nones, it doesn't play well with mplfinance
     mpf.plot(
         resp.historical,
         type=ticker.config.plot_type,
@@ -173,6 +169,7 @@ def default(
         fontsize=10,
         weight="bold",
         bbox=TEXT_BBOX,
+        verticalalignment="top",
     )
     ax.text(
         0,
@@ -182,9 +179,8 @@ def default(
         fontsize=8,
         weight="bold",
         bbox=TEXT_BBOX,
+        verticalalignment="top",
     )
-    fig.tight_layout(pad=0)
-
     gaps = resp.historical.index.to_series().diff()
     large_gaps = np.arange(0, len(gaps))[gaps > gaps.median()]
     for gap in large_gaps:
