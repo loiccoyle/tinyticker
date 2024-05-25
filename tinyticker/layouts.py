@@ -166,10 +166,6 @@ def default(
         **kwargs,
     )
 
-    # Fall back to using the last closing price
-    if top_string is None:
-        top_string = str(resp.historical["Close"].iloc[-1])
-
     ax.text(
         0,
         1,
