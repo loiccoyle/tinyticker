@@ -151,6 +151,8 @@ def default(
     else:
         fig, (ax,) = _create_fig_ax(dimensions, n_axes=1)
         volume_ax = False
+    ax: Axes
+    volume_ax: Axes | bool
     # remove Nones, it doesn't play well with mplfinance
     mpf.plot(
         resp.historical,
@@ -174,7 +176,7 @@ def default(
     )
     ax.text(
         0,
-        (dimensions[1] - top_text.get_window_extent().height) / dimensions[1],
+        (dimensions[1] - top_text.get_window_extent().height + 1) / dimensions[1],
         sub_string,
         transform=ax.transAxes,
         fontsize=8,
@@ -182,5 +184,15 @@ def default(
         bbox=TEXT_BBOX,
     )
     fig.tight_layout(pad=0)
+
+    gaps = resp.historical.index.to_series().diff()
+    large_gaps = np.arange(0, len(gaps))[gaps > gaps.median()]
+    for gap in large_gaps:
+        ax.axvline(
+            gap - 0.5,
+            color="black",
+            linestyle=":",
+            linewidth=1,
+        )
 
     return _fig_to_image(fig)

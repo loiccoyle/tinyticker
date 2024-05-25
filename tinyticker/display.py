@@ -43,7 +43,6 @@ class Display:
         self.epd = epd
         self.has_highlight = isinstance(self.epd, EPDHighlight)
         self.init_epd()
-        self.layout = LAYOUTS["default"]
 
     def init_epd(self):
         """Initialize the ePaper display module."""
@@ -127,5 +126,6 @@ class Display:
         self.epd.sleep()
 
     def show(self, ticker: TickerBase, resp: TickerResponse) -> None:
-        image = self.layout.func((self.epd.height, self.epd.width), ticker, resp)
+        layout = LAYOUTS["default"]
+        image = layout.func((self.epd.height, self.epd.width), ticker, resp)
         self.show_image(image)
