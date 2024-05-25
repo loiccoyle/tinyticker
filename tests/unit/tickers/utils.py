@@ -38,7 +38,6 @@ def assert_tick_timing(ticker: TickerBase):
     times = []
     for i, _ in enumerate(ticker.tick()):
         times.append(time.time())
-        print(i)
         if i == 3:
             break
     # the time between iterations should roughly be the ticker wait_time

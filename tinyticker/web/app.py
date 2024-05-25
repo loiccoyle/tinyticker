@@ -200,7 +200,6 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
 
     @app.route("/startup/add", methods=["POST", "GET"])
     def upload_startup_script():
-        print(request.files)
         if request.method == "GET":
             return redirect("/startup")
 
