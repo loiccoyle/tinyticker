@@ -146,14 +146,12 @@ def default(
         kwargs["xlim"] = (-0.75, ticker.lookback - 0.25)
 
     if ticker.config.volume:
-        fig, axes = _create_fig_ax(
+        fig, (ax, volume_ax) = _create_fig_ax(
             dimensions, n_axes=2, gridspec_kw={"height_ratios": [3, 1]}
         )
-        volume_ax = axes[1]
     else:
-        fig, axes = _create_fig_ax(dimensions, n_axes=1)
+        fig, (ax,) = _create_fig_ax(dimensions, n_axes=1)
         volume_ax = False
-    ax: Axes = axes[0]
     # remove Nones, it doesn't play well with mplfinance
     mpf.plot(
         resp.historical,
