@@ -28,7 +28,6 @@ MARKETCOLORS = mpf.make_marketcolors(
     volume="black",
 )
 MARKETCOLORS["vcedge"] = {"up": "black", "down": "black"}
-# STYLE = mpf.make_mpf_style(marketcolors=MARKETCOLORS, mavcolors=["k"])
 STYLE = mpf.make_mpf_style(marketcolors=MARKETCOLORS, mavcolors=["r"])
 TEXT_BBOX = {
     "boxstyle": "square,pad=0",
@@ -164,7 +163,7 @@ def default(
         **kwargs,
     )
 
-    ax.text(
+    top_text = ax.text(
         0,
         1,
         top_string,
@@ -173,16 +172,15 @@ def default(
         weight="bold",
         bbox=TEXT_BBOX,
     )
-    if sub_string is not None:
-        ax.text(
-            0,
-            0.88,
-            sub_string,
-            transform=ax.transAxes,
-            fontsize=8,
-            weight="bold",
-            bbox=TEXT_BBOX,
-        )
+    ax.text(
+        0,
+        (dimensions[1] - top_text.get_window_extent().height) / dimensions[1],
+        sub_string,
+        transform=ax.transAxes,
+        fontsize=8,
+        weight="bold",
+        bbox=TEXT_BBOX,
+    )
     fig.tight_layout(pad=0)
 
     return _fig_to_image(fig)
