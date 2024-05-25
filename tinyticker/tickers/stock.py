@@ -80,6 +80,6 @@ class TickerStock(TickerBase):
             historical.index = historical.index.tz_localize("utc")  # type: ignore
         if self.config.prepost:
             # yfinance gives some weird data for the high/low values during the pre/post market
-            # hours, so we hide very them
+            # hours, so we hide them
             historical = self._fix_prepost(historical)
         return (historical, current_price)
