@@ -40,6 +40,22 @@ class TickerStock(TickerBase):
         start -= pd.to_timedelta("1d") * max(0, start.weekday() - 4)
         return (start, end)
 
+    def _fix_prepost(self, historical: pd.DataFrame) -> pd.DataFrame:
+        # when the market is closed, the volume is 0
+        prepost_range = historical["Volume"] == 0
+        # When in prepost, the high & lows can be off
+        to_correct_high = (
+            historical["High"].diff()[prepost_range] > historical["High"].std()
+        )
+        to_correct_low = (
+            historical["Low"].diff()[prepost_range]
+            < historical["Low"].mean() - historical["Low"].std()
+        )
+        # we could also set them to the avg of the previous and next high/low
+        historical.loc[prepost_range & to_correct_high, "High"] = historical["Close"]
+        historical.loc[prepost_range & to_correct_low, "Low"] = historical["Close"]
+        return historical
+
     def _single_tick(self) -> Tuple[pd.DataFrame, Optional[float]]:
         LOGGER.info("Stock tick: %s", self.config.symbol)
         start, end = self._get_yfinance_start_end()
@@ -62,4 +78,8 @@ class TickerStock(TickerBase):
             historical = historical.iloc[-self.lookback :]
         if historical.index.tzinfo is None:  # type: ignore
             historical.index = historical.index.tz_localize("utc")  # type: ignore
+        if self.config.prepost:
+            # yfinance gives some weird data for the high/low values during the pre/post market
+            # hours, so we hide very them
+            historical = self._fix_prepost(historical)
         return (historical, current_price)
