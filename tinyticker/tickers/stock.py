@@ -44,17 +44,21 @@ class TickerStock(TickerBase):
         # when the market is closed, the volume is 0
         prepost_range = historical["Volume"] == 0
         # When in prepost, the high & lows can be off
-        to_correct_high = (
-            historical.loc[prepost_range, "High"]
-            > historical["High"].mean() + historical["High"].std()
-        )
-        to_correct_low = (
-            historical.loc[prepost_range, "Low"]
-            < historical["Low"].mean() - historical["Low"].std()
-        )
+        high_bars = historical["High"] - historical[["Close", "Open"]].max(axis=1)
+        low_bars = historical[["Close", "Open"]].min(axis=1) - historical["Low"]
+
+        to_correct_high = high_bars[prepost_range] > high_bars.mean() + high_bars.std()
+        to_correct_low = low_bars[prepost_range] > low_bars.mean() + low_bars.std()
         # we could also set them to the avg of the previous and next high/low
-        historical.loc[prepost_range & to_correct_high, "High"] = historical["Close"]
-        historical.loc[prepost_range & to_correct_low, "Low"] = historical["Close"]
+        historical.loc[prepost_range & to_correct_high, "High"] = historical[
+            ["Close", "Open"]
+        ].max(axis=1)
+        historical.loc[prepost_range & to_correct_low, "Low"] = historical[
+            ["Close", "Open"]
+        ].min(axis=1)
+
+        self._log.debug("Fixed %s high values", to_correct_high.sum())
+        self._log.debug("Fixed %s low values", to_correct_low.sum())
         return historical
 
     def _single_tick(self) -> Tuple[pd.DataFrame, Optional[float]]:
