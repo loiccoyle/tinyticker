@@ -15,6 +15,7 @@ from matplotlib.figure import Figure
 from PIL import Image
 
 from .tickers._base import TickerBase, TickerResponse
+from .tickers.stock import TickerStock
 
 MARKETCOLORS = mpf.make_marketcolors(
     up="white",
@@ -118,8 +119,11 @@ def default(
 ) -> Image.Image:
     """Default layout."""
 
-    delta_range_start = resp.historical.iloc[0]["Open"]
-    delta_range = 100 * (resp.current_price - delta_range_start) / delta_range_start
+    if isinstance(ticker, TickerStock):
+        perc_change_start = ticker._yf_ticker.fast_info["previous_close"]
+    else:
+        perc_change_start = resp.historical.iloc[0]["Open"]
+    perc_change = 100 * (resp.current_price - perc_change_start) / perc_change_start
 
     top_string = f"{ticker.config.symbol}: $ {resp.current_price:.2f}"
     if ticker.config.avg_buy_price is not None:
@@ -130,7 +134,7 @@ def default(
             / ticker.config.avg_buy_price
         )
         top_string += f" {delta_abp:+.2f}%"
-    sub_string = f"{len(resp.historical)}x{ticker.config.interval} {delta_range:+.2f}%"
+    sub_string = f"{len(resp.historical)}x{ticker.config.interval} {perc_change:+.2f}%"
 
     kwargs = {}
     if ticker.config.mav:
