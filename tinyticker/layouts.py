@@ -36,7 +36,7 @@ TEXT_BBOX = {
 LAYOUTS = {}
 
 Dimensions = Tuple[int, int]
-StyleFunc = Callable[[Dimensions, TickerBase, TickerResponse], Image.Image]
+LayoutFunc = Callable[[Dimensions, TickerBase, TickerResponse], Image.Image]
 
 logger = logging.getLogger(__name__)
 
@@ -95,21 +95,21 @@ def _fig_to_image(fig: Figure) -> Image.Image:
     ).convert("RGB")
 
 
-def register(func: StyleFunc) -> StyleFunc:
+def register(func: LayoutFunc) -> LayoutFunc:
     """Register a layout function.
     Args:
         func: the layout function to register.
     Returns:
         The layout function.
     """
-    style = Style(func=func, name=func.__name__, desc=func.__doc__)
-    LAYOUTS[style.name] = style
+    layout = Layout(func=func, name=func.__name__, desc=func.__doc__)
+    LAYOUTS[layout.name] = layout
     return func
 
 
 @dc.dataclass
-class Style:
-    func: StyleFunc
+class Layout:
+    func: LayoutFunc
     name: str
     desc: Optional[str]
 

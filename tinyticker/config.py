@@ -12,7 +12,7 @@ PLOT_TYPES = ["candle", "line", "ohlc"]
 
 @dc.dataclass
 class LayoutConfig:
-    style: str = "default"
+    name: str = "default"
     y_axis: bool = False
     x_gaps: bool = True
 
