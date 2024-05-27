@@ -5,7 +5,7 @@ They should not care about the capabilities of the display device, only about th
 
 import dataclasses as dc
 import logging
-from typing import Callable, Optional, Tuple
+from typing import Callable, Literal, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import mplfinance as mpf
@@ -14,6 +14,7 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from PIL import Image
 
+from .config import LayoutConfig
 from .tickers._base import TickerBase, TickerResponse
 from .tickers.stock import TickerStock
 
@@ -35,7 +36,7 @@ TEXT_BBOX = {
 LAYOUTS = {}
 
 Dimensions = Tuple[int, int]
-LayoutFunc = Callable[[Dimensions, TickerBase, TickerResponse], Image.Image]
+StyleFunc = Callable[[Dimensions, TickerBase, TickerResponse], Image.Image]
 
 logger = logging.getLogger(__name__)
 
@@ -94,23 +95,67 @@ def _fig_to_image(fig: Figure) -> Image.Image:
     ).convert("RGB")
 
 
-def register(func: LayoutFunc) -> LayoutFunc:
+def register(func: StyleFunc) -> StyleFunc:
     """Register a layout function.
     Args:
         func: the layout function to register.
     Returns:
         The layout function.
     """
-    layout = Layout(func=func, name=func.__name__, desc=func.__doc__)
-    LAYOUTS[layout.name] = layout
+    style = Style(func=func, name=func.__name__, desc=func.__doc__)
+    LAYOUTS[style.name] = style
     return func
 
 
 @dc.dataclass
-class Layout:
-    func: LayoutFunc
+class Style:
+    func: StyleFunc
     name: str
     desc: Optional[str]
+
+
+def _y_axis(ax: Axes, resp: TickerResponse) -> Axes:
+    ax.axis(True)
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(True)
+    ax.yaxis.label.set_visible(False)
+    ax.spines[["left", "top", "bottom"]].set_visible(False)
+    ax.yaxis.set_ticks_position("right")
+    ax.set_yticks([resp.historical["Low"].min(), resp.historical["High"].max()])
+    ax.tick_params(axis="y", colors="black", labelsize=6)
+    return ax
+
+
+def _x_gaps(ax: Axes, resp: TickerResponse) -> Axes:
+    gaps = resp.historical.index.to_series().diff()
+    large_gaps = np.arange(0, len(gaps))[gaps > gaps.median()]
+    for gap in large_gaps:
+        ax.axvline(
+            gap - 0.5,
+            color="black",
+            linestyle=":",
+            linewidth=1,
+        )
+    return ax
+
+
+def apply_layout_config(
+    ax: Axes, layout_config: LayoutConfig, resp: TickerResponse
+) -> Axes:
+    """Apply the layout configuration to the plot.
+
+    For now we assume only one Axes needs to be modified.
+
+    Args:
+        ax: the `plt.Axes` to modify.
+        layout_config: the layout configuration to apply.
+        resp: the response from the ticker.
+    """
+    if layout_config.y_axis:
+        ax = _y_axis(ax, resp)
+    if layout_config.x_gaps:
+        ax = _x_gaps(ax, resp)
+    return ax
 
 
 @register
@@ -153,7 +198,7 @@ def default(
         fig, (ax,) = _create_fig_ax(dimensions, n_axes=1)
         volume_ax = False
     ax: Axes
-    volume_ax: Axes | bool
+    volume_ax: Axes | Literal[False]
     mpf.plot(
         resp.historical,
         type=ticker.config.plot_type,
@@ -186,14 +231,6 @@ def default(
         bbox=TEXT_BBOX,
         verticalalignment="top",
     )
-    gaps = resp.historical.index.to_series().diff()
-    large_gaps = np.arange(0, len(gaps))[gaps > gaps.median()]
-    for gap in large_gaps:
-        ax.axvline(
-            gap - 0.5,
-            color="black",
-            linestyle=":",
-            linewidth=1,
-        )
 
+    ax = apply_layout_config(ax, ticker.config.layout, resp)
     return _fig_to_image(fig)

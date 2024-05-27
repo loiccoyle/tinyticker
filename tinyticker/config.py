@@ -11,6 +11,13 @@ PLOT_TYPES = ["candle", "line", "ohlc"]
 
 
 @dc.dataclass
+class LayoutConfig:
+    style: str = "default"
+    y_axis: bool = False
+    x_gaps: bool = True
+
+
+@dc.dataclass
 class TickerConfig:
     symbol_type: str = "stock"
     symbol: str = "SPY"
@@ -22,6 +29,7 @@ class TickerConfig:
     volume: bool = False
     avg_buy_price: Optional[float] = None
     prepost: bool = False
+    layout: LayoutConfig = dc.field(default_factory=lambda: LayoutConfig())
 
 
 @dc.dataclass
@@ -50,9 +58,22 @@ class TinytickerConfig:
     @classmethod
     def from_json(cls, json_: Union[str, bytes, bytearray]) -> "TinytickerConfig":
         data = json.loads(json_)
+        # convert the layout dict to a propoer LayoutConfig object
+        [
+            ticker_data.update(
+                {
+                    "layout": LayoutConfig(
+                        **ticker_data.get("layout", dc.asdict(LayoutConfig()))
+                    )
+                }
+            )
+            for ticker_data in data["tickers"]
+        ]
+        # convert the tickers list to a list of TickerConfig objects
         data["tickers"] = [
             TickerConfig(**ticker_data) for ticker_data in data["tickers"]
         ]
+        # convert the sequence dict to a proper SequenceConfig object
         data["sequence"] = SequenceConfig(
             **data.get("sequence", dc.asdict(SequenceConfig()))
         )
