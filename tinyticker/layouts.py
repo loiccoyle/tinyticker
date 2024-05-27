@@ -4,6 +4,7 @@ They should not care about the capabilities of the display device, only about th
 """
 
 import dataclasses as dc
+import io
 import logging
 from typing import Callable, Literal, Optional, Tuple
 
@@ -88,11 +89,13 @@ def _fig_to_image(fig: Figure) -> Image.Image:
     Returns:
         The `PIL.Image.Image` representation of the provided `plt.Figure`.
     """
-    fig.canvas.draw()
-    return Image.fromarray(
-        np.asarray(fig.canvas.buffer_rgba()),  # type: ignore
-        mode="RGBA",
-    ).convert("RGB")
+
+    with io.BytesIO() as buffer:
+        fig.savefig(buffer, format="png", bbox_inches="tight", pad_inches=0)
+        # to stop the fig from showing up in notebooks and such
+        plt.close(fig)
+        img = Image.open(buffer).convert("RGB")
+        return img
 
 
 def register(func: LayoutFunc) -> LayoutFunc:
