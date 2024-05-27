@@ -13,6 +13,7 @@ import mplfinance as mpf
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib.ticker import FormatStrFormatter
 from PIL import Image
 
 from .config import LayoutConfig
@@ -123,13 +124,10 @@ def _y_axis(ax: Axes, resp: TickerResponse) -> Axes:
     ax.yaxis.label.set_visible(False)
     ax.spines[["left", "top", "bottom"]].set_visible(False)
     ax.yaxis.set_ticks_position("right")
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%.2f"))
     ax.set_yticks([resp.historical["Low"].min(), resp.historical["High"].max()])
-    ax.tick_params(
-        axis="y",
-        colors="black",
-        labelsize=8,
-        pad=0,
-    )
+    ax.set_yticklabels(ax.get_yticks(), color="black", fontsize=8, weight="bold")
+    ax.tick_params(axis="y", pad=0)
     return ax
 
 
