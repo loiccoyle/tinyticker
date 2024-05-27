@@ -247,8 +247,7 @@
                       name="wait_time"
                       min="1"
                       uk-tooltip="Time to wait on this ticker."
-                      {#- If the wait_time is None then it has not been set so use the default wait_time for the interval #}
-                      {% if ticker.wait_time is none %}placeholder="{{ interval_wait_times[ticker.interval] }}"{% else %}value="{{ ticker.wait_time }}"{% endif %}
+                      {% if ticker.wait_time is none %}placeholder="600"{% else %}value="{{ ticker.wait_time }}"{% endif %}
                     />
                   </div>
 
