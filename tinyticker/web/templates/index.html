@@ -138,7 +138,7 @@
                 <div
                   class="ticker uk-card uk-card-default uk-flex-none uk-margin-right uk-padding-small uk-border-rounded"
                 >
-                  <div style="float: right">
+                  <div class="uk-flex uk-flex-right">
                     <button
                       class="ticker-handle"
                       type="button"
@@ -152,107 +152,135 @@
                     ></button>
                   </div>
 
-                  <label class="uk-form-label" for="symbol_type"
-                    >Symbol type</label
-                  >
-                  <select
-                    class="uk-select"
-                    id="symbol_type"
-                    name="symbol_type"
-                    onchange="hide_prepost(this)"
-                  >
-                    {%- for symbol_type_option in symbol_type_options -%}
-                      <option
-                        value="{{ symbol_type_option }}"
-                        {% if symbol_type_option == ticker.symbol_type %}selected{% endif %}
-                      >
-                        {{ symbol_type_option }}
-                      </option>
-                    {%- endfor -%}
-                  </select>
+                  <div class="uk-flex uk-flex-between">
+                    <label class="uk-form-label" for="symbol_type">
+                      Symbol type
+                    </label>
+                    <select
+                      class="uk-select uk-form-small uk-form-width-small"
+                      id="symbol_type"
+                      name="symbol_type"
+                      onchange="hide_prepost(this)"
+                    >
+                      {%- for symbol_type_option in symbol_type_options -%}
+                        <option
+                          value="{{ symbol_type_option }}"
+                          {% if symbol_type_option == ticker.symbol_type %}selected{% endif %}
+                        >
+                          {{ symbol_type_option }}
+                        </option>
+                      {%- endfor -%}
+                    </select>
+                  </div>
 
-                  <label class="uk-form-label" for="symbol">Symbol</label>
-                  <input
-                    class="uk-input"
-                    type="text"
-                    id="symbol"
-                    name="symbol"
-                    value="{{ ticker.symbol }}"
-                  />
+                  <div class="uk-flex uk-flex-between">
+                    <label class="uk-form-label" for="symbol">Symbol</label>
+                    <input
+                      class="uk-input uk-form-small uk-form-width-small"
+                      type="text"
+                      id="symbol"
+                      name="symbol"
+                      value="{{ ticker.symbol }}"
+                    />
+                  </div>
 
-                  <label class="uk-form-label" for="interval">Interval</label>
-                  <select class="uk-select" id="interval" name="interval">
-                    {%- for interval_option in interval_options -%}
-                      <option
-                        value="{{ interval_option }}"
-                        {% if interval_option == ticker.interval %}selected{% endif %}
-                      >
-                        {{ interval_option }}
-                      </option>
-                    {%- endfor -%}
-                  </select>
+                  <div class="uk-flex uk-flex-between">
+                    <label class="uk-form-label" for="interval">Interval</label>
+                    <select
+                      class="uk-select uk-form-small uk-form-width-small"
+                      id="interval"
+                      name="interval"
+                    >
+                      {%- for interval_option in interval_options -%}
+                        <option
+                          value="{{ interval_option }}"
+                          {% if interval_option == ticker.interval %}selected{% endif %}
+                        >
+                          {{ interval_option }}
+                        </option>
+                      {%- endfor -%}
+                    </select>
+                  </div>
 
-                  <label class="uk-form-label" for="plot_type">Plot type</label>
-                  <select class="uk-select" id="plot_type" name="plot_type">
-                    {%- for plot_type_option in plot_type_options -%}
-                      <option
-                        value="{{ plot_type_option }}"
-                        {% if plot_type_option == ticker.plot_type %}selected{% endif %}
-                      >
-                        {{ plot_type_option }}
-                      </option>
-                    {%- endfor -%}
-                  </select>
+                  <div class="uk-flex uk-flex-between">
+                    <label class="uk-form-label" for="plot_type">
+                      Plot type
+                    </label>
+                    <select
+                      class="uk-select uk-form-small uk-form-width-small"
+                      id="plot_type"
+                      name="plot_type"
+                    >
+                      {%- for plot_type_option in plot_type_options -%}
+                        <option
+                          value="{{ plot_type_option }}"
+                          {% if plot_type_option == ticker.plot_type %}selected{% endif %}
+                        >
+                          {{ plot_type_option }}
+                        </option>
+                      {%- endfor -%}
+                    </select>
+                  </div>
 
-                  <label class="uk-form-label" for="lookback">Lookback</label>
-                  <input
-                    class="uk-input"
-                    inputmode="numeric"
-                    id="lookback"
-                    name="lookback"
-                    min="1"
-                    uk-tooltip="Number of intervals to look back for."
-                    {#- If the look back is None then it has not been set so use the default lookback for the interval #}
-                    {% if ticker.lookback is none %}placeholder="{{ interval_lookbacks[ticker.interval] }}"{% else %}value="{{ ticker.lookback }}"{% endif %}
-                  />
+                  <div class="uk-flex uk-flex-between">
+                    <label class="uk-form-label" for="lookback">Lookback</label>
+                    <input
+                      class="uk-input uk-form-small uk-form-width-small"
+                      inputmode="numeric"
+                      id="lookback"
+                      name="lookback"
+                      min="1"
+                      uk-tooltip="Number of intervals to look back for."
+                      {#- If the look back is None then it has not been set so use the default lookback for the interval #}
+                      {% if ticker.lookback is none %}placeholder="{{ interval_lookbacks[ticker.interval] }}"{% else %}value="{{ ticker.lookback }}"{% endif %}
+                    />
+                  </div>
 
-                  <label class="uk-form-label" for="wait_time"
-                    >Wait time (s)</label
-                  >
-                  <input
-                    class="uk-input"
-                    inputmode="numeric"
-                    id="wait_time"
-                    name="wait_time"
-                    min="1"
-                    uk-tooltip="Time to wait on this ticker."
-                    {#- If the wait_time is None then it has not been set so use the default wait_time for the interval #}
-                    {% if ticker.wait_time is none %}placeholder="{{ interval_wait_times[ticker.interval] }}"{% else %}value="{{ ticker.wait_time }}"{% endif %}
-                  />
+                  <div class="uk-flex uk-flex-between">
+                    <label class="uk-form-label" for="wait_time">
+                      Wait time (s)
+                    </label>
+                    <input
+                      class="uk-input uk-form-small uk-form-width-small"
+                      inputmode="numeric"
+                      id="wait_time"
+                      name="wait_time"
+                      min="1"
+                      uk-tooltip="Time to wait on this ticker."
+                      {#- If the wait_time is None then it has not been set so use the default wait_time for the interval #}
+                      {% if ticker.wait_time is none %}placeholder="{{ interval_wait_times[ticker.interval] }}"{% else %}value="{{ ticker.wait_time }}"{% endif %}
+                    />
+                  </div>
 
-                  <label class="uk-form-label" for="mav">Moving average</label>
-                  <input
-                    class="uk-input"
-                    inputmode="numeric"
-                    id="mav"
-                    name="mav"
-                    min="1"
-                    uk-tooltip="Optional, number of intervals to include in the moving average."
-                    value="{{ ticker.mav if ticker.mav is not none }}"
-                  />
+                  <div class="uk-flex uk-flex-between">
+                    <label class="uk-form-label" for="mav">
+                      Moving average
+                    </label>
+                    <input
+                      class="uk-input uk-form-small uk-form-width-small"
+                      inputmode="numeric"
+                      id="mav"
+                      name="mav"
+                      min="1"
+                      uk-tooltip="Optional, number of intervals to include in the moving average."
+                      value="{{ ticker.mav if ticker.mav is not none }}"
+                    />
+                  </div>
 
-                  <label class="uk-form-label" for="avg_buy_price"
-                    >Average buy price</label
-                  >
-                  <input
-                    class="uk-input"
-                    inputmode="numeric"
-                    id="avg_buy_price"
-                    name="avg_buy_price"
-                    min="0"
-                    value="{{ ticker.avg_buy_price if ticker.avg_buy_price is not none }}"
-                    uk-tooltip="Optional, used to display percentage change from buy price."
-                  />
+                  <div class="uk-flex uk-flex-between">
+                    <label class="uk-form-label" for="avg_buy_price">
+                      Average buy price
+                    </label>
+                    <input
+                      class="uk-input uk-form-small uk-form-width-small"
+                      inputmode="numeric"
+                      id="avg_buy_price"
+                      name="avg_buy_price"
+                      min="0"
+                      value="{{ ticker.avg_buy_price if ticker.avg_buy_price is not none }}"
+                      uk-tooltip="Optional, used to display percentage change from buy price."
+                    />
+                  </div>
 
                   <label
                     class="uk-form-label"
@@ -262,7 +290,7 @@
                     <input
                       type="hidden"
                       name="volume"
-                      value="{{ 1 if ticker.volume | default(false) else 0 }}"
+                      value="{{ 1 if ticker.volume | default(False) else 0 }}"
                     />
                     <input
                       class="uk-checkbox"
@@ -275,13 +303,14 @@
 
                   <label
                     class="uk-form-label"
-                    for="volume"
+                    for="prepost"
                     uk-tooltip="Show pre/post market stock data."
                   >
                     <input
                       type="hidden"
+                      id="prepost"
                       name="prepost"
-                      value="{{ 1 if ticker.prepost | default(false) else 0 }}"
+                      value="{{ 1 if ticker.prepost | default(False) else 0 }}"
                     />
                     <input
                       class="uk-checkbox"
@@ -290,6 +319,58 @@
                       onclick="this.previousElementSibling.value=1-this.previousElementSibling.value"
                     />
                     Fetch pre/post market data
+                  </label>
+
+                  <hr />
+                  <div class="uk-flex uk-flex-between">
+                    <label class="uk-form-label" for="symbol_type">
+                      Layout
+                    </label>
+                    <select
+                      class="uk-select uk-form-small uk-form-width-small"
+                      id="layout_name"
+                      name="layout_name"
+                    >
+                      <option value="default" selected>default</option>
+                    </select>
+                  </div>
+
+                  <label
+                    class="uk-form-label"
+                    for="layout_y_axis"
+                    uk-tooltip="Show the y axis of the plot."
+                  >
+                    <input
+                      type="hidden"
+                      name="layout_y_axis"
+                      value="{{ 1 if ticker.layout.y_axis | default(False) else 0 }}"
+                    />
+                    <input
+                      class="uk-checkbox"
+                      type="checkbox"
+                      {% if ticker.layout.y_axis| default(False) %}checked{% endif %}
+                      onclick="this.previousElementSibling.value=1-this.previousElementSibling.value"
+                    />
+                    Show y axis
+                  </label>
+
+                  <label
+                    class="uk-form-label"
+                    for="layout_x_gaps"
+                    uk-tooltip="Add a vertical line to show time gaps, i.e. closed market & weekends."
+                  >
+                    <input
+                      type="hidden"
+                      name="layout_x_gaps"
+                      value="{{ 1 if ticker.layout.x_gaps | default(False) else 0 }}"
+                    />
+                    <input
+                      class="uk-checkbox"
+                      type="checkbox"
+                      {% if ticker.layout.x_gaps | default(True) %}checked{% endif %}
+                      onclick="this.previousElementSibling.value=1-this.previousElementSibling.value"
+                    />
+                    Add line on time gap
                   </label>
                 </div>
               {%- endfor -%}

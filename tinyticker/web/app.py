@@ -13,6 +13,7 @@ from werkzeug.utils import secure_filename
 from .. import __version__
 from ..config import (
     PLOT_TYPES,
+    LayoutConfig,
     SequenceConfig,
     TickerConfig,
     TinytickerConfig,
@@ -117,6 +118,17 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
             "avg_buy_price", type=no_empty_float
         )
         tickers["prepost"] = request.args.getlist("prepost", type=str_to_bool)
+
+        layouts = {}
+        layouts["name"] = request.args.getlist("layout_name")
+        layouts["y_axis"] = request.args.getlist("layout_y_axis", type=str_to_bool)
+        layouts["x_gaps"] = request.args.getlist("layout_x_gaps", type=str_to_bool)
+        layouts = [
+            LayoutConfig(**dict(zip(layouts, l)))
+            for l in zip(*layouts.values())  # noqa: E741
+        ]
+
+        tickers["layout"] = layouts
 
         sequence = SequenceConfig(
             skip_outdated=request.args.get("skip_outdated", False, type=bool),
