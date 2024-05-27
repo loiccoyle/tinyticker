@@ -106,7 +106,7 @@ def register(func: LayoutFunc) -> LayoutFunc:
     Returns:
         The layout function.
     """
-    layout = Layout(func=func, name=func.__name__, desc=func.__doc__)
+    layout = Layout(func=func, name=func.__name__.replace("_", " "), desc=func.__doc__)
     LAYOUTS[layout.name] = layout
     return func
 
@@ -229,7 +229,7 @@ def default(
 
     perc_change = _perc_change(ticker, resp)
 
-    top_string = f"{ticker.config.symbol}: $ {resp.current_price:.2f}"
+    top_string = f"{ticker.config.symbol} ${resp.current_price:.2f}"
     if ticker.config.avg_buy_price is not None:
         # calculate the delta from the average buy price
         top_string += f" {_perc_change_abp(ticker, resp):+.2f}%"
@@ -270,7 +270,7 @@ def big_price(
     perc_change = _perc_change(ticker, resp)
     fig, (ax, _) = _historical_plot(dimensions, ticker, resp)
     fig.suptitle(
-        f"{ticker.config.symbol}: ${resp.current_price:.2f}",
+        f"{ticker.config.symbol} ${resp.current_price:.2f}",
         fontsize=18,
         weight="bold",
         x=0,
