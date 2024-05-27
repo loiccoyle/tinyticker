@@ -331,7 +331,14 @@
                       id="layout_name"
                       name="layout_name"
                     >
-                      <option value="default" selected>default</option>
+                      {%- for layout_option in layout_options -%}
+                        <option
+                          value="{{ layout_option.name }}"
+                          {% if layout_option.name == ticker.layout.name %}selected{% endif %}
+                        >
+                          {{ layout_option.name }}
+                        </option>
+                      {%- endfor -%}
                     </select>
                   </div>
 

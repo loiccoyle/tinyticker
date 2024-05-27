@@ -6,7 +6,7 @@ They should not care about the capabilities of the display device, only about th
 import dataclasses as dc
 import io
 import logging
-from typing import Callable, Literal, Optional, Tuple
+from typing import Callable, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import mplfinance as mpf
@@ -71,6 +71,7 @@ def _create_fig_ax(
         1,
         figsize=(width * px, height * px),
         sharex=True,
+        frameon=False,
         **kwargs,
     )
     if not isinstance(axes, np.ndarray):
@@ -168,28 +169,16 @@ def apply_layout_config(
     return ax
 
 
-@register
-def default(
+def _historical_plot(
     dimensions: Dimensions, ticker: TickerBase, resp: TickerResponse
-) -> Image.Image:
-    """Default layout."""
-
-    if isinstance(ticker, TickerStock):
-        perc_change_start = ticker._yf_ticker.fast_info["previous_close"]
-    else:
-        perc_change_start = resp.historical.iloc[0]["Open"]
-    perc_change = 100 * (resp.current_price - perc_change_start) / perc_change_start
-
-    top_string = f"{ticker.config.symbol}: $ {resp.current_price:.2f}"
-    if ticker.config.avg_buy_price is not None:
-        # calculate the delta from the average buy price
-        delta_abp = (
-            100
-            * (resp.current_price - ticker.config.avg_buy_price)
-            / ticker.config.avg_buy_price
+) -> Tuple[Figure, Tuple[Axes, Optional[Axes]]]:
+    if ticker.config.volume:
+        fig, (ax, volume_ax) = _create_fig_ax(
+            dimensions, n_axes=2, height_ratios=[3, 1]
         )
-        top_string += f" {delta_abp:+.2f}%"
-    sub_string = f"{len(resp.historical)}x{ticker.config.interval} {perc_change:+.2f}%"
+    else:
+        fig, (ax,) = _create_fig_ax(dimensions, n_axes=1)
+        volume_ax = False
 
     kwargs = {}
     if ticker.config.mav:
@@ -200,25 +189,52 @@ def default(
         # the floats are to leave padding left and right of the edge candles
         kwargs["xlim"] = (-0.75, ticker.lookback - 0.25)
 
-    if ticker.config.volume:
-        fig, (ax, volume_ax) = _create_fig_ax(
-            dimensions, n_axes=2, gridspec_kw={"height_ratios": [3, 1]}
-        )
-    else:
-        fig, (ax,) = _create_fig_ax(dimensions, n_axes=1)
-        volume_ax = False
     ax: Axes
-    volume_ax: Axes | Literal[False]
     mpf.plot(
         resp.historical,
         type=ticker.config.plot_type,
         ax=ax,
+        volume=volume_ax,
         update_width_config={"line_width": 1},
         style=STYLE,
-        volume=volume_ax,
         linecolor="k",
         **kwargs,
     )
+    return fig, (ax, volume_ax if volume_ax else None)
+
+
+def _perc_change(ticker: TickerBase, resp: TickerResponse) -> float:
+    if isinstance(ticker, TickerStock):
+        perc_change_start = ticker._yf_ticker.fast_info["previous_close"]
+    else:
+        perc_change_start = resp.historical.iloc[0]["Open"]
+    return 100 * (resp.current_price - perc_change_start) / perc_change_start
+
+
+def _perc_change_abp(ticker: TickerBase, resp: TickerResponse) -> float:
+    if ticker.config.avg_buy_price is None:
+        raise ValueError("No average buy price set.")
+    return (
+        100
+        * (resp.current_price - ticker.config.avg_buy_price)
+        / ticker.config.avg_buy_price
+    )
+
+
+@register
+def default(
+    dimensions: Dimensions, ticker: TickerBase, resp: TickerResponse
+) -> Image.Image:
+    """Default layout."""
+
+    perc_change = _perc_change(ticker, resp)
+
+    top_string = f"{ticker.config.symbol}: $ {resp.current_price:.2f}"
+    if ticker.config.avg_buy_price is not None:
+        # calculate the delta from the average buy price
+        top_string += f" {_perc_change_abp(ticker, resp):+.2f}%"
+
+    fig, (ax, _) = _historical_plot(dimensions, ticker, resp)
 
     top_text = ax.text(
         0,
@@ -234,12 +250,40 @@ def default(
     ax.text(
         0,
         (ax_height - top_text.get_window_extent().height + 1) / ax_height,
-        sub_string,
+        f"{len(resp.historical)}x{ticker.config.interval} {perc_change:+.2f}%",
         transform=ax.transAxes,
         fontsize=8,
         weight="bold",
         bbox=TEXT_BBOX,
         verticalalignment="top",
+    )
+
+    ax = apply_layout_config(ax, ticker.config.layout, resp)
+    return _fig_to_image(fig)
+
+
+@register
+def big_price(
+    dimensions: Dimensions, ticker: TickerBase, resp: TickerResponse
+) -> Image.Image:
+    """Big price layout."""
+    perc_change = _perc_change(ticker, resp)
+    fig, (ax, _) = _historical_plot(dimensions, ticker, resp)
+    fig.suptitle(
+        f"{ticker.config.symbol}: ${resp.current_price:.2f}",
+        fontsize=18,
+        weight="bold",
+        x=0,
+        horizontalalignment="left",
+    )
+    sub_string = f"{len(resp.historical)}x{ticker.config.interval} {perc_change:+.2f}%"
+    if ticker.config.avg_buy_price:
+        sub_string += f" ({_perc_change_abp(ticker, resp):+.2f}%)"
+    ax.set_title(
+        sub_string,
+        fontsize=12,
+        weight="bold",
+        loc="left",
     )
 
     ax = apply_layout_config(ax, ticker.config.layout, resp)

@@ -19,6 +19,7 @@ from ..config import (
     TinytickerConfig,
     load_config_safe,
 )
+from ..layouts import LAYOUTS
 from ..paths import CONFIG_FILE, LOG_DIR
 from ..tickers import SYMBOL_TYPES
 from ..tickers._base import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS
@@ -91,6 +92,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
             interval_wait_times=INTERVAL_WAIT_TIMES,
             interval_options=INTERVAL_LOOKBACKS.keys(),
             epd_model_options=MODELS.values(),
+            layout_options=LAYOUTS.values(),
             version=__version__,
             **tt_config.to_dict(),
         )
