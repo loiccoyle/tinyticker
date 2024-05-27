@@ -44,6 +44,7 @@ class TestLayout(TestCase):
 
         ticker = TickerCrypto("dummy key", config)
         img = layouts.default(self.dimensions, ticker, self.resp)
+        assert img.size == self.dimensions
         if UPDATE_REF_PLOTS:
             img.save(self.data_dir / "layout_default.png")
         assert img.tobytes() == self.default.tobytes() or UPDATE_REF_PLOTS
@@ -51,6 +52,7 @@ class TestLayout(TestCase):
         config.volume = True
         ticker = TickerCrypto("dummy key", config)
         img = layouts.default(self.dimensions, ticker, self.resp)
+        assert img.size == self.dimensions
         if UPDATE_REF_PLOTS:
             img.save(self.data_dir / "layout_default_volume.png")
         assert img.tobytes() == self.default_volume.tobytes() or UPDATE_REF_PLOTS
