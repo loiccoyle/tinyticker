@@ -91,7 +91,7 @@ def _fig_to_image(fig: Figure) -> Image.Image:
     """
     fig.tight_layout(pad=0)
     with io.BytesIO() as buffer:
-        fig.savefig(buffer, format="png", bbox_inches="tight", pad_inches=0)
+        fig.savefig(buffer, format="jpg", pad_inches=0)
         # to stop the fig from showing up in notebooks and such
         plt.close(fig)
         return Image.open(buffer).convert("RGB")
