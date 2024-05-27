@@ -126,6 +126,6 @@ class Display:
         self.epd.sleep()
 
     def show(self, ticker: TickerBase, resp: TickerResponse) -> None:
-        layout = LAYOUTS[ticker.config.layout.name]
+        layout = LAYOUTS.get(ticker.config.layout.name, LAYOUTS["default"])
         image = layout.func((self.epd.height, self.epd.width), ticker, resp)
         self.show_image(image)
