@@ -89,13 +89,12 @@ def _fig_to_image(fig: Figure) -> Image.Image:
     Returns:
         The `PIL.Image.Image` representation of the provided `plt.Figure`.
     """
-
+    fig.tight_layout(pad=0)
     with io.BytesIO() as buffer:
         fig.savefig(buffer, format="png", bbox_inches="tight", pad_inches=0)
         # to stop the fig from showing up in notebooks and such
         plt.close(fig)
-        img = Image.open(buffer).convert("RGB")
-        return img
+        return Image.open(buffer).convert("RGB")
 
 
 def register(func: LayoutFunc) -> LayoutFunc:
