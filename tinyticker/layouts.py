@@ -124,7 +124,7 @@ def _y_axis(ax: Axes, resp: TickerResponse) -> Axes:
     ax.spines[["left", "top", "bottom"]].set_visible(False)
     ax.yaxis.set_ticks_position("right")
     ax.set_yticks([resp.historical["Low"].min(), resp.historical["High"].max()])
-    ax.tick_params(axis="y", colors="black", labelsize=6)
+    ax.tick_params(axis="y", colors="black", labelsize=8)
     return ax
 
 
