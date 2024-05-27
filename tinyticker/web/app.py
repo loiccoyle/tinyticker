@@ -20,14 +20,13 @@ from ..config import (
 )
 from ..paths import CONFIG_FILE, LOG_DIR
 from ..tickers import SYMBOL_TYPES
-from ..tickers._base import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS
+from ..tickers._base import INTERVAL_LOOKBACKS
 from ..waveshare_lib.models import MODELS
 from .command import COMMANDS, reboot
 from .startup import STARTUP_DIR
 
 LOGGER = logging.getLogger(__name__)
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
-INTERVAL_WAIT_TIMES = {k: v.value * 1e-9 for k, v in INTERVAL_TIMEDELTAS.items()}
 
 
 def no_empty_str(data: str) -> Optional[str]:
@@ -87,7 +86,6 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
             plot_type_options=PLOT_TYPES,
             symbol_type_options=SYMBOL_TYPES,
             interval_lookbacks=INTERVAL_LOOKBACKS,
-            interval_wait_times=INTERVAL_WAIT_TIMES,
             interval_options=INTERVAL_LOOKBACKS.keys(),
             epd_model_options=MODELS.values(),
             version=__version__,
