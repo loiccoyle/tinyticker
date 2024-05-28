@@ -43,6 +43,9 @@ class TickerStock(TickerBase):
     def _fix_prepost(self, historical: pd.DataFrame) -> pd.DataFrame:
         # when the market is closed, the volume is 0
         prepost_range = historical["Volume"] == 0
+        # add one more row before and after open/close to make sure we don't miss the start/end
+        prepost_range |= prepost_range.shift(-1).fillna(False)
+        prepost_range |= prepost_range.shift(1).fillna(False)
         # When in prepost, the high & lows can be off
         high_bars = historical["High"] - historical[["Close", "Open"]].max(axis=1)
         low_bars = historical[["Close", "Open"]].min(axis=1) - historical["Low"]
