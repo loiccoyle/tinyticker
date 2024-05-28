@@ -50,8 +50,14 @@ class TickerStock(TickerBase):
         high_bars = historical["High"] - historical[["Close", "Open"]].max(axis=1)
         low_bars = historical[["Close", "Open"]].min(axis=1) - historical["Low"]
 
-        to_correct_high = high_bars[prepost_range] > high_bars.mean() + high_bars.std()
-        to_correct_low = low_bars[prepost_range] > low_bars.mean() + low_bars.std()
+        to_correct_high = (
+            high_bars[prepost_range]
+            > high_bars[~prepost_range].mean() + high_bars[~prepost_range].std()
+        )
+        to_correct_low = (
+            low_bars[prepost_range]
+            > low_bars[~prepost_range].mean() + low_bars[~prepost_range].std()
+        )
         # we could also set them to the avg of the previous and next high/low
         historical.loc[prepost_range & to_correct_high, "High"] = historical[
             ["Close", "Open"]
