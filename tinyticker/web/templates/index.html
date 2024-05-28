@@ -354,7 +354,7 @@
                     <input
                       class="uk-checkbox"
                       type="checkbox"
-                      {% if ticker.layout.y_axis| default(False) %}checked{% endif %}
+                      {% if ticker.layout.y_axis | default(False) %}checked{% endif %}
                       onclick="this.previousElementSibling.value=1-this.previousElementSibling.value"
                     />
                     Show y axis

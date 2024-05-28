@@ -101,8 +101,10 @@ def _fig_to_image(fig: Figure) -> Image.Image:
 
 def register(func: LayoutFunc) -> LayoutFunc:
     """Register a layout function.
+
     Args:
         func: the layout function to register.
+
     Returns:
         The layout function.
     """
