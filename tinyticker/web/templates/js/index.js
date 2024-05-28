@@ -23,7 +23,8 @@ function remove_ticker(element) {
 
 function hide_prepost(element) {
   // if the symbol type is not a stock then hide the prepost checkbox
-  let prepost = element.parentElement.querySelector('[name="prepost"]');
+  const prepost =
+    element.parentElement.parentElement.querySelector('[name="prepost"]');
   if (element.value !== "stock") {
     prepost.parentElement.style.display = "none";
   } else {

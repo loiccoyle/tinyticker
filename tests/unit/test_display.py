@@ -53,11 +53,7 @@ class TestDisplay(TestCase):
         cls.historical: pd.DataFrame = pd.read_pickle(
             cls.data_dir / "crypto_historical.pkl"
         )
-        cls.crypto_historical_plot_file = cls.data_dir / "crypto_historical_plot.png"
-        cls.crypto_historical_plot_volume_file = (
-            cls.data_dir / "crypto_historical_plot_volume.png"
-        )
-        cls.text_plot_file = cls.data_dir / "text_plot.png"
+        cls.text_plot_file = cls.data_dir / "text_plot.jpg"
 
     def test_from_tt_config(self):
         tt_config = TinytickerConfig.from_file(self.config_path)
