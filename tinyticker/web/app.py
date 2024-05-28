@@ -99,54 +99,14 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
     def logs():
         return render_template("logfiles.html", log_files=log_files)
 
-    @app.route("/config")
+    @app.route("/config", methods=["POST"])
     def config():
-        # TODO: post the config via a json post instead of parsing it here
-        # Something like:
-        # https://stackoverflow.com/questions/22195065/how-to-send-a-json-object-using-html-form-data
-        LOGGER.debug("/config url args: %s", request.args)
-        tickers = {}
-        tickers["symbol"] = request.args.getlist("symbol")
-        tickers["symbol_type"] = request.args.getlist("symbol_type")
-        tickers["plot_type"] = request.args.getlist("plot_type")
-        tickers["interval"] = request.args.getlist("interval")
-        tickers["lookback"] = request.args.getlist("lookback", type=no_empty_int)
-        tickers["wait_time"] = request.args.getlist("wait_time", type=no_empty_int)
-        tickers["mav"] = request.args.getlist("mav", type=no_empty_int)
-        tickers["volume"] = request.args.getlist("volume", type=str_to_bool)
-        tickers["avg_buy_price"] = request.args.getlist(
-            "avg_buy_price", type=no_empty_float
-        )
-        tickers["prepost"] = request.args.getlist("prepost", type=str_to_bool)
+        """Post the config via a json post instead of parsing it here."""
+        LOGGER.debug("/config request.json: %s", request.json)
+        if not request.json:
+            abort(400)
 
-        layouts = {}
-        layouts["name"] = request.args.getlist("layout_name")
-        layouts["y_axis"] = request.args.getlist("layout_y_axis", type=str_to_bool)
-        layouts["x_gaps"] = request.args.getlist("layout_x_gaps", type=str_to_bool)
-        layouts = [
-            LayoutConfig(**dict(zip(layouts, l)))
-            for l in zip(*layouts.values())  # noqa: E741
-        ]
-
-        tickers["layout"] = layouts
-
-        sequence = SequenceConfig(
-            skip_outdated=request.args.get("skip_outdated", False, type=bool),
-            # NOTE: currently not toggleable from the web app
-            skip_empty=request.args.get("skip_empty", True, type=bool),
-        )
-
-        # invert the ticker dict of list to list of dict and create ticker list
-        tickers = [
-            TickerConfig(**dict(zip(tickers, t))) for t in zip(*tickers.values())
-        ]
-        tt_config = TinytickerConfig(
-            api_key=request.args.get("api_key", type=no_empty_str),
-            flip=request.args.get("flip", default=False, type=bool),
-            epd_model=request.args.get("epd_model", "EPD_v3"),
-            tickers=tickers,
-            sequence=sequence,
-        )
+        tt_config = TinytickerConfig.from_dict(request.json)
         LOGGER.debug(tt_config)
         # writing the config to file, the main ticker process is monitoring this file
         # and will refresh the ticker process

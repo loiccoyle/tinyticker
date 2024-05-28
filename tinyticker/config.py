@@ -57,7 +57,10 @@ class TinytickerConfig:
 
     @classmethod
     def from_json(cls, json_: Union[str, bytes, bytearray]) -> "TinytickerConfig":
-        data = json.loads(json_)
+        return cls.from_dict(json.loads(json_))
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "TinytickerConfig":
         # convert the layout dict to a propoer LayoutConfig object
         [
             ticker_data.update(

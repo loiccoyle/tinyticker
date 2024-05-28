@@ -74,7 +74,7 @@
             <input class="uk-button-small" type="submit" value="Set & Reboot" />
           </form>
           <hr />
-          <form class="uk-form-stacked uk-width-1-1" action="/config">
+          <form id="form-config" class="uk-form-stacked uk-width-1-1">
             <div class="uk-flex uk-flex-middle uk-margin-small-bottom">
               <span
                 uk-icon="icon: tv; ratio: 2"
@@ -153,13 +153,13 @@
                   </div>
 
                   <div class="uk-flex uk-flex-between">
-                    <label class="uk-form-label" for="symbol_type">
+                    <label class="uk-form-label" for="ticker-symbol_type">
                       Symbol type
                     </label>
                     <select
                       class="uk-select uk-form-small uk-width-1-3"
-                      id="symbol_type"
-                      name="symbol_type"
+                      id="ticker-symbol_type"
+                      name="ticker-symbol_type"
                       onchange="hide_prepost(this)"
                     >
                       {%- for symbol_type_option in symbol_type_options -%}
@@ -174,22 +174,26 @@
                   </div>
 
                   <div class="uk-flex uk-flex-between">
-                    <label class="uk-form-label" for="symbol">Symbol</label>
+                    <label class="uk-form-label" for="ticker-symbol">
+                      Symbol
+                    </label>
                     <input
                       class="uk-input uk-form-small uk-width-1-3"
                       type="text"
-                      id="symbol"
-                      name="symbol"
+                      id="ticker-symbol"
+                      name="ticker-symbol"
                       value="{{ ticker.symbol }}"
                     />
                   </div>
 
                   <div class="uk-flex uk-flex-between">
-                    <label class="uk-form-label" for="interval">Interval</label>
+                    <label class="uk-form-label" for="ticker-interval">
+                      Interval
+                    </label>
                     <select
                       class="uk-select uk-form-small uk-width-1-3"
-                      id="interval"
-                      name="interval"
+                      id="ticker-interval"
+                      name="ticker-interval"
                     >
                       {%- for interval_option in interval_options -%}
                         <option
@@ -203,13 +207,13 @@
                   </div>
 
                   <div class="uk-flex uk-flex-between">
-                    <label class="uk-form-label" for="plot_type">
+                    <label class="uk-form-label" for="ticker-plot_type">
                       Plot type
                     </label>
                     <select
                       class="uk-select uk-form-small uk-width-1-3"
-                      id="plot_type"
-                      name="plot_type"
+                      id="ticker-plot_type"
+                      name="ticker-plot_type"
                     >
                       {%- for plot_type_option in plot_type_options -%}
                         <option
@@ -223,12 +227,14 @@
                   </div>
 
                   <div class="uk-flex uk-flex-between">
-                    <label class="uk-form-label" for="lookback">Lookback</label>
+                    <label class="uk-form-label" for="ticker-lookback">
+                      Lookback
+                    </label>
                     <input
                       class="uk-input uk-form-small uk-width-1-3"
                       inputmode="numeric"
-                      id="lookback"
-                      name="lookback"
+                      id="ticker-lookback"
+                      name="ticker-lookback"
                       min="1"
                       uk-tooltip="Number of intervals to look back for."
                       {#- If the look back is None then it has not been set so use the default lookback for the interval #}
@@ -237,14 +243,14 @@
                   </div>
 
                   <div class="uk-flex uk-flex-between">
-                    <label class="uk-form-label" for="wait_time">
+                    <label class="uk-form-label" for="ticker-wait_time">
                       Wait time (s)
                     </label>
                     <input
                       class="uk-input uk-form-small uk-width-1-3"
                       inputmode="numeric"
-                      id="wait_time"
-                      name="wait_time"
+                      id="ticker-wait_time"
+                      name="ticker-wait_time"
                       min="1"
                       uk-tooltip="Time to wait on this ticker."
                       value="{{ ticker.wait_time }}"
@@ -252,14 +258,14 @@
                   </div>
 
                   <div class="uk-flex uk-flex-between">
-                    <label class="uk-form-label" for="mav">
+                    <label class="uk-form-label" for="ticker-mav">
                       Moving average
                     </label>
                     <input
                       class="uk-input uk-form-small uk-width-1-3"
                       inputmode="numeric"
-                      id="mav"
-                      name="mav"
+                      id="ticker-mav"
+                      name="ticker-mav"
                       min="1"
                       uk-tooltip="Optional, number of intervals to include in the moving average."
                       value="{{ ticker.mav if ticker.mav is not none }}"
@@ -267,14 +273,14 @@
                   </div>
 
                   <div class="uk-flex uk-flex-between">
-                    <label class="uk-form-label" for="avg_buy_price">
+                    <label class="uk-form-label" for="ticker-avg_buy_price">
                       Average buy price
                     </label>
                     <input
                       class="uk-input uk-form-small uk-width-1-3"
                       inputmode="numeric"
-                      id="avg_buy_price"
-                      name="avg_buy_price"
+                      id="ticker-avg_buy_price"
+                      name="ticker-avg_buy_price"
                       min="0"
                       value="{{ ticker.avg_buy_price if ticker.avg_buy_price is not none }}"
                       uk-tooltip="Optional, used to display percentage change from buy price."
@@ -283,12 +289,13 @@
 
                   <label
                     class="uk-form-label"
-                    for="volume"
+                    for="ticker-volume"
                     uk-tooltip="Add a trade volume plot bellow the graph."
                   >
                     <input
                       type="hidden"
-                      name="volume"
+                      id="ticker-volume"
+                      name="ticker-volume"
                       value="{{ 1 if ticker.volume | default(False) else 0 }}"
                     />
                     <input
@@ -302,13 +309,13 @@
 
                   <label
                     class="uk-form-label"
-                    for="prepost"
+                    for="ticker-prepost"
                     uk-tooltip="Show pre/post market stock data."
                   >
                     <input
                       type="hidden"
-                      id="prepost"
-                      name="prepost"
+                      id="ticker-prepost"
+                      name="ticker-prepost"
                       value="{{ 1 if ticker.prepost | default(False) else 0 }}"
                     />
                     <input
@@ -322,13 +329,13 @@
 
                   <hr />
                   <div class="uk-flex uk-flex-between">
-                    <label class="uk-form-label" for="symbol_type">
+                    <label class="uk-form-label" for="ticker-layout-name">
                       Layout
                     </label>
                     <select
                       class="uk-select uk-form-small uk-width-1-3"
-                      id="layout_name"
-                      name="layout_name"
+                      name="ticker-layout-name"
+                      id="ticker-layout-name"
                     >
                       {%- for layout_option in layout_options -%}
                         <option
@@ -343,12 +350,13 @@
 
                   <label
                     class="uk-form-label"
-                    for="layout_y_axis"
+                    for="ticker-layout-y_axis"
                     uk-tooltip="Show the y axis of the plot."
                   >
                     <input
                       type="hidden"
-                      name="layout_y_axis"
+                      name="ticker-layout-y_axis"
+                      id="ticker-layout-y_axis"
                       value="{{ 1 if ticker.layout.y_axis | default(False) else 0 }}"
                     />
                     <input
@@ -362,12 +370,13 @@
 
                   <label
                     class="uk-form-label"
-                    for="layout_x_gaps"
+                    for="ticker-layout-x_gaps"
                     uk-tooltip="Add a vertical line to show time gaps, i.e. closed market & weekends."
                   >
                     <input
                       type="hidden"
-                      name="layout_x_gaps"
+                      id="ticker-layout-x_gaps"
+                      name="ticker-layout-x_gaps"
                       value="{{ 1 if ticker.layout.x_gaps | default(False) else 0 }}"
                     />
                     <input
@@ -391,16 +400,23 @@
             <div class="uk-width-1-1 uk-margin">
               <label
                 class="uk-form-label"
-                for="skip_outdated"
+                for="sequence-skip_outdated"
                 uk-tooltip="Typically happens when the market is closed."
-                ><input
+              >
+                <input
+                  type="hidden"
+                  id="sequence-skip_outdated"
+                  name="sequence-skip_outdated"
+                  value="{{ 1 if sequence.skip_outdated | default(False) else 0 }}"
+                />
+                <input
                   class="uk-checkbox uk-margin-small-right"
                   type="checkbox"
-                  id="skip_outdated"
-                  name="skip_outdated"
                   {% if sequence.skip_outdated | default(True) %}checked{% endif %}
-                />Skip tickers with outdated data</label
-              >
+                  onclick="this.previousElementSibling.value=1-this.previousElementSibling.value"
+                />
+                Skip tickers with outdated data
+              </label>
               <button
                 type="submit"
                 value="submit"
@@ -432,21 +448,23 @@
       </div>
     </div>
     <div class="uk-text-center uk-position-small">
-      <span class="uk-text-small uk-text-muted"
-        >TinyTicker v{{ version }} - <span uk-icon="github"></span
-        ><a
+      <span class="uk-text-small uk-text-muted">
+        TinyTicker v{{ version }} - <span uk-icon="github"></span>
+        <a
           href="https://github.com/loiccoyle/tinyticker"
           title="tinyticker"
           target="_blank"
-          >TinyTicker</a
         >
-        - <span uk-icon="question"></span
-        ><a
+          TinyTicker
+        </a>
+        - <span uk-icon="question"></span>
+        <a
           href="https://github.com/loiccoyle/tinyticker/issues/new"
           title="issues"
           target="_blank"
-          >Report an issue</a
         >
+          Report an issue
+        </a>
       </span>
     </div>
   </body>
@@ -458,8 +476,25 @@
     });
 
     // run hide_prepost on all tickers
-    document.querySelectorAll("#symbol_type").forEach((element) => {
+    document.querySelectorAll("#ticker-symbol_type").forEach((element) => {
       hide_prepost(element);
     });
+
+    // post the form json to the config endpoint when the form is submitted
+    document
+      .querySelector("#form-config")
+      .addEventListener("submit", (event) => {
+        event.preventDefault();
+        fetch("/config", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formToJson(event.target)),
+        }).then(() => {
+          // refresh the page
+          document.location.reload();
+        });
+      });
   </script>
 </html>

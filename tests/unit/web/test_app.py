@@ -60,26 +60,6 @@ def test_index(client: FlaskClient):
 
 
 def test_config(client: FlaskClient):
-    params = {
-        "symbol": ["AAPL", "GOOG"],
-        "symbol_type": ["stock", "stock"],
-        "plot_type": ["candle", "line"],
-        "interval": ["1d", "1h"],
-        "lookback": [30, 24],
-        "wait_time": [10, 20],
-        "mav": [3, ""],
-        "volume": [1, 0],
-        "avg_buy_price": ["", 100],
-        "prepost": [1, 0],
-        "layout_name": ["default", "big_price"],
-        "layout_y_axis": [1, 0],
-        "layout_x_gaps": [0, 1],
-        "flip": True,
-        "epd_model": "EPD_V3",
-        "api_key": "SOMEKEY",
-        "skip_empty": True,
-    }
-
     expected_config = TinytickerConfig(
         tickers=[
             TickerConfig(
@@ -117,9 +97,10 @@ def test_config(client: FlaskClient):
             skip_empty=True,
         ),
     )
-    resp = client.get(
+    resp = client.post(
         "/config",
-        query_string=params,
+        headers={"Content-Type": "application/json"},
+        data=expected_config.to_json(),
     )
     assert resp.status_code == 302
     assert resp.headers.get("location") == "/"
