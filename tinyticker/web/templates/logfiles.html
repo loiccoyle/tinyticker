@@ -41,7 +41,7 @@
         {% for log_file in log_files %}
           updateLogFileContent('{{ log_file }}');
         {% endfor %}
-        setTimeout(updateAllLogFileContent, 60000);
+        setTimeout(updateAllLogFileContent, 10000);
       }
       // start updating the content of all log files
       updateAllLogFileContent();
