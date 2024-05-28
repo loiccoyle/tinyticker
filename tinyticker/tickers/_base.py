@@ -119,7 +119,7 @@ class TickerBase:
             self._log.info("Ticker start.")
             yield self.single_tick()
             self._log.debug("Sleeping %i s", self.config.wait_time)
-            time.sleep(self.config.wait_time)  # type: ignore
+            time.sleep(self.config.wait_time)
 
     def __str__(self) -> str:
         return "\t".join(
