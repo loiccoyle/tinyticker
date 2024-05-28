@@ -82,9 +82,7 @@ class TickerBase:
             else INTERVAL_LOOKBACKS[config.interval]
         )
         self.wait_time = (
-            self.config.wait_time
-            if self.config.wait_time is not None
-            else int(self.interval_dt.value * 1e-9)
+            self.config.wait_time if self.config.wait_time is not None else 600
         )
 
     def _single_tick(self) -> Tuple[pd.DataFrame, Optional[float]]: ...
