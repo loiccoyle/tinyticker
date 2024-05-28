@@ -57,7 +57,7 @@ class TestSequenceStart(IsolatedAsyncioTestCase):
         )
         # no wait time to speed up testing
         for ticker_ in sequence.tickers:
-            ticker_.wait_time = 0
+            ticker_.config.wait_time = 0
         i = 0
         async for ticker_, _ in sequence.start():
             assert ticker_.config.symbol == sequence.tickers[i % 2].config.symbol

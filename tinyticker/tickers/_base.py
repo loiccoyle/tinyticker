@@ -81,9 +81,6 @@ class TickerBase:
             if self.config.lookback is not None
             else INTERVAL_LOOKBACKS[config.interval]
         )
-        self.wait_time = (
-            self.config.wait_time if self.config.wait_time is not None else 600
-        )
 
     def _single_tick(self) -> Tuple[pd.DataFrame, Optional[float]]: ...
 
@@ -121,8 +118,8 @@ class TickerBase:
         while True:
             self._log.info("Ticker start.")
             yield self.single_tick()
-            self._log.debug("Sleeping %i s", self.wait_time)
-            time.sleep(self.wait_time)  # type: ignore
+            self._log.debug("Sleeping %i s", self.config.wait_time)
+            time.sleep(self.config.wait_time)  # type: ignore
 
     def __str__(self) -> str:
         return "\t".join(
@@ -131,6 +128,6 @@ class TickerBase:
                 self.config.symbol_type,
                 self.config.symbol,
                 f"{self.lookback}x{self.config.interval}",
-                str(self.wait_time),
+                str(self.config.wait_time),
             ]
         )

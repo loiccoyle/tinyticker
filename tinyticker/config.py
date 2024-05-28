@@ -23,7 +23,7 @@ class TickerConfig:
     symbol: str = "SPY"
     interval: str = "1d"
     lookback: Optional[int] = None
-    wait_time: Optional[int] = None
+    wait_time: int = 600
     plot_type: str = "candle"
     mav: Optional[int] = None
     volume: bool = False

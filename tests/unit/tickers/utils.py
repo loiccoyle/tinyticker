@@ -27,7 +27,8 @@ def assert_tick_expected(
         assert resp.historical.index.inferred_type == "datetime64"
         assert len(resp.historical) == ticker.lookback
         assert (
-            ticker.wait_time == pd.to_timedelta(ticker.config.interval).total_seconds()
+            ticker.config.wait_time
+            == pd.to_timedelta(ticker.config.interval).total_seconds()
         )
         assert resp.historical.index.tzinfo == pytz.UTC  # type: ignore
         assert (resp.historical.index == expected.index).all()
@@ -41,7 +42,7 @@ def assert_tick_timing(ticker: TickerBase):
         if i == 3:
             break
     # the time between iterations should roughly be the ticker wait_time
-    assert np.mean(np.diff(times)) == pytest.approx(ticker.wait_time, abs=5)
+    assert np.mean(np.diff(times)) == pytest.approx(ticker.config.wait_time, abs=5)
 
 
 def same(df1: pd.DataFrame, df2: pd.DataFrame) -> bool:

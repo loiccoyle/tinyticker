@@ -82,7 +82,7 @@ class Sequence:
             The `Ticker` instance and its response.
         """
         # if all tickers are skipped, we want to sleep for the smallest wait time
-        all_skipped_cooldown = min(ticker.wait_time for ticker in self.tickers)
+        all_skipped_cooldown = min(ticker.config.wait_time for ticker in self.tickers)
 
         all_skipped = False
         while True:
@@ -127,10 +127,10 @@ class Sequence:
                 all_skipped = False
                 yield (ticker, response)
 
-                LOGGER.info(f"Sleeping {ticker.wait_time}s.")
+                LOGGER.info(f"Sleeping {ticker.config.wait_time}s.")
                 # we want to sleep for the ticker's wait time and check every second if we
                 # should skip this ticker.
-                for _ in range(ticker.wait_time):
+                for _ in range(ticker.config.wait_time):
                     if self._skip_ticker:
                         LOGGER.info(f"Stop waiting, skipping {ticker}.")
                         break
