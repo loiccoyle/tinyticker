@@ -35,8 +35,8 @@ from ._base import EPDHighlight
 from .device import RaspberryPi
 
 # Display resolution
-EPD_WIDTH = 800
-EPD_HEIGHT = 480
+EPD_WIDTH = 480
+EPD_HEIGHT = 800
 
 logger = logging.getLogger(__name__)
 
