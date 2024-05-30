@@ -30,6 +30,8 @@
 import logging
 from typing import Type
 
+import numpy as np
+
 from ._base import EPDMonochrome
 from .device import RaspberryPi
 
@@ -740,50 +742,29 @@ class EPD(EPDMonochrome):
         return bytearray(image.tobytes("raw"))
 
     def getbuffer_4Gray(self, image):
-        # logger.debug("bufsiz = ",int(self.width/8) * self.height)
-        buf = [0xFF] * (int(self.width / 4) * self.height)
-        image_monocolor = image.convert("L")
-        imwidth, imheight = image_monocolor.size
-        pixels = image_monocolor.load()
-        i = 0
-        # logger.debug("imwidth = %d, imheight = %d",imwidth,imheight)
-        if imwidth == self.width and imheight == self.height:
-            logger.debug("Vertical")
-            for y in range(imheight):
-                for x in range(imwidth):
-                    # Set the bits for the column of pixels at the current position.
-                    if pixels[x, y] == 0xC0:
-                        pixels[x, y] = 0x80
-                    elif pixels[x, y] == 0x80:
-                        pixels[x, y] = 0x40
-                    i = i + 1
-                    if i % 4 == 0:
-                        buf[int((x + (y * self.width)) / 4)] = (
-                            (pixels[x - 3, y] & 0xC0)
-                            | (pixels[x - 2, y] & 0xC0) >> 2
-                            | (pixels[x - 1, y] & 0xC0) >> 4
-                            | (pixels[x, y] & 0xC0) >> 6
-                        )
+        if (self.height, self.width) == image.size:
+            # image has correct dimensions, but needs to be rotated
+            image = image.rotate(90, expand=True)
+            pixels = np.array(image.convert("L"))
 
-        elif imwidth == self.height and imheight == self.width:
-            logger.debug("Horizontal")
-            for x in range(imwidth):
-                for y in range(imheight):
-                    newx = y
-                    newy = self.height - x - 1
-                    if pixels[x, y] == 0xC0:
-                        pixels[x, y] = 0x80
-                    elif pixels[x, y] == 0x80:
-                        pixels[x, y] = 0x40
-                    i = i + 1
-                    if i % 4 == 0:
-                        buf[int((newx + (newy * self.width)) / 4)] = (
-                            (pixels[x, y - 3] & 0xC0)
-                            | (pixels[x, y - 2] & 0xC0) >> 2
-                            | (pixels[x, y - 1] & 0xC0) >> 4
-                            | (pixels[x, y] & 0xC0) >> 6
-                        )
-        return buf
+            # Process the image in chunks of 4 pixels without using explicit loops
+            # we pack the bits of 4 pixels into a single byte
+            # 00011011 -> black, light gray, dark gray, white
+            pixels = pixels.reshape((self.height, self.width // 4, 4))
+            # not really sure why they do this, but it's in the waveshare code
+            pixels = np.where(pixels == 0x80, 0x40, pixels)
+            pixels = np.where(pixels == 0xC0, 0x80, pixels)
+            # keep the first 2 bits, which basically quatizes the image to 4 grey levels
+            pixels = pixels & 0xC0
+            # pack the 4 pixels into a single byte
+            packed_pixels = (
+                (pixels[:, :, 0])
+                | (pixels[:, :, 1] >> 2)
+                | (pixels[:, :, 2] >> 4)
+                | pixels[:, :, 3] >> 6
+            )
+
+            return bytearray(packed_pixels.flatten())
 
     def display(self, image):
         self.send_command(0x10)
