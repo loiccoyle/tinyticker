@@ -31,17 +31,22 @@ class EPDBase:
 
         Returns:
             The converted buffer.
-        """
-        if image.mode != "1":
-            image = image.convert("1")
-        if (image.height, image.width) == (self.width, self.height):
-            image = image.rotate(90, expand=True)
-        if (image.height, image.width) != (self.height, self.width):
-            # return a blank buffer
-            return bytearray([0xFF] * (math.ceil(self.width / 8) * self.height))
 
-        buf = bytearray(image.tobytes("raw"))
-        return buf
+        Raises:
+            ValueError: If the image dimensions are not correct.
+        """
+        if (self.height, self.width) == image.size:
+            # image has correct dimensions, but needs to be rotated
+            image = image.rotate(90, expand=True)
+
+        if (self.width, self.height) != image.size:
+            raise ValueError(
+                "Wrong image dimensions, must be %sx%s", self.width, self.height
+            )
+
+        if image.mode != "1":
+            image = image.convert("1", dither=Image.Dither.NONE)
+        return bytearray(image.tobytes())
 
     @abstractmethod
     def Clear(self) -> None:
