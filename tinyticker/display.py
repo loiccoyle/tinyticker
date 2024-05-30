@@ -91,6 +91,9 @@ class Display:
         Args:
             image: The image to display.
         """
+        if self.flip:
+            image = image.rotate(180)
+
         highlight_image = None
         if self.has_highlight and image.mode == "RGB":
             self._log.info("Computing highlight pixels.")
@@ -107,12 +110,8 @@ class Display:
                 # I think there is a bug with PIL, need to convert from "L"
                 # https://stackoverflow.com/questions/32159076/python-pil-bitmap-png-from-array-with-mode-1
                 highlight_image = Image.fromarray(highlight_image, mode="L")
-                if self.flip:
-                    highlight_image = highlight_image.rotate(180)
                 self._log.debug("Highlight image size: %s", highlight_image.size)
 
-        if self.flip:
-            image = image.rotate(180)
         self._log.debug("Image size: %s", image.size)
         self._log.info("Wake up.")
         # I think this wakes it from sleep
