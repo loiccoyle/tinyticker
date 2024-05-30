@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en" class="uk-height-1-1">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TinyTicker - Startup Scripts</title>
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon-16x16.png"
+    />
+    <!-- CSS FILES -->
+    <link rel="stylesheet" type="text/css" href="css/uikit.min.css" />
+    <!-- JS FILES -->
+    <script src="js/uikit.min.js"></script>
+    <script src="js/uikit-icons.min.js"></script>
+  </head>
+  <body class="uk-background-muted uk-height-1-1 uk-padding-small">
+    <div class="uk-width-1-1 uk-text-center uk-margin">
+      <h3>🚀 TinyTicker Startup Scripts 🚀</h3>
+      <div class="uk-flex uk-flex-center">
+        <ul class="uk-subnav uk-subnav-divider uk-margin">
+          <li><a href="/" target="_self">Home</a></li>
+          <li><a href="/logfiles" target="_self">Log Files</a></li>
+          <li class="uk-active"><a href="#">Startup scripts</a></li>
+        </ul>
+      </div>
+    </div>
+    <ul uk-accordion="multiple: true">
+      {% for file in files %}
+        <li>
+          <a class="uk-accordion-title uk-inline" href="#">
+            {{ file }}
+            <a
+              href="/startup/get/{{ file }}"
+              class="uk-icon-link"
+              uk-icon="download"
+              download
+            ></a>
+            <a
+              href="/startup/remove/{{ file }}"
+              class="uk-icon-link"
+              uk-icon="trash"
+            ></a>
+          </a>
+          <div class="uk-accordion-content">
+            <pre id="content-{{ file }}"></pre>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+    <div
+      class="uk-width-1-1 uk-text-center uk-margin-top uk-background-default"
+    >
+      <div class="js-upload uk-placeholder uk-text-center">
+        <span uk-icon="icon: cloud-upload"></span>
+        <span class="uk-text-middle">Drop startup scripts here or</span>
+        <div uk-form-custom>
+          <input type="file" multiple url="/startup/add" />
+          <span class="uk-link">select some</span>
+        </div>
+      </div>
+    </div>
+    <p class="uk-text-center uk-text-small">
+      Check out some
+      <a
+        href="https://github.com/loiccoyle/tinyticker/tree/main/startup_scripts"
+        target="_parent"
+        class="uk-link"
+        >example</a
+      >
+    </p>
+  </body>
+  <script>
+    function updateScriptContent(file) {
+      fetch(`/startup/get/${file}`)
+        .then((response) => response.text())
+        .then((content) => {
+          document.getElementById(`content-${file}`).textContent = content;
+        });
+    }
+
+    {% for file in files %}
+      updateScriptContent('{{ file }}');
+    {% endfor %}
+
+    UIkit.upload(".js-upload", {
+      url: "/startup/add",
+      multiple: true,
+      name: "file",
+      completeAll: function () {
+        location.reload();
+      },
+    });
+  </script>
+</html>

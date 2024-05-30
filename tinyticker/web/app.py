@@ -1,5 +1,6 @@
 import logging
 import socket
+import stat
 import subprocess
 import sys
 import threading
@@ -7,17 +8,27 @@ from pathlib import Path
 from typing import Optional
 
 from flask import Flask, abort, redirect, render_template, request, send_from_directory
+from werkzeug.utils import secure_filename
 
 from .. import __version__
-from ..config import PLOT_TYPES, SequenceConfig, TickerConfig, TinytickerConfig
+from ..config import (
+    PLOT_TYPES,
+    LayoutConfig,
+    SequenceConfig,
+    TickerConfig,
+    TinytickerConfig,
+    load_config_safe,
+)
+from ..layouts import LAYOUTS
 from ..paths import CONFIG_FILE, LOG_DIR
-from ..ticker import INTERVAL_LOOKBACKS, INTERVAL_TIMEDELTAS, SYMBOL_TYPES
+from ..tickers import SYMBOL_TYPES
+from ..tickers._base import INTERVAL_LOOKBACKS
 from ..waveshare_lib.models import MODELS
 from .command import COMMANDS, reboot
+from .startup import STARTUP_DIR
 
 LOGGER = logging.getLogger(__name__)
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
-INTERVAL_WAIT_TIMES = {k: v.value * 1e-9 for k, v in INTERVAL_TIMEDELTAS.items()}
 
 
 def no_empty_str(data: str) -> Optional[str]:
@@ -69,7 +80,7 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
 
     @app.route("/")
     def index():
-        tt_config = TinytickerConfig.from_file(config_file)
+        tt_config = load_config_safe(config_file)
         return render_template(
             "index.html",
             hostname=hostname,
@@ -77,9 +88,9 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
             plot_type_options=PLOT_TYPES,
             symbol_type_options=SYMBOL_TYPES,
             interval_lookbacks=INTERVAL_LOOKBACKS,
-            interval_wait_times=INTERVAL_WAIT_TIMES,
             interval_options=INTERVAL_LOOKBACKS.keys(),
             epd_model_options=MODELS.values(),
+            layout_options=LAYOUTS.values(),
             version=__version__,
             **tt_config.to_dict(),
         )
@@ -88,42 +99,14 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
     def logs():
         return render_template("logfiles.html", log_files=log_files)
 
-    @app.route("/config")
+    @app.route("/config", methods=["POST"])
     def config():
-        # TODO: post the config via a json post instead of parsing it here
-        # Something like:
-        # https://stackoverflow.com/questions/22195065/how-to-send-a-json-object-using-html-form-data
-        LOGGER.debug("/config url args: %s", request.args)
-        tickers = {}
-        tickers["symbol"] = request.args.getlist("symbol")
-        tickers["symbol_type"] = request.args.getlist("symbol_type")
-        tickers["plot_type"] = request.args.getlist("plot_type")
-        tickers["interval"] = request.args.getlist("interval")
-        tickers["lookback"] = request.args.getlist("lookback", type=no_empty_int)
-        tickers["wait_time"] = request.args.getlist("wait_time", type=no_empty_int)
-        tickers["mav"] = request.args.getlist("mav", type=no_empty_int)
-        tickers["volume"] = request.args.getlist("volume", type=str_to_bool)
-        tickers["avg_buy_price"] = request.args.getlist(
-            "avg_buy_price", type=no_empty_float
-        )
+        """Post the config via a json post instead of parsing it here."""
+        LOGGER.debug("/config request.json: %s", request.json)
+        if not request.json:
+            abort(400)
 
-        sequence = SequenceConfig(
-            skip_outdated=request.args.get("skip_outdated", False, type=bool),
-            # NOTE: currently not toggleable from the web app
-            skip_empty=request.args.get("skip_empty", True, type=bool),
-        )
-
-        # invert the ticker dict of list to list of dict and create ticker list
-        tickers = [
-            TickerConfig(**dict(zip(tickers, t))) for t in zip(*tickers.values())
-        ]
-        tt_config = TinytickerConfig(
-            api_key=request.args.get("api_key", type=no_empty_str),
-            flip=request.args.get("flip", default=False, type=bool),
-            epd_model=request.args.get("epd_model", "EPD_v3"),
-            tickers=tickers,
-            sequence=sequence,
-        )
+        tt_config = TinytickerConfig.from_dict(request.json)
         LOGGER.debug(tt_config)
         # writing the config to file, the main ticker process is monitoring this file
         # and will refresh the ticker process
@@ -186,5 +169,46 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
     @app.errorhandler(500)
     def internal_error(_):
         sys.exit(1)
+
+    @app.route("/startup/add", methods=["POST", "GET"])
+    def upload_startup_script():
+        if request.method == "GET":
+            return redirect("/startup")
+
+        # this endpoint should receive the script and add it into the startup folder
+        # the script should be run on startup
+        # check if the post request has the file part
+        for _, file in request.files.items():
+            # If the user does not select a file, the browser submits an
+            # empty file without a filename.
+            if not file or not file.filename:
+                continue
+            else:
+                filename = secure_filename(file.filename)
+                startup_file = STARTUP_DIR / filename
+                file.save(startup_file)
+                # make the file executable
+                startup_file.chmod(
+                    startup_file.stat().st_mode
+                    | stat.S_IXUSR
+                    | stat.S_IXGRP
+                    | stat.S_IXOTH
+                )
+        return redirect("/startup")
+
+    @app.route("/startup/remove/<filename>")
+    def remove_startup_script(filename):
+        file = STARTUP_DIR / secure_filename(filename)
+        file.unlink()
+        return redirect("/startup")
+
+    @app.route("/startup/get/<filename>")
+    def get_startup_script(filename):
+        return send_from_directory(STARTUP_DIR, filename, mimetype="text/plain")
+
+    @app.route("/startup")
+    def startup_scippts():
+        files = sorted([path.name for path in STARTUP_DIR.glob("*")])
+        return render_template("startup.html", files=files)
 
     return app

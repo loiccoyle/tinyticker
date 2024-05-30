@@ -3,13 +3,12 @@ from typing import Literal
 from unittest import TestCase
 
 import pandas as pd
-import pytest
 from PIL import Image
 
 from tinyticker.config import TinytickerConfig
 from tinyticker.display import Display
 from tinyticker.waveshare_lib._base import EPDMonochrome
-from tinyticker.waveshare_lib.models import MODELS, EPDModel
+from tinyticker.waveshare_lib.models import MODELS, EPDData
 
 from .utils import expected_fig
 
@@ -37,9 +36,9 @@ class EPDMock(EPDMonochrome):
         pass
 
 
-MODELS["mock"] = EPDModel(
+MODELS["mock"] = EPDData(
     name="mock",
-    class_=EPDMock,
+    EPD=EPDMock,
     desc="A Mock display for testing",
 )
 
@@ -47,22 +46,13 @@ MODELS["mock"] = EPDModel(
 class TestDisplay(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.display = Display("mock")
+        cls.display = Display(EPDMock())
         cls.data_dir = Path(__file__).parents[1] / "data"
         cls.config_path = cls.data_dir / "config.json"
         cls.historical: pd.DataFrame = pd.read_pickle(
             cls.data_dir / "crypto_historical.pkl"
         )
-        cls.crypto_historical_plot_file = cls.data_dir / "crypto_historical_plot.png"
-        cls.crypto_historical_plot_volume_file = (
-            cls.data_dir / "crypto_historical_plot_volume.png"
-        )
-        cls.text_plot_file = cls.data_dir / "text_plot.png"
-
-    def test_init(self):
-        with pytest.raises(KeyError):
-            Display("Some model which does not exist")
-        assert self.display.epd.is_init  # type: ignore
+        cls.text_plot_file = cls.data_dir / "text_plot.jpg"
 
     def test_from_tt_config(self):
         tt_config = TinytickerConfig.from_file(self.config_path)
@@ -80,16 +70,6 @@ class TestDisplay(TestCase):
         ).all()
         assert ax.margins() == (0, 0)
         assert ax.axison is False
-
-    def test_plot(self):
-        fig, ax = self.display.plot(self.historical, None)
-        self._check_fig_ax(fig, ax)
-        assert expected_fig(fig, self.crypto_historical_plot_file)
-
-    def test_plot_with_volume(self):
-        fig, ax = self.display.plot(self.historical, None, volume=True)
-        self._check_fig_ax(fig, ax)
-        assert expected_fig(fig, self.crypto_historical_plot_volume_file)
 
     def test_text(self):
         text = "Some text"

@@ -6,7 +6,12 @@ import pytest
 from flask import Flask
 from flask.testing import FlaskClient
 
-from tinyticker.config import TinytickerConfig
+from tinyticker.config import (
+    TinytickerConfig,
+    TickerConfig,
+    LayoutConfig,
+    SequenceConfig,
+)
 from tinyticker.web.app import COMMANDS, create_app
 from tinyticker.web.command import register
 
@@ -55,34 +60,52 @@ def test_index(client: FlaskClient):
 
 
 def test_config(client: FlaskClient):
-    params = {
-        "symbol": ["AAPL", "GOOG"],
-        "symbol_type": ["stock", "stock"],
-        "plot_type": ["candle", "line"],
-        "interval": ["1d", "1h"],
-        "lookback": [30, 24],
-        "wait_time": [10, 20],
-        "mav": [3, ""],
-        "volume": [1, ""],
-        "avg_buy_price": ["", 100],
-        "flip": True,
-        "epd_model": "EPD_V3",
-        "api_key": "SOMEKEY",
-    }
-    resp = client.get(
+    expected_config = TinytickerConfig(
+        tickers=[
+            TickerConfig(
+                symbol="AAPL",
+                symbol_type="stock",
+                plot_type="candle",
+                interval="1d",
+                lookback=30,
+                wait_time=10,
+                mav=3,
+                volume=True,
+                avg_buy_price=None,
+                prepost=True,
+                layout=LayoutConfig(name="default", y_axis=True, x_gaps=False),
+            ),
+            TickerConfig(
+                symbol="GOOG",
+                symbol_type="stock",
+                plot_type="line",
+                interval="1h",
+                lookback=24,
+                wait_time=20,
+                mav=None,
+                volume=False,
+                avg_buy_price=100.0,
+                prepost=False,
+                layout=LayoutConfig(name="big_price", y_axis=False, x_gaps=True),
+            ),
+        ],
+        flip=True,
+        epd_model="EPD_V3",
+        api_key="SOMEKEY",
+        sequence=SequenceConfig(
+            skip_outdated=False,
+            skip_empty=True,
+        ),
+    )
+    resp = client.post(
         "/config",
-        query_string=params,
+        headers={"Content-Type": "application/json"},
+        data=expected_config.to_json(),
     )
     assert resp.status_code == 302
     assert resp.headers.get("location") == "/"
     new_config = TinytickerConfig.from_file(CONFIG_FILE)
-    for key, value in params.items():
-        if isinstance(value, list):
-            assert [getattr(ticker, key) for ticker in new_config.tickers] == [
-                v if v else None for v in value
-            ]
-        else:
-            assert getattr(new_config, key) == value
+    assert new_config == expected_config
 
 
 def test_command(client: FlaskClient):

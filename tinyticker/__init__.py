@@ -1,11 +1,23 @@
 import logging
+from importlib.metadata import version
 
+from .config import SequenceConfig, TickerConfig, TinytickerConfig
 from .display import Display
-from .ticker import Ticker
+from .sequence import Sequence
+from .tickers import Ticker, TickerCrypto, TickerStock
 
 logger = logging.getLogger(__name__)
 
 logger.addHandler(logging.NullHandler())
 
-__version__ = "0.5.6"
-__all__ = ["Display", "Ticker"]
+__version__ = version("tinyticker")
+__all__ = [
+    "Display",
+    "Sequence",
+    "SequenceConfig",
+    "Ticker",
+    "TickerConfig",
+    "TickerCrypto",
+    "TickerStock",
+    "TinytickerConfig",
+]
