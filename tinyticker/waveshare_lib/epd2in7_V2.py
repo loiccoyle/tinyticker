@@ -409,7 +409,7 @@ class EPD(EPDMonochrome):
         self.ReadBusy()
         return 0
 
-    def getbuffer_old(self, image):
+    def getbuffer(self, image):
         if (self.height, self.width) == image.size:
             # image has correct dimensions, but needs to be rotated
             image = image.rotate(90, expand=True)
@@ -422,7 +422,7 @@ class EPD(EPDMonochrome):
 
         return bytearray(image.convert("1", dither=Image.Dither.NONE).tobytes())
 
-    def getbuffer(self, image):
+    def getbuffer_4Gray(self, image):
         if (self.height, self.width) == image.size:
             # image has correct dimensions, but needs to be rotated
             image = image.rotate(90, expand=True)
@@ -459,7 +459,7 @@ class EPD(EPDMonochrome):
                 self.send_data(0xFF)
         self.TurnOnDisplay()
 
-    def display_old(self, image):
+    def display(self, image):
         if self.width % 8 == 0:
             Width = self.width // 8
         else:
@@ -574,7 +574,7 @@ class EPD(EPDMonochrome):
                     self.send_data(Image[i + j * Width])
         self.TurnOnDisplay_Partial()
 
-    def display(self, image):
+    def display_4Gray(self, image):
         self.send_command(0x24)
         for i in range(0, 5808):  # 5808*4  46464
             temp3 = 0
