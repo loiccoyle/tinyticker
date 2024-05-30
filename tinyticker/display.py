@@ -106,15 +106,11 @@ class Display:
                 highlight_image[colored_pixels] = 0
                 # I think there is a bug with PIL, need to convert from "L"
                 # https://stackoverflow.com/questions/32159076/python-pil-bitmap-png-from-array-with-mode-1
-                highlight_image = Image.fromarray(highlight_image, mode="L").convert(
-                    "1", dither=Image.Dither.NONE
-                )
+                highlight_image = Image.fromarray(highlight_image, mode="L")
                 if self.flip:
                     highlight_image = highlight_image.rotate(180)
                 self._log.debug("Highlight image size: %s", highlight_image.size)
 
-        if image.mode != "1":
-            image = image.convert("1", dither=Image.Dither.NONE)
         if self.flip:
             image = image.rotate(180)
         self._log.debug("Image size: %s", image.size)
