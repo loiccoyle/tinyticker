@@ -30,6 +30,7 @@
 import logging
 from typing import Type
 
+from PIL.Image import Dither
 from ._base import EPDMonochrome
 from .device import RaspberryPi
 
@@ -407,22 +408,17 @@ class EPD(EPDMonochrome):
         return 0
 
     def getbuffer(self, image):
-        imwidth, imheight = image.size
-        if imwidth == self.width and imheight == self.height:
-            image = image.convert("1")
-        elif imwidth == self.height and imheight == self.width:
+        if (self.height, self.width) == image.size:
             # image has correct dimensions, but needs to be rotated
-            image = image.rotate(90, expand=True).convert("1")
-        else:
+            image = image.rotate(90, expand=True)
+        if (self.width, self.height) != image.size:
             logger.warning(
-                "Wrong image dimensions: must be "
-                + str(self.width)
-                + "x"
-                + str(self.height)
+                "Wrong image dimensions, must be %sx%s", self.width, self.height
             )
             # return a blank buffer
             return bytearray([0x00] * (int(self.width / 8) * self.height))
 
+        image = image.convert("1", dither=Dither.NONE)
         return bytearray(image.tobytes("raw"))
 
     def getbuffer_4Gray(self, image):
