@@ -113,8 +113,8 @@ class Display:
                     highlight_image = highlight_image.rotate(180)
                 self._log.debug("Highlight image size: %s", highlight_image.size)
 
-        if image.mode != "1":
-            image = image.convert("1", dither=Image.Dither.NONE)
+        # if image.mode != "1":
+        #     image = image.convert("1", dither=Image.Dither.NONE)
         if self.flip:
             image = image.rotate(180)
         self._log.debug("Image size: %s", image.size)
