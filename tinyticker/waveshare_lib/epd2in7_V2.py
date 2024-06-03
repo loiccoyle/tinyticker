@@ -406,25 +406,6 @@ class EPD(EPDMonochrome):
         self.ReadBusy()
         return 0
 
-    def getbuffer(self, image):
-        imwidth, imheight = image.size
-        if imwidth == self.width and imheight == self.height:
-            image = image.convert("1")
-        elif imwidth == self.height and imheight == self.width:
-            # image has correct dimensions, but needs to be rotated
-            image = image.rotate(90, expand=True).convert("1")
-        else:
-            logger.warning(
-                "Wrong image dimensions: must be "
-                + str(self.width)
-                + "x"
-                + str(self.height)
-            )
-            # return a blank buffer
-            return bytearray([0x00] * (int(self.width / 8) * self.height))
-
-        return bytearray(image.tobytes("raw"))
-
     def getbuffer_4Gray(self, image):
         # logger.debug("bufsiz = ",int(self.width/8) * self.height)
         buf = [0xFF] * (int(self.width / 4) * self.height)

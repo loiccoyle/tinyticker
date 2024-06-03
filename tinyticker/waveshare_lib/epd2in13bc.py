@@ -103,28 +103,6 @@ class EPD(EPDHighlight):
         self.send_data(self.height & 0xFF)
         return 0
 
-    def getbuffer(self, image):
-        buf = [0xFF] * (int(self.width / 8) * self.height)
-        image_monocolor = image.convert("1")
-        imwidth, imheight = image_monocolor.size
-
-        if imwidth == self.width and imheight == self.height:
-            logger.debug("Vertical")
-            for y in range(imheight):
-                for x in range(imwidth):
-                    # Set the bits for the column of pixels at the current position.
-                    if image_monocolor.getpixel((x, y)) == 0:
-                        buf[int((x + y * self.width) / 8)] &= ~(0x80 >> (x % 8))
-        elif imwidth == self.height and imheight == self.width:
-            logger.debug("Horizontal")
-            for y in range(imheight):
-                for x in range(imwidth):
-                    newx = y
-                    newy = self.height - x - 1
-                    if image_monocolor.getpixel((x, y)) == 0:
-                        buf[int((newx + newy * self.width) / 8)] &= ~(0x80 >> (y % 8))
-        return bytearray(buf)
-
     def display(self, imageblack, highlights=None):
         self.send_command(0x10)
         for i in range(0, int(self.width * self.height / 8)):

@@ -50,6 +50,7 @@ class EPD(EPDMonochrome):
         self.width = EPD_WIDTH
         self.height = EPD_HEIGHT
 
+    # NOTE: Unused
     lut_partial_update = [
         0x0,
         0x40,
@@ -445,6 +446,7 @@ class EPD(EPDMonochrome):
     parameter:
     """
 
+    # NOTE: Unused
     def TurnOnDisplayPart(self):
         self.send_command(0x22)  # Display Update Control
         self.send_data(0x0F)  # fast:0x0c, quality:0x0f, 0xcf
@@ -519,11 +521,6 @@ class EPD(EPDMonochrome):
         self.send_data(y & 0xFF)
         self.send_data((y >> 8) & 0xFF)
 
-    """
-    function : Initialize the e-Paper register
-    parameter:
-    """
-
     def init(self):
         if self.device.module_init() != 0:
             return -1
@@ -560,39 +557,6 @@ class EPD(EPDMonochrome):
         self.SetLut(self.lut_full_update)
         return 0
 
-    """
-    function : Display images
-    parameter:
-        image : Image data
-    """
-
-    def getbuffer(self, image):
-        img = image
-        imwidth, imheight = img.size
-        if imwidth == self.width and imheight == self.height:
-            img = img.convert("1")
-        elif imwidth == self.height and imheight == self.width:
-            # image has correct dimensions, but needs to be rotated
-            img = img.rotate(90, expand=True).convert("1")
-        else:
-            logger.warning(
-                "Wrong image dimensions: must be "
-                + str(self.width)
-                + "x"
-                + str(self.height)
-            )
-            # return a blank buffer
-            return bytearray([0x00] * (int(self.width / 8) * self.height))
-
-        buf = bytearray(img.tobytes("raw"))
-        return buf
-
-    """
-    function : Sends the image buffer in RAM to e-Paper and displays
-    parameter:
-        image : Image data
-    """
-
     def display(self, image):
         if self.width % 8 == 0:
             linewidth = int(self.width / 8)
@@ -611,6 +575,7 @@ class EPD(EPDMonochrome):
         image : Image data
     """
 
+    # NOTE: Unused
     def displayPartial(self, image):
         self.device.digital_write(self.reset_pin, 0)
         self.device.delay_ms(1)
@@ -653,6 +618,7 @@ class EPD(EPDMonochrome):
         image : Image data
     """
 
+    # NOTE: Unused
     def displayPartBaseImage(self, image):
         self.send_command(0x24)
         self.send_data2(image)
@@ -660,11 +626,6 @@ class EPD(EPDMonochrome):
         self.send_command(0x26)
         self.send_data2(image)
         self.TurnOnDisplay()
-
-    """
-    function : Clear screen
-    parameter:
-    """
 
     def Clear(self, color=0xFF):
         if self.width % 8 == 0:
@@ -676,11 +637,6 @@ class EPD(EPDMonochrome):
         self.send_command(0x24)
         self.send_data2([color] * int(self.height * linewidth))
         self.TurnOnDisplay()
-
-    """
-    function : Enter sleep mode
-    parameter:
-    """
 
     def sleep(self):
         self.send_command(0x10)  # enter deep sleep
