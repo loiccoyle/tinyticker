@@ -8,6 +8,38 @@ logger = logging.getLogger(__name__)
 class EPD(EPDMonochrome):
     width = 122
     height = 250
+    lut_full_update = [
+        0x22,
+        0x55,
+        0xAA,
+        0x55,
+        0xAA,
+        0x55,
+        0xAA,
+        0x11,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x1E,
+        0x1E,
+        0x1E,
+        0x1E,
+        0x1E,
+        0x1E,
+        0x1E,
+        0x1E,
+        0x01,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+    ]
 
     # Hardware reset
     def reset(self):
