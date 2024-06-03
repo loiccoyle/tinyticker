@@ -23,13 +23,6 @@ class EPD(EPDMonochrome):
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(20)
 
-    # send a lot of data
-    def send_data2(self, data):
-        self.device.digital_write(self.dc_pin, 1)
-        self.device.digital_write(self.cs_pin, 0)
-        self.device.spi_writebyte2(data)
-        self.device.digital_write(self.cs_pin, 1)
-
     """
     function :Wait until the busy_pin goes LOW
     parameter:

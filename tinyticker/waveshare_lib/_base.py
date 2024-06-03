@@ -74,6 +74,17 @@ class EPDBase:
         self.device.spi_writebyte([data])
         self.device.digital_write(self.cs_pin, 1)
 
+    def send_data2(self, data):
+        """Send a bunch of data bytes to the display.
+
+        Args:
+            data: The data to send.
+        """
+        self.device.digital_write(self.dc_pin, 1)
+        self.device.digital_write(self.cs_pin, 0)
+        self.device.spi_writebyte2(data)
+        self.device.digital_write(self.cs_pin, 1)
+
     @abstractmethod
     def clear(self) -> None:
         """Clear the display."""
