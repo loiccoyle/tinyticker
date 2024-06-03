@@ -20,7 +20,7 @@ class EPDBase:
 
     @abstractmethod
     def init(self) -> Literal[0, -1]:
-        """Initializes the display.
+        """Initialize the display.
 
         Returns:
             The initialization status. It can be either 0 or -1.
@@ -53,7 +53,7 @@ class EPDBase:
         return bytearray(image.tobytes())
 
     def send_command(self, command: int) -> None:
-        """Send command to the e-Paper.
+        """Send command to the display.
 
         Args:
             command: The command to send.
@@ -64,7 +64,7 @@ class EPDBase:
         self.device.digital_write(self.cs_pin, 1)
 
     def send_data(self, data: int) -> None:
-        """Send data to the e-Paper.
+        """Send data to the display.
 
         Args:
             data: The data to send.
@@ -73,11 +73,6 @@ class EPDBase:
         self.device.digital_write(self.cs_pin, 0)
         self.device.spi_writebyte([data])
         self.device.digital_write(self.cs_pin, 1)
-
-    @abstractmethod
-    def Clear(self) -> None:
-        """Clear the display."""
-        ...
 
     @abstractmethod
     def clear(self) -> None:
