@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Literal, Optional, Type
+from typing import Literal, Optional, Tuple, Type
 
 from PIL import Image
 
@@ -12,6 +12,18 @@ class EPDBase:
 
     @abstractmethod
     def __init__(self, device: Type[RaspberryPi] = RaspberryPi) -> None: ...
+
+    @property
+    def size(self) -> Tuple[int, int]:
+        """The width and height of the display in landscape orientation.
+
+        The width/height from the waveshare library are not consistent, so we wrap it in a property.
+        """
+        return (
+            (self.width, self.height)
+            if self.width > self.height
+            else (self.height, self.width)
+        )
 
     @abstractmethod
     def init(self) -> Literal[0, -1]: ...

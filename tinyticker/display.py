@@ -61,7 +61,7 @@ class Display:
         Returns:
             The `plt.Figure` and `plt.Axes` with the text.
         """
-        fig, ax = _create_fig_ax((self.epd.height, self.epd.width), n_axes=1)
+        fig, ax = _create_fig_ax(self.epd.size, n_axes=1)
         ax = ax[0]
         ax.text(0, 0, text, ha="center", va="center", wrap=True, **kwargs)
         if show:
@@ -127,5 +127,5 @@ class Display:
 
     def show(self, ticker: TickerBase, resp: TickerResponse) -> None:
         layout = LAYOUTS.get(ticker.config.layout.name, LAYOUTS["default"])
-        image = layout.func((self.epd.height, self.epd.width), ticker, resp)
+        image = layout.func(self.epd.size, ticker, resp)
         self.show_image(image)
