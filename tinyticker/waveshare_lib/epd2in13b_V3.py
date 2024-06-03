@@ -59,13 +59,11 @@ class EPD(EPDHighlight):
 
     def display(self, imageblack, highlights=None):
         self.send_command(0x10)
-        for i in range(0, int(self.width * self.height / 8)):
-            self.send_data(imageblack[i])
+        self.send_data2(imageblack)
 
         if highlights is not None:
             self.send_command(0x13)
-            for i in range(0, int(self.width * self.height / 8)):
-                self.send_data(highlights[i])
+            self.send_data2(highlights)
 
         self.send_command(0x12)  # REFRESH
         self.device.delay_ms(100)
