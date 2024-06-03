@@ -26,22 +26,53 @@
     <!-- JS FILES -->
     <script src="js/uikit.min.js"></script>
     <script src="js/uikit-icons.min.js"></script>
+    <script>
+      // update the content of the log file
+      function updateLogFileContent(log_file) {
+        fetch(`/get-log/${log_file}`)
+          .then((response) => response.text())
+          .then((content) => {
+            document.getElementById(`content-${log_file}`).textContent =
+              content;
+          });
+      }
+      // update the content of all log files every 60s
+      function updateAllLogFileContent() {
+        {% for log_file in log_files %}
+          updateLogFileContent('{{ log_file }}');
+        {% endfor %}
+        setTimeout(updateAllLogFileContent, 10000);
+      }
+      // start updating the content of all log files
+      updateAllLogFileContent();
+    </script>
   </head>
   <body class="uk-background-muted uk-height-1-1 uk-padding-small">
-    <div class="uk-flex uk-flex-center uk-flex-middle">
-      <div class="uk-width-large">
-        <div class="uk-width-1-1 uk-text-center">
-          <p class="uk-text-large">🚀 TinyTicker Log Files 🚀</p>
-        </div>
-        <p class="uk-text-large">Log files:</p>
-        <ul class="uk-list uk-list-square">
-          {% for log_file in log_files %}
-            <li>
-              <a href="/get-log/{{ log_file }}">{{ log_file }}</a>
-            </li>
-          {% endfor %}
+    <div class="uk-text-center uk-margin">
+      <h3>🚀 TinyTicker Log Files 🚀</h3>
+      <div class="uk-flex uk-flex-center">
+        <ul class="uk-subnav uk-subnav-divider uk-margin">
+          <li><a href="/" target="_self">Home</a></li>
+          <li class="uk-active"><a href="#">Log Files</a></li>
+          <li><a href="/startup" target="_self">Startup scripts</a></li>
         </ul>
       </div>
     </div>
+    <ul uk-accordion="multiple: true">
+      {% for log_file in log_files %}
+        <li>
+          <a class="uk-accordion-title uk-inline" href> {{ log_file }} </a>
+          <a
+            href="/get-log/{{ log_file }}"
+            class="uk-icon-link"
+            uk-icon="download"
+          ></a>
+          <pre
+            id="content-{{ log_file }}"
+            class="uk-height-large uk-accordion-content"
+          ></pre>
+        </li>
+      {% endfor %}
+    </ul>
   </body>
 </html>

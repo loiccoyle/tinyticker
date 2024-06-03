@@ -7,6 +7,7 @@
   <a href="https://pypi.org/project/tinyticker/"><img src="https://img.shields.io/pypi/v/tinyticker"></a>
   <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
   <a href="https://github.com/loiccoyle/tinyticker/actions/workflows/ci.yml"><img src="https://github.com/loiccoyle/tinyticker/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://discord.com/channels/1239232827237597184/1239232827841839297"><img alt="Discord" src="https://img.shields.io/badge/%20discord-%20?logo=discord"></a>
 </p>
 <hr/>
 
@@ -25,6 +26,7 @@ Shopping list:
   - [Waveshare ePaper 2.13in Black & White](https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT)
   - [Waveshare ePaper 2.13in Black, White & Red](<https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT_(B)>)
   - [Waveshare ePaper 2.13in Black, White & Yellow](<https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT_(C)>)
+  - [Waveshare ePaper 2.7in Black & White](https://www.waveshare.com/wiki/2.7inch_e-Paper_HAT)
 - A micro sd card
 
 ## 📦 Installation
@@ -81,8 +83,6 @@ I highly recommend using [comitup](https://github.com/davesteele/comitup) to set
   ```
 
   - To setup `tinyticker` to start on boot, copy over the [`systemd` unit files](./systemd) and enable them.
-  - On boot, a qrcode linking to the `flask` app will be flashed on the display
-  - Leave a star, reboot and HODL !
 
 </details>
 
@@ -97,5 +97,3 @@ On first boot, you will need to connect your RPi to your wifi network.
 Your RPi will now connect to your wifi and the `tinyticker` services will start.
 
 Once the web app is running, head over to `http://tinyticker.local` to configure it.
-
-> The RPi zero isn't very fast, so be patient :)

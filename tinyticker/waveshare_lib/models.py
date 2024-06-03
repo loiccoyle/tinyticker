@@ -9,52 +9,66 @@ from . import (
     epd2in13b_V3,
     epd2in13b_V4,
     epd2in13bc,
+    epd2in7,
+    epd2in7_V2,
 )
-from ._base import EPDMonochrome, EPDHighlight
+from ._base import EPDHighlight, EPDMonochrome
+
+EPDModel = Union[EPDMonochrome, EPDHighlight]
 
 
 @dataclass
-class EPDModel:
+class EPDData:
     name: str
-    class_: Union[Type[EPDMonochrome], Type[EPDHighlight]]
+    EPD: Union[Type[EPDMonochrome], Type[EPDHighlight]]
     desc: str
 
 
 MODELS = [
-    EPDModel(
+    EPDData(
         name="EPD",
-        class_=epd2in13.EPD,
+        EPD=epd2in13.EPD,
         desc="Black and White 2.13 inch",
     ),
-    EPDModel(
+    EPDData(
         name="EPD_v2",
-        class_=epd2in13_V2.EPD,
+        EPD=epd2in13_V2.EPD,
         desc="Black and White 2.13 inch V2",
     ),
-    EPDModel(
+    EPDData(
         name="EPD_v3",
-        class_=epd2in13_V3.EPD,
+        EPD=epd2in13_V3.EPD,
         desc="Black and White 2.13 inch V3",
     ),
-    EPDModel(
+    EPDData(
         name="EPD_v4",
-        class_=epd2in13_V4.EPD,
+        EPD=epd2in13_V4.EPD,
         desc="Black and White 2.13 inch V4",
     ),
-    EPDModel(
+    EPDData(
         name="EPDb_v3",
-        class_=epd2in13b_V3.EPD,
+        EPD=epd2in13b_V3.EPD,
         desc="Black, White and Red 2.13 inch V3",
     ),
-    EPDModel(
+    EPDData(
         name="EPDb_v4",
-        class_=epd2in13b_V4.EPD,
+        EPD=epd2in13b_V4.EPD,
         desc="Black, White and Red 2.13 inch V4",
     ),
-    EPDModel(
+    EPDData(
         name="EPDbc",
-        class_=epd2in13bc.EPD,
+        EPD=epd2in13bc.EPD,
         desc="Black, White and Yellow 2.13 inch",
+    ),
+    EPDData(
+        name="EPD_2in7",
+        EPD=epd2in7.EPD,
+        desc="Black and White 2.7 inch",
+    ),
+    EPDData(
+        name="EPD_2in7_v2",
+        EPD=epd2in7_V2.EPD,
+        desc="Black and White 2.7 inch V2",
     ),
 ]
 MODELS = {model.name: model for model in MODELS}

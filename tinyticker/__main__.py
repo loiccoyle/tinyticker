@@ -1,21 +1,20 @@
 import argparse
+import asyncio
 import atexit
-import multiprocessing
 import os
 import signal
 import sys
 from pathlib import Path
-from time import sleep
 from typing import List
 
 from watchdog.events import FileModifiedEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
 from . import __version__, logger
-from .config import TinytickerConfig
+from .config import load_config_safe
 from .display import Display
 from .paths import CONFIG_FILE, PID_FILE
-from .ticker import Sequence
+from .sequence import Sequence
 from .utils import RawTextArgumentDefaultsHelpFormatter, set_verbosity
 
 
@@ -52,68 +51,39 @@ Note:
     return parser.parse_args(args)
 
 
-def start_ticker_process(config_file: Path) -> multiprocessing.Process:
-    """Create and start the ticker process.
-
-    Args:
-        config_file: config file path.
-
-    Returns:
-        The ticker process.
-    """
-    tick_process = multiprocessing.Process(target=start_ticker, args=(config_file,))
-    tick_process.start()
-    return tick_process
-
-
-def start_ticker(config_file: Path) -> None:
+async def start_ticker(config_file: Path) -> None:
     """Start ticking.
 
     Args:
         config_file: config file path.
     """
     logger.info("Starting ticker process")
+
+    def next_ticker(*_):
+        logger.info("Next ticker.")
+        if sequence is not None and sequence.current_index is not None:
+            sequence.go_to_index((sequence.current_index + 1) % len(sequence.tickers))
+
+    def prev_ticker(*_):
+        logger.info("Previous ticker.")
+        if sequence is not None and sequence.current_index is not None:
+            sequence.go_to_index((sequence.current_index - 1) % len(sequence.tickers))
+
+    signal.signal(signal.SIGUSR1, next_ticker)
+    signal.signal(signal.SIGUSR2, prev_ticker)
+
     # Read config values
-    tt_config = TinytickerConfig.from_file(config_file)
+    tt_config = load_config_safe(config_file)
 
     display = Display.from_tinyticker_config(tt_config)
     sequence = Sequence.from_tinyticker_config(tt_config)
     logger.debug(sequence)
 
     try:
-        for ticker, resp in sequence.start():
-            logger.debug("API len(historical): %s", len(resp.historical))
-            logger.debug("API current_price: %s", resp.current_price)
-            delta_range_start = resp.historical.iloc[0]["Open"]
-            delta_range = (
-                100 * (resp.current_price - delta_range_start) / delta_range_start
-            )
-
-            top_string = f"{ticker.symbol}: $ {resp.current_price:.2f}"
-            if ticker.avg_buy_price is not None:
-                # calculate the delta from the average buy price
-                delta_abp = (
-                    100
-                    * (resp.current_price - ticker.avg_buy_price)
-                    / ticker.avg_buy_price
-                )
-                top_string += f" {delta_abp:+.2f}%"
-
-            xlim = None
-            # if incomplete data, leave space for the missing data
-            if len(resp.historical) < ticker.lookback:
-                # the floats are to leave padding left and right of the edge candles
-                xlim = (-0.75, ticker.lookback - 0.25)
-            logger.debug("xlim: %s", xlim)
-            display.plot(
-                resp.historical,
-                top_string=top_string,
-                sub_string=f"{len(resp.historical)}x{ticker.interval} {delta_range:+.2f}%",
-                show=True,
-                xlim=xlim,
-                type=ticker._display_kwargs.pop("plot_type", "candle"),
-                **ticker._display_kwargs,
-            )
+        async for ticker, resp in sequence.start():
+            logger.debug("Ticker response len(historical): %s", len(resp.historical))
+            logger.debug("Ticker response current_price: %s", resp.current_price)
+            display.show(ticker, resp)
     except Exception as exc:
         logger.error(exc, stack_info=True)
         display.text(
@@ -124,18 +94,17 @@ def start_ticker(config_file: Path) -> None:
         )
 
 
-def main():
+async def run():
     args = parse_args(sys.argv[1:])
     config_file: Path = args.config
 
     if args.verbose > 0:
         set_verbosity(logger, args.verbose)
+    logger.info("Tinyticker version: %s", __version__)
 
-    # if the config file is not present, write the default values
-    if not config_file.is_file():
-        config_file.parent.mkdir(parents=True)
-        # write defaults to file
-        TinytickerConfig().to_file(config_file)
+    # make sure the config file exists and can be parsed before setting up the file
+    # monitor
+    load_config_safe(config_file)
 
     # write the process pid to file.
     pid = os.getpid()
@@ -147,26 +116,11 @@ def main():
 
     logger.debug("Args: %s", args)
 
-    #  setup signal handlers
-    def restart(*_) -> None:
-        """Restart both the ticker and the main thread."""
-        logger.info("Restarting.")
-        os.execv(sys.argv[0], sys.argv)
-
-    signal.signal(signal.SIGUSR1, restart)
-
-    def refresh(*_) -> None:
-        """Kill the ticker process, it gets restarted in the main thread."""
-        logger.info("Refreshing ticker process.")
-        if not tick_process._closed and tick_process.is_alive():  # type: ignore
-            tick_process.kill()
-            tick_process.join()
-            tick_process.close()
-
     class ConfigModifiedHandler(FileSystemEventHandler):
         def on_modified(self, event):
-            logger.info(f"{event.src_path} was changed, refreshing ticker thread.")
-            refresh()
+            logger.info(f"{event.src_path} was changed, cancelling ticker task.")
+            if tick_task and not tick_task.done():
+                tick_task.cancel()
 
     observer = Observer()
     config_modified_handler = ConfigModifiedHandler()
@@ -175,8 +129,6 @@ def main():
     )
     observer.start()
 
-    signal.signal(signal.SIGUSR2, refresh)
-
     def cleanup():
         """Remove the PID file on exit."""
         logger.info("Exiting.")
@@ -184,18 +136,26 @@ def main():
             PID_FILE.unlink()
         observer.stop()
         observer.join()
-        tick_process.kill()
-        tick_process.join()
 
     atexit.register(cleanup)
 
-    # start ticking
-    tick_process = start_ticker_process(config_file)
+    # start ticking, we pass the config file so that is can be reloaded on refresh
+    tick_task = None
     while True:
-        if tick_process._closed or not tick_process.is_alive():  # type: ignore
-            tick_process = start_ticker_process(config_file)
-        else:
-            sleep(1)
+        if not tick_task or tick_task.done():
+            try:
+                tick_task = asyncio.create_task(start_ticker(config_file))
+                await tick_task
+            except asyncio.CancelledError:
+                logger.info("Task cancelled.")
+
+
+def main():
+    try:
+        asyncio.run(run())
+    except KeyboardInterrupt:
+        logger.info("Exiting.")
+        sys.exit(0)
 
 
 if __name__ == "__main__":
