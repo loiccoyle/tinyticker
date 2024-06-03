@@ -28,36 +28,19 @@
 #
 
 import logging
-from typing import Type
 
 from ._base import EPDMonochrome
-from .device import RaspberryPi
-
-# Display resolution
-EPD_WIDTH = 176
-EPD_HEIGHT = 264
-
-GRAY1 = 0xFF  # white
-GRAY2 = 0xC0
-GRAY3 = 0x80  # gray
-GRAY4 = 0x00  # Blackest
 
 logger = logging.getLogger(__name__)
 
 
 class EPD(EPDMonochrome):
-    def __init__(self, device: Type[RaspberryPi] = RaspberryPi):
-        self.device = device()
-        self.reset_pin = self.device.RST_PIN
-        self.dc_pin = self.device.DC_PIN
-        self.busy_pin = self.device.BUSY_PIN
-        self.cs_pin = self.device.CS_PIN
-        self.width = EPD_WIDTH
-        self.height = EPD_HEIGHT
-        self.GRAY1 = GRAY1  # white
-        self.GRAY2 = GRAY2
-        self.GRAY3 = GRAY3  # gray
-        self.GRAY4 = GRAY4  # Blackest
+    width = 176
+    height = 264
+    GRAY1 = 0xFF  # white
+    GRAY2 = 0xC0
+    GRAY3 = 0x80  # gray
+    GRAY4 = 0x00  # Blackest
 
     lut_vcom_dc = [
         0x00,
@@ -519,18 +502,6 @@ class EPD(EPDMonochrome):
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(200)
 
-    def send_command(self, command):
-        self.device.digital_write(self.dc_pin, 0)
-        self.device.digital_write(self.cs_pin, 0)
-        self.device.spi_writebyte([command])
-        self.device.digital_write(self.cs_pin, 1)
-
-    def send_data(self, data):
-        self.device.digital_write(self.dc_pin, 1)
-        self.device.digital_write(self.cs_pin, 0)
-        self.device.spi_writebyte([data])
-        self.device.digital_write(self.cs_pin, 1)
-
     def ReadBusy(self):
         logger.debug("e-Paper busy")
         while self.device.digital_read(self.busy_pin) == 0:  #  0: idle, 1: busy
@@ -847,7 +818,7 @@ class EPD(EPDMonochrome):
         self.ReadBusy()
         # pass
 
-    def Clear(self, color=0xFF):
+    def clear(self, color=0xFF):
         self.send_command(0x10)
         for _ in range(0, int(self.width * self.height / 8)):
             self.send_data(color)
