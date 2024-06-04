@@ -1,6 +1,6 @@
 import math
 from abc import abstractmethod
-from typing import Literal, Optional, Type
+from typing import Optional, Type
 
 from PIL import Image
 
@@ -20,12 +20,8 @@ class EPDBase:
         self.cs_pin = self.device.CS_PIN
 
     @abstractmethod
-    def init(self) -> Literal[0, -1]:
-        """Initialize the display.
-
-        Returns:
-            The initialization status. It can be either 0 or -1.
-        """
+    def init(self) -> None:
+        """Initialize the display."""
         ...
 
     def getbuffer(self, image: Image.Image) -> bytearray:

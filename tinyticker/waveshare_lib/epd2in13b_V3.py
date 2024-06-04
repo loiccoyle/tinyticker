@@ -30,8 +30,7 @@ class EPD(EPDHighlight):
         logger.debug("e-Paper busy release")
 
     def init(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
 
         self.reset()
         self.send_command(0x04)
@@ -56,8 +55,6 @@ class EPD(EPDHighlight):
         self.send_data(0x77)
         # WBmode:VBDF 17|D7 VBDW 97 VBDB 57
         # WBRmode:VBDF F7 VBDW 77 VBDB 37  VBDR B7
-
-        return 0
 
     def display(self, imageblack, highlights=None):
         self.send_command(0x10)

@@ -518,8 +518,7 @@ class EPD(EPDMonochrome):
             self.send_data(self.gray_lut_ww[count])
 
     def init(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
 
         # EPD hardware init start
         self.reset()
@@ -588,11 +587,10 @@ class EPD(EPDMonochrome):
         self.send_command(0x82)  # VCM_DC_SETTING_REGISTER
         self.send_data(0x12)
         self.set_lut()
-        return 0
 
     def Init_4Gray(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
+
         self.reset()
 
         self.send_command(0x01)  # POWER SETTING

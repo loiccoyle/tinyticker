@@ -105,8 +105,7 @@ class EPD(EPDMonochrome):
         self.send_data((y >> 8) & 0xFF)
 
     def init(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
         # EPD hardware init start
         self.reset()
 
@@ -137,16 +136,13 @@ class EPD(EPDMonochrome):
 
         self.ReadBusy()
 
-        return 0
-
     """
     function : Initialize the e-Paper fast register
     parameter:
     """
 
     def init_fast(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
         # EPD hardware init start
         self.reset()
 
@@ -175,8 +171,6 @@ class EPD(EPDMonochrome):
         self.send_data(0x91)
         self.send_command(0x20)
         self.ReadBusy()
-
-        return 0
 
     def display(self, image):
         self.send_command(0x24)

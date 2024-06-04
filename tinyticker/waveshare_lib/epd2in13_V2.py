@@ -197,8 +197,7 @@ class EPD(EPDMonochrome):
         self.ReadBusy()
 
     def init(self, update=FULL_UPDATE):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
         # EPD hardware init start
         self.reset()
         if update == FULL_UPDATE:
@@ -284,7 +283,6 @@ class EPD(EPDMonochrome):
 
             self.send_command(0x3C)  # BorderWavefrom
             self.send_data(0x01)
-        return 0
 
     def display(self, image):
         self.send_command(0x24)

@@ -218,8 +218,7 @@ class EPD(EPDMonochrome):
             self.send_data(self.LUT_DATA_4Gray[i])
 
     def init(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
 
         # EPD hardware init start
         self.reset()
@@ -240,11 +239,9 @@ class EPD(EPDMonochrome):
 
         self.send_command(0x11)  # data entry mode
         self.send_data(0x03)
-        return 0
 
     def init_Fast(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
 
         # EPD hardware init start
         self.reset()
@@ -285,11 +282,10 @@ class EPD(EPDMonochrome):
         self.send_data(0x91)
         self.send_command(0x20)
         self.ReadBusy()
-        return 0
 
     def Init_4Gray(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
+
         self.reset()
 
         self.send_command(0x12)  # soft reset
@@ -342,7 +338,6 @@ class EPD(EPDMonochrome):
         self.send_data(0x00)
         self.send_data(0x00)
         self.ReadBusy()
-        return 0
 
     def getbuffer_4Gray(self, image):
         # logger.debug("bufsiz = ",int(self.width/8) * self.height)

@@ -67,8 +67,7 @@ class EPD(EPDMonochrome):
         logger.debug("e-Paper busy release")
 
     def init(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
         # EPD hardware init start
         self.reset()
         self.send_command(0x01)  # DRIVER_OUTPUT_CONTROL
@@ -100,8 +99,6 @@ class EPD(EPDMonochrome):
         self.send_command(0x32)
         for count in range(30):
             self.send_data(self.lut_full_update[count])
-
-        return 0
 
     ##
     #  @brief: specify the memory area for data R/W

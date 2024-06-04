@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Literal
 from unittest import TestCase
 
 import pandas as pd
@@ -19,9 +18,8 @@ class EPDMock(EPDMonochrome):
         self.width = 122
         self.height = 250
 
-    def init(self) -> Literal[0, -1]:
+    def init(self) -> None:
         self.is_init = True
-        return 0
 
     def getbuffer(self, image: Image.Image) -> bytearray:
         return bytearray()

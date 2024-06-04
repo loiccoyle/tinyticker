@@ -49,8 +49,7 @@ class EPD(EPDHighlight):
 
     # initialize
     def init(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
 
         self.reset()
 
@@ -80,8 +79,6 @@ class EPD(EPDHighlight):
         self.send_data(0x80)
 
         self.ReadBusy()
-
-        return 0
 
     # turn on display
     def TurnOnDisplay(self):

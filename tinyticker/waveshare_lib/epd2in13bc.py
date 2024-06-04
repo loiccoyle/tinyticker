@@ -26,8 +26,7 @@ class EPD(EPDHighlight):
         logger.debug("e-Paper busy release")
 
     def init(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
 
         self.reset()
 
@@ -49,7 +48,6 @@ class EPD(EPDHighlight):
         self.send_data(self.width & 0xFF)
         self.send_data(self.height >> 8)
         self.send_data(self.height & 0xFF)
-        return 0
 
     def display(self, imageblack, highlights=None):
         self.send_command(0x10)
