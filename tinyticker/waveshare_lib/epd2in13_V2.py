@@ -178,8 +178,10 @@ class EPD(EPDMonochrome):
         self.device.delay_ms(200)
 
     def ReadBusy(self):
+        logger.debug("e-Paper busy")
         while self.device.digital_read(self.busy_pin) == 1:  # 0: idle, 1: busy
             self.device.delay_ms(100)
+        logger.debug("e-Paper busy release")
 
     def TurnOnDisplay(self):
         self.send_command(0x22)
