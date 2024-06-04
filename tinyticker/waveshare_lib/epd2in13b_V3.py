@@ -21,6 +21,8 @@ class EPD(EPDHighlight):
 
     def ReadBusy(self):
         logger.debug("e-Paper busy")
+        # no other display send a command while waiting for busy release
+        # so maybe this doesn't do anything?
         self.send_command(0x71)
         while self.device.digital_read(self.busy_pin) == 0:
             self.send_command(0x71)

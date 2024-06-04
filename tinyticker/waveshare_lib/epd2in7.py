@@ -783,10 +783,12 @@ class EPD(EPDMonochrome):
         self.send_command(0x12)
         self.device.delay_ms(200)
         self.ReadBusy()
-        # pass
 
     def clear(self):
         buf = bytearray([0xFF] * (self.width // 8) * self.height)
+        # NOTE: for this display we also clear the gray layer, for some reason in the V2
+        # it isn't done, so I don't know if it is actually needed here...
+        # if it isn't needed then we can use the base class' `clear` implementation and rm this
         self.send_command(0x10)
         self.send_data2(buf)
         self.display(buf)
