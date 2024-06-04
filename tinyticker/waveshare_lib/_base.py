@@ -18,6 +18,7 @@ class EPDBase:
         self.dc_pin = self.device.DC_PIN
         self.busy_pin = self.device.BUSY_PIN
         self.cs_pin = self.device.CS_PIN
+        self._blank = bytearray([0xFF] * math.ceil(self.width / 8) * self.height)
 
     @abstractmethod
     def init(self) -> None:
@@ -101,7 +102,7 @@ class EPDMonochrome(EPDBase):
 
     def clear(self) -> None:
         """Clear the display."""
-        self.display(bytearray([0xFF] * math.ceil(self.width / 8) * self.height))
+        self.display(self._blank)
 
 
 class EPDHighlight(EPDBase):
@@ -121,8 +122,7 @@ class EPDHighlight(EPDBase):
 
     def clear(self) -> None:
         """Clear the display."""
-        buf = bytearray([0xFF] * math.ceil(self.width / 8) * self.height)
-        self.display(buf, highlights=buf)
+        self.display(self._blank, highlights=self._blank)
 
 
 # Could be used later to utilize the partial refresh feature of some of the EPDs
