@@ -13,10 +13,11 @@ from .utils import expected_fig
 
 
 class EPDMock(EPDMonochrome):
+    width = 122
+    height = 250
+
     def __init__(self) -> None:
         self.is_init = False
-        self.width = 122
-        self.height = 250
 
     def init(self) -> None:
         self.is_init = True
