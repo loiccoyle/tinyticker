@@ -10,10 +10,6 @@ logger = logging.getLogger(__name__)
 class EPD(EPDMonochrome):
     width = 176
     height = 264
-    GRAY1 = 0xFF  # white
-    GRAY2 = 0xC0
-    GRAY3 = 0x80  # gray
-    GRAY4 = 0x00  # Blackest
 
     LUT_DATA_4Gray = [
         0x40,
