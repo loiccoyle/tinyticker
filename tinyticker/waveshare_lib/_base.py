@@ -72,7 +72,7 @@ class EPDBase:
         self.device.spi_writebyte([data])
         self.device.digital_write(self.cs_pin, 1)
 
-    def send_data2(self, data):
+    def send_data2(self, data: bytearray) -> None:
         """Send a bunch of data bytes to the display.
 
         Args:

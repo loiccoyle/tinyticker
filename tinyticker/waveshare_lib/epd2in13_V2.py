@@ -298,6 +298,7 @@ class EPD(EPDMonochrome):
         for j in range(0, self.height):
             for i in range(0, linewidth):
                 buf[i + j * linewidth] = ~image[i + j * linewidth]
+        buf = bytearray(buf)
 
         self.send_command(0x24)
         self.send_data2(image)
