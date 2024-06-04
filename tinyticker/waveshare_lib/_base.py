@@ -11,7 +11,6 @@ class EPDBase:
     width: int
     height: int
 
-    @abstractmethod
     def __init__(self, device: Type[RaspberryPi] = RaspberryPi) -> None:
         self.device = device()
         self.reset_pin = self.device.RST_PIN
