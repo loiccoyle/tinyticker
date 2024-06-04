@@ -41,7 +41,6 @@ class EPD(EPDMonochrome):
         0x00,
     ]
 
-    # Hardware reset
     def reset(self):
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(200)
@@ -100,9 +99,6 @@ class EPD(EPDMonochrome):
         for count in range(30):
             self.send_data(self.lut_full_update[count])
 
-    ##
-    #  @brief: specify the memory area for data R/W
-    ##
     def SetWindows(self, x_start, y_start, x_end, y_end):
         self.send_command(0x44)  # SET_RAM_X_ADDRESS_START_END_POSITION
         self.send_data((x_start >> 3) & 0xFF)
@@ -113,9 +109,6 @@ class EPD(EPDMonochrome):
         self.send_data(y_end & 0xFF)
         self.send_data((y_end >> 8) & 0xFF)
 
-    ##
-    #  @brief: specify the start point for data R/W
-    ##
     def SetCursor(self, x, y):
         self.send_command(0x4E)  # SET_RAM_X_ADDRESS_COUNTER
         # x point must be the multiple of 8 or the last 3 bits will be ignored

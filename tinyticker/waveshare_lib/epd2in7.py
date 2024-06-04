@@ -460,7 +460,6 @@ class EPD(EPDMonochrome):
         0x00,
     ]
 
-    # Hardware reset
     def reset(self):
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(200)

@@ -10,7 +10,6 @@ class EPD(EPDHighlight):
     width = 122
     height = 250
 
-    # hardware reset
     def reset(self):
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(20)
@@ -19,14 +18,12 @@ class EPD(EPDHighlight):
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(20)
 
-    # judge e-Paper whether is ReadBusy
     def ReadBusy(self):
         logger.debug("e-Paper busy")
         while self.device.digital_read(self.busy_pin) != 0:
             self.device.delay_ms(10)
         logger.debug("e-Paper busy release")
 
-    # set the display window
     def set_windows(self, xstart, ystart, xend, yend):
         self.send_command(0x44)  # SET_RAM_X_ADDRESS_START_END_POSITION
         self.send_data((xstart >> 3) & 0xFF)
@@ -38,7 +35,6 @@ class EPD(EPDHighlight):
         self.send_data(yend & 0xFF)
         self.send_data((yend >> 8) & 0xFF)
 
-    # set the display cursor(origin)
     def set_cursor(self, xstart, ystart):
         self.send_command(0x4E)  # SET_RAM_X_ADDRESS_COUNTER
         self.send_data(xstart & 0xFF)
@@ -47,7 +43,6 @@ class EPD(EPDHighlight):
         self.send_data(ystart & 0xFF)
         self.send_data((ystart >> 8) & 0xFF)
 
-    # initialize
     def init(self):
         self.device.module_init()
 
@@ -80,12 +75,10 @@ class EPD(EPDHighlight):
 
         self.ReadBusy()
 
-    # turn on display
     def TurnOnDisplay(self):
         self.send_command(0x20)
         self.ReadBusy()
 
-    # display image
     def display(self, imageblack, highlights=None):
         self.send_command(0x24)
         self.send_data2(imageblack)
@@ -96,7 +89,6 @@ class EPD(EPDHighlight):
 
         self.TurnOnDisplay()
 
-    # sleep
     def sleep(self):
         self.send_command(0x10)  # DEEP_SLEEP
         self.send_data(0x01)  # check code

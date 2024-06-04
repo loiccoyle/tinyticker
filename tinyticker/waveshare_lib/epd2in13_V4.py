@@ -10,11 +10,6 @@ class EPD(EPDMonochrome):
     width = 122
     height = 250
 
-    """
-    function :Hardware reset
-    parameter:
-    """
-
     def reset(self):
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(20)
@@ -23,21 +18,11 @@ class EPD(EPDMonochrome):
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(20)
 
-    """
-    function :Wait until the busy_pin goes LOW
-    parameter:
-    """
-
     def ReadBusy(self):
         logger.debug("e-Paper busy")
         while self.device.digital_read(self.busy_pin) == 1:  # 0: idle, 1: busy
             self.device.delay_ms(10)
         logger.debug("e-Paper busy release")
-
-    """
-    function : Turn On Display
-    parameter:
-    """
 
     def TurnOnDisplay(self):
         self.send_command(0x22)  # Display Update Control
@@ -45,36 +30,17 @@ class EPD(EPDMonochrome):
         self.send_command(0x20)  # Activate Display Update Sequence
         self.ReadBusy()
 
-    """
-    function : Turn On Display Fast
-    parameter:
-    """
-
     def TurnOnDisplay_Fast(self):
         self.send_command(0x22)  # Display Update Control
         self.send_data(0xC7)  # fast:0x0c, quality:0x0f, 0xcf
         self.send_command(0x20)  # Activate Display Update Sequence
         self.ReadBusy()
 
-    """
-    function : Turn On Display Part
-    parameter:
-    """
-
     def TurnOnDisplayPart(self):
         self.send_command(0x22)  # Display Update Control
         self.send_data(0xFF)  # fast:0x0c, quality:0x0f, 0xcf
         self.send_command(0x20)  # Activate Display Update Sequence
         self.ReadBusy()
-
-    """
-    function : Setting the display window
-    parameter:
-        xstart : X-axis starting position
-        ystart : Y-axis starting position
-        xend : End position of X-axis
-        yend : End position of Y-axis
-    """
 
     def SetWindow(self, x_start, y_start, x_end, y_end):
         self.send_command(0x44)  # SET_RAM_X_ADDRESS_START_END_POSITION
@@ -87,13 +53,6 @@ class EPD(EPDMonochrome):
         self.send_data((y_start >> 8) & 0xFF)
         self.send_data(y_end & 0xFF)
         self.send_data((y_end >> 8) & 0xFF)
-
-    """
-    function : Set Cursor
-    parameter:
-        x : X-axis starting position
-        y : Y-axis starting position
-    """
 
     def SetCursor(self, x, y):
         self.send_command(0x4E)  # SET_RAM_X_ADDRESS_COUNTER
@@ -136,11 +95,6 @@ class EPD(EPDMonochrome):
 
         self.ReadBusy()
 
-    """
-    function : Initialize the e-Paper fast register
-    parameter:
-    """
-
     def init_fast(self):
         self.device.module_init()
         # EPD hardware init start
@@ -177,22 +131,10 @@ class EPD(EPDMonochrome):
         self.send_data2(image)
         self.TurnOnDisplay()
 
-    """
-    function : Sends the image buffer in RAM to e-Paper and fast displays
-    parameter:
-        image : Image data
-    """
-
     def display_fast(self, image):
         self.send_command(0x24)
         self.send_data2(image)
         self.TurnOnDisplay_Fast()
-
-    """
-    function : Sends the image buffer in RAM to e-Paper and partial refresh
-    parameter:
-        image : Image data
-    """
 
     def displayPartial(self, image):
         self.device.digital_write(self.reset_pin, 0)
@@ -216,12 +158,6 @@ class EPD(EPDMonochrome):
         self.send_command(0x24)  # WRITE_RAM
         self.send_data2(image)
         self.TurnOnDisplayPart()
-
-    """
-    function : Refresh a base image
-    parameter:
-        image : Image data
-    """
 
     def displayPartBaseImage(self, image):
         self.send_command(0x24)
