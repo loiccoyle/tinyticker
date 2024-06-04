@@ -373,7 +373,6 @@ class EPD(EPDMonochrome):
     parameter:
     """
 
-    # NOTE: Unused
     def TurnOnDisplayPart(self):
         self.send_command(0x22)  # Display Update Control
         self.send_data(0x0F)  # fast:0x0c, quality:0x0f, 0xcf
@@ -495,7 +494,6 @@ class EPD(EPDMonochrome):
         image : Image data
     """
 
-    # NOTE: Unused
     def displayPartial(self, image):
         self.device.digital_write(self.reset_pin, 0)
         self.device.delay_ms(1)
@@ -538,7 +536,6 @@ class EPD(EPDMonochrome):
         image : Image data
     """
 
-    # NOTE: Unused
     def displayPartBaseImage(self, image):
         self.send_command(0x24)
         self.send_data2(image)

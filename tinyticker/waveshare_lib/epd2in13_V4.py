@@ -50,7 +50,6 @@ class EPD(EPDMonochrome):
     parameter:
     """
 
-    # NOTE: Unused
     def TurnOnDisplay_Fast(self):
         self.send_command(0x22)  # Display Update Control
         self.send_data(0xC7)  # fast:0x0c, quality:0x0f, 0xcf
@@ -62,7 +61,6 @@ class EPD(EPDMonochrome):
     parameter:
     """
 
-    # NOTE: Unused
     def TurnOnDisplayPart(self):
         self.send_command(0x22)  # Display Update Control
         self.send_data(0xFF)  # fast:0x0c, quality:0x0f, 0xcf
@@ -146,7 +144,6 @@ class EPD(EPDMonochrome):
     parameter:
     """
 
-    # NOTE: Unused
     def init_fast(self):
         if self.device.module_init() != 0:
             return -1
@@ -192,7 +189,6 @@ class EPD(EPDMonochrome):
         image : Image data
     """
 
-    # NOTE: Unused
     def display_fast(self, image):
         self.send_command(0x24)
         self.send_data2(image)
@@ -204,7 +200,6 @@ class EPD(EPDMonochrome):
         image : Image data
     """
 
-    # NOTE: Unused
     def displayPartial(self, image):
         self.device.digital_write(self.reset_pin, 0)
         self.device.delay_ms(1)
@@ -234,7 +229,6 @@ class EPD(EPDMonochrome):
         image : Image data
     """
 
-    # NOTE: Unused
     def displayPartBaseImage(self, image):
         self.send_command(0x24)
         self.send_data2(image)
