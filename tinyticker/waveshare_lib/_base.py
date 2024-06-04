@@ -44,9 +44,7 @@ class EPDBase:
             image = image.rotate(90, expand=True)
 
         if (self.width, self.height) != image.size:
-            raise ValueError(
-                "Wrong image dimensions, must be %sx%s", self.width, self.height
-            )
+            raise ValueError( f"Wrong image dimensions, must be {self.width}x{self.height}")
 
         if image.mode != "1":
             image = image.convert("1", dither=Image.Dither.NONE)

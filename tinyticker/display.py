@@ -97,16 +97,18 @@ class Display:
         highlight_image = None
         if self.has_highlight and image.mode == "RGB":
             self._log.info("Computing highlight pixels.")
-            # create an image with the pixels which are coloured
+            # create an image with the red pixels
             image_ar = np.array(image)
-            colored_pixels = ~(image_ar == image_ar[:, :, 0][:, :, None]).all(axis=-1)
-            n_coloured = colored_pixels.sum()
-            if n_coloured > 0:
+            red_pixels = (image_ar[:, :, 0] > 127) & (image_ar[:, :, 1:] < 127).all(
+                axis=-1
+            )
+            n_red = red_pixels.sum()
+            if n_red > 0:
                 highlight_image = (
                     np.ones(image_ar.shape[:-1], dtype=image_ar.dtype) * 255
                 )
-                self._log.debug("Number of coloured pixels: %s", n_coloured)
-                highlight_image[colored_pixels] = 0
+                self._log.debug("Number of red pixels: %s", n_red)
+                highlight_image[red_pixels] = 0
                 # I think there is a bug with PIL, need to convert from "L"
                 # https://stackoverflow.com/questions/32159076/python-pil-bitmap-png-from-array-with-mode-1
                 highlight_image = Image.fromarray(highlight_image, mode="L")

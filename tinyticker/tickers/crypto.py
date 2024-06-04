@@ -68,7 +68,6 @@ def get_cryptocompare(
         raise ValueError(
             f"No historical data returned from cryptocompare API for {token}"
         )
-    LOGGER.debug("crypto historical data columns: %s", historical.columns)
     historical.set_index("time", inplace=True)
     historical.index = pd.to_datetime(historical.index.to_numpy(), unit="s", utc=True)
     historical.drop(
