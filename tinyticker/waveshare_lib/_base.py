@@ -11,8 +11,8 @@ class EPDBase:
     width: int
     height: int
 
-    def __init__(self, device: Type[RaspberryPi] = RaspberryPi) -> None:
-        self.device = device()
+    def __init__(self, Device: Type[RaspberryPi] = RaspberryPi) -> None:
+        self.device = Device()
         self.reset_pin = self.device.RST_PIN
         self.dc_pin = self.device.DC_PIN
         self.busy_pin = self.device.BUSY_PIN
