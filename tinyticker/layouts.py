@@ -29,7 +29,7 @@ MARKETCOLORS = mpf.make_marketcolors(
     volume="black",
 )
 MARKETCOLORS["vcedge"] = {"up": "black", "down": "black"}
-STYLE = mpf.make_mpf_style(marketcolors=MARKETCOLORS, mavcolors=["r"])
+STYLE = mpf.make_mpf_style(marketcolors=MARKETCOLORS, mavcolors=[(1, 0, 0)])
 TEXT_BBOX = {
     "boxstyle": "square,pad=0",
     "facecolor": "white",
