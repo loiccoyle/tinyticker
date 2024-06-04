@@ -99,23 +99,6 @@ class EPD(EPDHighlight):
 
         self.TurnOnDisplay()
 
-    # display white image
-    def clear(self):
-        if self.width % 8 == 0:
-            linewidth = int(self.width / 8)
-        else:
-            linewidth = int(self.width / 8) + 1
-
-        buf = [0xFF] * (int(linewidth * self.height))
-
-        self.send_command(0x24)
-        self.send_data2(buf)
-
-        self.send_command(0x26)
-        self.send_data2(buf)
-
-        self.TurnOnDisplay()
-
     # sleep
     def sleep(self):
         self.send_command(0x10)  # DEEP_SLEEP

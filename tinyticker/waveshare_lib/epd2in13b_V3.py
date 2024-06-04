@@ -69,19 +69,6 @@ class EPD(EPDHighlight):
         self.device.delay_ms(100)
         self.ReadBusy()
 
-    def clear(self):
-        self.send_command(0x10)
-        for _ in range(0, int(self.width * self.height / 8)):
-            self.send_data(0xFF)
-
-        self.send_command(0x13)
-        for _ in range(0, int(self.width * self.height / 8)):
-            self.send_data(0xFF)
-
-        self.send_command(0x12)  # REFRESH
-        self.device.delay_ms(100)
-        self.ReadBusy()
-
     def sleep(self):
         self.send_command(0x50)
         self.send_data(0xF7)

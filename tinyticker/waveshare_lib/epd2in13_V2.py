@@ -317,28 +317,6 @@ class EPD(EPDMonochrome):
         self.send_data2(image)
         self.TurnOnDisplay()
 
-    def clear(self, color=0xFF):
-        if self.width % 8 == 0:
-            linewidth = int(self.width / 8)
-        else:
-            linewidth = int(self.width / 8) + 1
-        # logger.debug(linewidth)
-
-        buf = [0x00] * self.height * linewidth
-        for j in range(0, self.height):
-            for i in range(0, linewidth):
-                buf[i + j * linewidth] = color
-
-        self.send_command(0x24)
-        self.send_data2(buf)
-
-        # self.send_command(0x26)
-        # for j in range(0, self.height):
-        # for i in range(0, linewidth):
-        # self.send_data(color)
-
-        self.TurnOnDisplay()
-
     def sleep(self):
         # self.send_command(0x22) #POWER OFF
         # self.send_data(0xC3)

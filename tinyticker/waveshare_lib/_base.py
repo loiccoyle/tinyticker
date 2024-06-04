@@ -1,3 +1,4 @@
+import math
 from abc import abstractmethod
 from typing import Literal, Optional, Type
 
@@ -44,7 +45,9 @@ class EPDBase:
             image = image.rotate(90, expand=True)
 
         if (self.width, self.height) != image.size:
-            raise ValueError( f"Wrong image dimensions, must be {self.width}x{self.height}")
+            raise ValueError(
+                f"Wrong image dimensions, must be {self.width}x{self.height}"
+            )
 
         if image.mode != "1":
             image = image.convert("1", dither=Image.Dither.NONE)
@@ -83,11 +86,6 @@ class EPDBase:
         self.device.spi_writebyte2(data)
         self.device.digital_write(self.cs_pin, 1)
 
-    @abstractmethod
-    def clear(self) -> None:
-        """Clear the display."""
-        ...
-
     def sleep(self) -> None:
         """Put the display into sleep mode."""
         ...
@@ -105,6 +103,10 @@ class EPDMonochrome(EPDBase):
         """
         ...
 
+    def clear(self) -> None:
+        """Clear the display."""
+        self.display(bytearray([0xFF] * math.ceil(self.width / 8) * self.height))
+
 
 class EPDHighlight(EPDBase):
     """EPD with black and white color, and an extra color"""
@@ -120,6 +122,11 @@ class EPDHighlight(EPDBase):
             highlights: The extra color image data to display.
         """
         ...
+
+    def clear(self) -> None:
+        """Clear the display."""
+        buf = bytearray([0xFF] * math.ceil(self.width / 8) * self.height)
+        self.display(buf, highlights=buf)
 
 
 # Could be used later to utilize the partial refresh feature of some of the EPDs

@@ -140,20 +140,6 @@ class EPD(EPDMonochrome):
                 self.send_data(image[i + j * linewidth])
         self.TurnOnDisplay()
 
-    def clear(self, color=0xFF):
-        if self.width % 8 == 0:
-            linewidth = int(self.width / 8)
-        else:
-            linewidth = int(self.width / 8) + 1
-
-        self.SetWindows(0, 0, self.width, self.height)
-        for j in range(0, self.height):
-            self.SetCursor(0, j)
-            self.send_command(0x24)
-            for _ in range(0, linewidth):
-                self.send_data(color)
-        self.TurnOnDisplay()
-
     def sleep(self):
         self.send_command(0x10)  # enter deep sleep
         self.send_data(0x01)

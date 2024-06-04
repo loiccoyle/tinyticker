@@ -424,18 +424,6 @@ class EPD(EPDMonochrome):
                         )
         return buf
 
-    def clear(self):
-        if self.width % 8 == 0:
-            Width = self.width // 8
-        else:
-            Width = self.width // 8 + 1
-        Height = self.height
-        self.send_command(0x24)
-        for _ in range(Height):
-            for _ in range(Width):
-                self.send_data(0xFF)
-        self.TurnOnDisplay()
-
     def display(self, image):
         self.send_command(0x24)
         self.send_data2(image)

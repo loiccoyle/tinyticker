@@ -814,15 +814,11 @@ class EPD(EPDMonochrome):
         self.ReadBusy()
         # pass
 
-    def clear(self, color=0xFF):
+    def clear(self):
+        buf = bytearray([0xFF] * (self.width // 8) * self.height)
         self.send_command(0x10)
-        for _ in range(0, int(self.width * self.height / 8)):
-            self.send_data(color)
-        self.send_command(0x13)
-        for _ in range(0, int(self.width * self.height / 8)):
-            self.send_data(color)
-        self.send_command(0x12)
-        self.ReadBusy()
+        self.send_data2(buf)
+        self.display(buf)
 
     def sleep(self):
         self.send_command(0x50)
