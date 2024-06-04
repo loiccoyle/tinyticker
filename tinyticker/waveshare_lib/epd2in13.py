@@ -142,7 +142,5 @@ class EPD(EPDMonochrome):
     def sleep(self):
         self.send_command(0x10)  # enter deep sleep
         self.send_data(0x01)
-        self.device.delay_ms(100)
-
         self.device.delay_ms(2000)
         self.device.module_exit()
