@@ -5,9 +5,8 @@ image to the model's capabalities.
 """
 
 import logging
-from typing import Optional, Tuple
+from typing import Tuple
 
-import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from PIL import Image
@@ -73,18 +72,6 @@ class Display:
         image = _fig_to_image(fig)
         self.show_image(image)
 
-    def _show_image(
-        self, image: Image.Image, highlight: Optional[Image.Image] = None
-    ) -> None:
-        """Small wrapper to handle the capabalities of the display."""
-        if isinstance(self.epd, EPDHighlight):
-            self.epd.display(
-                self.epd.getbuffer(image),
-                self.epd.getbuffer(highlight) if highlight is not None else None,
-            )
-        else:
-            self.epd.display(self.epd.getbuffer(image))
-
     def show_image(self, image: Image.Image) -> None:
         """Show a `PIL.Image.Image` on the display and put it to sleep.
 
@@ -94,31 +81,11 @@ class Display:
         if self.flip:
             image = image.rotate(180)
 
-        highlight_image = None
-        if self.has_highlight and image.mode == "RGB":
-            self._log.info("Computing highlight pixels.")
-            # create an image with the red pixels
-            image_ar = np.array(image)
-            red_pixels = (image_ar[:, :, 0] > 127) & (image_ar[:, :, 1:] < 127).all(
-                axis=-1
-            )
-            n_red = red_pixels.sum()
-            if n_red > 0:
-                highlight_image = (
-                    np.ones(image_ar.shape[:-1], dtype=image_ar.dtype) * 255
-                )
-                self._log.debug("Number of red pixels: %s", n_red)
-                highlight_image[red_pixels] = 0
-                # I think there is a bug with PIL, need to convert from "L"
-                # https://stackoverflow.com/questions/32159076/python-pil-bitmap-png-from-array-with-mode-1
-                highlight_image = Image.fromarray(highlight_image, mode="L")
-                self._log.debug("Highlight image size: %s", highlight_image.size)
-
         self._log.debug("Image size: %s", image.size)
         self._log.info("Wake up.")
         # I think this wakes it from sleep
         self.epd.init()
-        self._show_image(image, highlight_image)
+        self.epd.show(image)
         self._log.info("Display sleep.")
         self.epd.sleep()
 
