@@ -1,10 +1,14 @@
+import logging
 import math
 from abc import abstractmethod
 from typing import Optional, Type
 
+import numpy as np
 from PIL import Image
 
 from .device import RaspberryPi
+
+logger = logging.getLogger(__name__)
 
 
 class EPDBase:
@@ -86,6 +90,20 @@ class EPDBase:
         """Put the display into sleep mode."""
         ...
 
+    @abstractmethod
+    def show(self, image: Image.Image) -> None:
+        """Displays the given image on the e-paper display.
+
+        Args:
+            image: The image to display.
+        """
+        ...
+
+    @abstractmethod
+    def clear(self) -> None:
+        """Clear the display."""
+        ...
+
 
 class EPDMonochrome(EPDBase):
     """EPD with only black and white color"""
@@ -100,8 +118,10 @@ class EPDMonochrome(EPDBase):
         ...
 
     def clear(self) -> None:
-        """Clear the display."""
         self.display(self._blank)
+
+    def show(self, image: Image.Image) -> None:
+        self.display(self.getbuffer(image))
 
 
 class EPDHighlight(EPDBase):
@@ -120,8 +140,21 @@ class EPDHighlight(EPDBase):
         ...
 
     def clear(self) -> None:
-        """Clear the display."""
         self.display(self._blank, highlights=self._blank)
+
+    def show(self, image: Image.Image) -> None:
+        threshold = 20
+        highlight_buffer = None
+        if image.mode == "RGB":
+            highlight_mask = np.array(image).std(axis=-1) >= threshold
+            if highlight_mask.any():
+                logger.info("Highlight pixels: %i", highlight_mask.sum())
+                highlight_buffer = self.getbuffer(Image.fromarray(~highlight_mask))
+
+        self.display(
+            self.getbuffer(image),
+            highlights=highlight_buffer,
+        )
 
 
 # Could be used later to utilize the partial refresh feature of some of the EPDs
