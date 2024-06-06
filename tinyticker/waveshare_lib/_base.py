@@ -63,7 +63,7 @@ class EPDBase:
 
     @abstractmethod
     def show(self, image: Image.Image) -> None:
-        """Displays the given image on the e-paper display.
+        """Display the image on the e-paper display.
 
         Args:
             image: The image to display.
@@ -76,7 +76,7 @@ class EPDMonochrome(EPDBase):
 
     @abstractmethod
     def display(self, image: bytearray) -> None:
-        """Displays the given image on the e-paper display.
+        """Display the image data on the e-paper display.
 
         Args:
             image: The image data to display.
@@ -94,7 +94,7 @@ class EPDHighlight(EPDBase):
     def display(
         self, imageblack: bytearray, highlights: Optional[bytearray] = None
     ) -> None:
-        """Displays the given image on the e-paper display.
+        """Display the image data on the e-paper display.
 
         Args:
             image: The image data to display.
