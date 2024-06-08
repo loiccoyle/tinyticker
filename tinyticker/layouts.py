@@ -268,6 +268,7 @@ def big_price(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Ima
         fontsize=18,
         weight="bold",
         x=0,
+        y=1,
         horizontalalignment="left",
     )
     sub_string = f"{len(resp.historical)}x{ticker.config.interval} {perc_change:+.2f}%"
