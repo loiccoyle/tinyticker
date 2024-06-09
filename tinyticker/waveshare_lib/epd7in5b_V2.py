@@ -21,11 +21,9 @@ class EPD(EPDHighlight):
     def ReadBusy(self):
         logger.debug("e-Paper busy")
         self.send_command(0x71)
-        busy = self.device.digital_read(self.busy_pin)
-        while busy == 0:
+        while self.device.digital_read(self.busy_pin) == 0:
             self.send_command(0x71)
-            busy = self.device.digital_read(self.busy_pin)
-        self.device.delay_ms(200)
+            self.device.delay_ms(100)
         logger.debug("e-Paper busy release")
 
     def init(self):
