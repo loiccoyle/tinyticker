@@ -1,4 +1,4 @@
-"""Layouts are responsible for generating an image for a given dimension, ticker, and response.
+"""Layouts are responsible for generating an image for a given size, ticker, and response.
 
 They should not care about the capabilities of the display device, only about the content to display.
 """
@@ -37,8 +37,8 @@ TEXT_BBOX = {
 }
 LAYOUTS = {}
 
-Dimensions = Tuple[int, int]
-LayoutFunc = Callable[[Dimensions, TickerBase, TickerResponse], Image.Image]
+Size = Tuple[int, int]
+LayoutFunc = Callable[[Size, TickerBase, TickerResponse], Image.Image]
 
 logger = logging.getLogger(__name__)
 
@@ -50,20 +50,18 @@ def _strip_ax(ax: Axes) -> None:
     ax.grid(False)
 
 
-def _create_fig_ax(
-    dimensions: Dimensions, n_axes: int = 1, **kwargs
-) -> Tuple[Figure, np.ndarray]:
+def _create_fig_ax(size: Size, n_axes: int = 1, **kwargs) -> Tuple[Figure, np.ndarray]:
     """Create the `plt.Figure` and `plt.Axes` used to plot the chart.
 
     Args:
-        dimensions: the dimensions of the plot, (width, height).
+        size: the size of the plot, (width, height).
         n_axes: the number of subplot axes to create.
         **kwargs: passed to `plt.subplots`.
 
     Returns:
         The `plt.Figure` and an array of `plt.Axes`.
     """
-    width, height = dimensions
+    width, height = size
     dpi = plt.rcParams.get("figure.dpi", 96)
     px = 1 / dpi
     fig, axes = plt.subplots(
@@ -172,14 +170,12 @@ def apply_layout_config(
 
 
 def _historical_plot(
-    dimensions: Dimensions, ticker: TickerBase, resp: TickerResponse
+    size: Size, ticker: TickerBase, resp: TickerResponse
 ) -> Tuple[Figure, Tuple[Axes, Optional[Axes]]]:
     if ticker.config.volume:
-        fig, (ax, volume_ax) = _create_fig_ax(
-            dimensions, n_axes=2, height_ratios=[3, 1]
-        )
+        fig, (ax, volume_ax) = _create_fig_ax(size, n_axes=2, height_ratios=[3, 1])
     else:
-        fig, (ax,) = _create_fig_ax(dimensions, n_axes=1)
+        fig, (ax,) = _create_fig_ax(size, n_axes=1)
         volume_ax = False
 
     kwargs = {}
@@ -224,9 +220,7 @@ def _perc_change_abp(ticker: TickerBase, resp: TickerResponse) -> float:
 
 
 @register
-def default(
-    dimensions: Dimensions, ticker: TickerBase, resp: TickerResponse
-) -> Image.Image:
+def default(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image:
     """Default layout."""
 
     perc_change = _perc_change(ticker, resp)
@@ -236,7 +230,7 @@ def default(
         # calculate the delta from the average buy price
         top_string += f" {_perc_change_abp(ticker, resp):+.2f}%"
 
-    fig, (ax, _) = _historical_plot(dimensions, ticker, resp)
+    fig, (ax, _) = _historical_plot(size, ticker, resp)
 
     top_text = ax.text(
         0,
@@ -248,7 +242,7 @@ def default(
         bbox=TEXT_BBOX,
         verticalalignment="top",
     )
-    ax_height = ax.get_position().height * dimensions[1]
+    ax_height = ax.get_position().height * size[1]
     ax.text(
         0,
         (ax_height - top_text.get_window_extent().height + 1) / ax_height,
@@ -265,17 +259,16 @@ def default(
 
 
 @register
-def big_price(
-    dimensions: Dimensions, ticker: TickerBase, resp: TickerResponse
-) -> Image.Image:
+def big_price(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image:
     """Big price layout."""
     perc_change = _perc_change(ticker, resp)
-    fig, (ax, _) = _historical_plot(dimensions, ticker, resp)
+    fig, (ax, _) = _historical_plot(size, ticker, resp)
     fig.suptitle(
         f"{ticker.config.symbol} ${resp.current_price:.2f}",
         fontsize=18,
         weight="bold",
         x=0,
+        y=1,
         horizontalalignment="left",
     )
     sub_string = f"{len(resp.historical)}x{ticker.config.interval} {perc_change:+.2f}%"
