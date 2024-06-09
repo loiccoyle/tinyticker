@@ -1,7 +1,7 @@
 import logging
 import math
 from abc import abstractmethod
-from typing import Optional, Type
+from typing import Optional, Tuple, Type
 
 import numpy as np
 from PIL import Image
@@ -22,6 +22,16 @@ class EPDBase:
         self.busy_pin = self.device.BUSY_PIN
         self.cs_pin = self.device.CS_PIN
         self._blank = bytearray([0xFF] * math.ceil(self.width / 8) * self.height)
+
+    @property
+    def size(self) -> Tuple[int, int]:
+        """The width and height of the display in landscape orientation."""
+        # The width/height from the waveshare library are not consistent, so we wrap it in a property.
+        return (
+            (self.width, self.height)
+            if self.width > self.height
+            else (self.height, self.width)
+        )
 
     @abstractmethod
     def init(self) -> None:
@@ -92,7 +102,7 @@ class EPDBase:
 
     @abstractmethod
     def show(self, image: Image.Image) -> None:
-        """Displays the given image on the e-paper display.
+        """Display the image on the e-paper display.
 
         Args:
             image: The image to display.
@@ -110,7 +120,7 @@ class EPDMonochrome(EPDBase):
 
     @abstractmethod
     def display(self, image: bytearray) -> None:
-        """Displays the given image on the e-paper display.
+        """Display the image data on the e-paper display.
 
         Args:
             image: The image data to display.
@@ -131,7 +141,7 @@ class EPDHighlight(EPDBase):
     def display(
         self, imageblack: bytearray, highlights: Optional[bytearray] = None
     ) -> None:
-        """Displays the given image on the e-paper display.
+        """Display the image data on the e-paper display.
 
         Args:
             image: The image data to display.

@@ -1,28 +1,30 @@
 import argparse
 import logging
 import socket
+from typing import Tuple
 
 import pandas as pd
 import qrcode
 from PIL import Image, ImageChops
 
 
-def dashboard_qrcode(epd_width: int, epd_height: int, port: int = 8000) -> Image.Image:
+def dashboard_qrcode(size: Tuple[int, int], port: int = 8000) -> Image.Image:
     """Generate a qrcode pointing to the dashboard url.
 
     Args:
-        epd_width: the width of the ePaper display.
-        epd_height: the height of the ePaper display.
+        sie: the sie of the image, width and height.
         port: the port number on which the dashboard is hosted.
 
     Returns:
         The qrcode image.
     """
+    min_dim = min(size)
+
     url = f"http://{socket.gethostname()}.local:{port}"
     qr = qrcode.make(url)
     qr = trim(qr)
-    qr = qr.resize((epd_width, epd_width))
-    base = Image.new("1", (epd_height, epd_width), 1)
+    qr = qr.resize((min_dim, min_dim))
+    base = Image.new("1", size, 1)
     base.paste(qr, (base.size[0] // 2 - qr.size[0] // 2, 0))
     return base
 

@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from typing import Type, Union
 
 from . import (
+    epd2in7,
+    epd2in7_V2,
     epd2in13,
     epd2in13_V2,
     epd2in13_V3,
@@ -9,8 +11,7 @@ from . import (
     epd2in13b_V3,
     epd2in13b_V4,
     epd2in13bc,
-    epd2in7,
-    epd2in7_V2,
+    epd7in5b_V2,
 )
 from ._base import EPDHighlight, EPDMonochrome
 
@@ -69,6 +70,11 @@ MODELS = [
         name="EPD_2in7_v2",
         EPD=epd2in7_V2.EPD,
         desc="Black and White 2.7 inch V2",
+    ),
+    EPDData(
+        name="EPD_7in5b_v2",
+        EPD=epd7in5b_V2.EPD,
+        desc="Black, White and Red 7.5 inch V2",
     ),
 ]
 MODELS = {model.name: model for model in MODELS}
