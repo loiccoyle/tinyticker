@@ -19,10 +19,8 @@ class EPDBase:
 
     @property
     def size(self) -> Tuple[int, int]:
-        """The width and height of the display in landscape orientation.
-
-        The width/height from the waveshare library are not consistent, so we wrap it in a property.
-        """
+        """The width and height of the display in landscape orientation."""
+        # The width/height from the waveshare library are not consistent, so we wrap it in a property.
         return (
             (self.width, self.height)
             if self.width > self.height
