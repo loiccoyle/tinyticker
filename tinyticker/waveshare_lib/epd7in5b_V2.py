@@ -137,39 +137,8 @@ class EPD(EPDHighlight):
 
         return 0
 
-    def getbuffer(self, image):
-        img = image
-        imwidth, imheight = img.size
-        if imwidth == self.width and imheight == self.height:
-            img = img.convert("1")
-        elif imwidth == self.height and imheight == self.width:
-            # image has correct dimensions, but needs to be rotated
-            img = img.rotate(90, expand=True).convert("1")
-        else:
-            logger.warning(
-                "Wrong image dimensions: must be "
-                + str(self.width)
-                + "x"
-                + str(self.height)
-            )
-            # return a blank buffer
-            return bytearray([0x00] * (int(self.width / 8) * self.height))
-
-        buf = bytearray(img.tobytes("raw"))
-        # The bytes need to be inverted, because in the PIL world 0=black and 1=white, but
-        # in the e-paper world 0=white and 1=black.
-        # NOTE: This is the first display I've seen that needs this inversion.
-        # Seems like a quirk of the epd7in5_V2 displays:
-        # https://github.com/search?q=repo%3Awaveshareteam%2Fe-Paper+buf%5Bi%5D+%5E%3D+0xFF&type=code
-        for i in range(len(buf)):
-            buf[i] ^= 0xFF
-        return buf
-
     def display(self, imageblack, highlights=None):
         self.send_command(0x10)
-        # The black bytes need to be inverted back from what getbuffer did
-        for i in range(len(imageblack)):
-            imageblack[i] ^= 0xFF
         self.send_data2(imageblack)
 
         if highlights is not None:
