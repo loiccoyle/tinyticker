@@ -1,55 +1,13 @@
-# *****************************************************************************
-# * | File        :	  epd7in5b_V2.py
-# * | Author      :   Waveshare team
-# * | Function    :   Electronic paper driver
-# * | Info        :
-# *----------------
-# * | This version:   V4.2
-# * | Date        :   2022-01-08
-# # | Info        :   python demo
-# -----------------------------------------------------------------------------
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documnetation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to  whom the Software is
-# furished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS OR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-#
-
-
 import logging
-from typing import Type
 
 from ._base import EPDHighlight
-from .device import RaspberryPi
-
-# Display resolution
-EPD_WIDTH = 800
-EPD_HEIGHT = 480
 
 logger = logging.getLogger(__name__)
 
 
 class EPD(EPDHighlight):
-    def __init__(self, device: Type[RaspberryPi] = RaspberryPi):
-        self.device = device()
-        self.reset_pin = self.device.RST_PIN
-        self.dc_pin = self.device.DC_PIN
-        self.busy_pin = self.device.BUSY_PIN
-        self.cs_pin = self.device.CS_PIN
-        self.width = EPD_WIDTH
-        self.height = EPD_HEIGHT
+    width = 800
+    height = 480
 
     # Hardware reset
     def reset(self):
@@ -59,24 +17,6 @@ class EPD(EPDHighlight):
         self.device.delay_ms(4)
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(200)
-
-    def send_command(self, command):
-        self.device.digital_write(self.dc_pin, 0)
-        self.device.digital_write(self.cs_pin, 0)
-        self.device.spi_writebyte([command])
-        self.device.digital_write(self.cs_pin, 1)
-
-    def send_data(self, data):
-        self.device.digital_write(self.dc_pin, 1)
-        self.device.digital_write(self.cs_pin, 0)
-        self.device.spi_writebyte([data])
-        self.device.digital_write(self.cs_pin, 1)
-
-    def send_data2(self, data):  # faster
-        self.device.digital_write(self.dc_pin, 1)
-        self.device.digital_write(self.cs_pin, 0)
-        self.device.spi_writebyte2(data)
-        self.device.digital_write(self.cs_pin, 1)
 
     def ReadBusy(self):
         logger.debug("e-Paper busy")
@@ -89,8 +29,7 @@ class EPD(EPDHighlight):
         logger.debug("e-Paper busy release")
 
     def init(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
 
         self.reset()
 
@@ -135,8 +74,6 @@ class EPD(EPDHighlight):
         self.send_data(0x00)
         self.send_data(0x00)
 
-        return 0
-
     def display(self, imageblack, highlights=None):
         self.send_command(0x10)
         self.send_data2(imageblack)
@@ -144,19 +81,6 @@ class EPD(EPDHighlight):
         if highlights is not None:
             self.send_command(0x13)
             self.send_data2(highlights)
-
-        self.send_command(0x12)
-        self.device.delay_ms(100)
-        self.ReadBusy()
-
-    def Clear(self):
-        buf = [0x00] * (int(self.width / 8) * self.height)
-        buf2 = [0xFF] * (int(self.width / 8) * self.height)
-        self.send_command(0x10)
-        self.send_data2(buf2)
-
-        self.send_command(0x13)
-        self.send_data2(buf)
 
         self.send_command(0x12)
         self.device.delay_ms(100)
