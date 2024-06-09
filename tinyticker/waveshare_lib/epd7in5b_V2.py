@@ -20,6 +20,7 @@ class EPD(EPDHighlight):
 
     def ReadBusy(self):
         logger.debug("e-Paper busy")
+        # NOTE: only 2in13b_V2 and 7in5b_V2 send 0x71 while waiting, does it do anything?
         self.send_command(0x71)
         while self.device.digital_read(self.busy_pin) == 0:
             self.send_command(0x71)
