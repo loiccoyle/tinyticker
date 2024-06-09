@@ -74,7 +74,7 @@ MODELS = [
     EPDData(
         name="EPD_7in5b_v2",
         EPD=epd7in5b_V2.EPD,
-        desc="Black, White and red 7.5 inch V2",
+        desc="Black, White and Red 7.5 inch V2",
     ),
 ]
 MODELS = {model.name: model for model in MODELS}
