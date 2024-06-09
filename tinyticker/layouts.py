@@ -29,7 +29,7 @@ MARKETCOLORS = mpf.make_marketcolors(
     volume="black",
 )
 MARKETCOLORS["vcedge"] = {"up": "black", "down": "black"}
-STYLE = mpf.make_mpf_style(marketcolors=MARKETCOLORS, mavcolors=["r"])
+STYLE = mpf.make_mpf_style(marketcolors=MARKETCOLORS, mavcolors=[(1, 0, 0)])
 TEXT_BBOX = {
     "boxstyle": "square,pad=0",
     "facecolor": "white",
@@ -91,10 +91,10 @@ def _fig_to_image(fig: Figure) -> Image.Image:
     """
     fig.tight_layout(pad=0)
     with io.BytesIO() as buffer:
-        fig.savefig(buffer, format="jpg", pad_inches=0)
+        fig.savefig(buffer, format="jpeg", pad_inches=0)
         # to stop the fig from showing up in notebooks and such
         plt.close(fig)
-        return Image.open(buffer).convert("RGB")
+        return Image.open(buffer, formats=("jpeg",)).convert("RGB")
 
 
 def register(func: LayoutFunc) -> LayoutFunc:

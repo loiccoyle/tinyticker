@@ -47,7 +47,6 @@ class TestDisplay(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.display = Display(EPDMock())
-        cls.display.epd
         cls.data_dir = Path(__file__).parents[1] / "data"
         cls.config_path = cls.data_dir / "config.json"
         cls.historical: pd.DataFrame = pd.read_pickle(

@@ -1,9 +1,13 @@
+import logging
 from abc import abstractmethod
 from typing import Literal, Optional, Tuple, Type
 
+import numpy as np
 from PIL import Image
 
 from .device import RaspberryPi
+
+logger = logging.getLogger(__name__)
 
 
 class EPDBase:
@@ -26,23 +30,73 @@ class EPDBase:
         )
 
     @abstractmethod
-    def init(self) -> Literal[0, -1]: ...
+    def init(self) -> Literal[0, -1]:
+        """Initializes the display.
+
+        Returns:
+            The initialization status. It can be either 0 or -1.
+        """
+        ...
+
+    def getbuffer(self, image: Image.Image) -> bytearray:
+        """Converts the given image to a buffer compatible with the EPD display.
+
+        Args:
+            image: The image to be converted.
+
+        Returns:
+            The converted buffer.
+
+        Raises:
+            ValueError: If the image dimensions are not correct.
+        """
+        if (self.height, self.width) == image.size:
+            # image has correct dimensions, but needs to be rotated
+            image = image.rotate(90, expand=True)
+
+        if (self.width, self.height) != image.size:
+            raise ValueError(
+                f"Wrong image dimensions, must be {self.width}x{self.height}"
+            )
+
+        if image.mode != "1":
+            image = image.convert("1", dither=Image.Dither.NONE)
+        return bytearray(image.tobytes())
 
     @abstractmethod
-    def getbuffer(self, image: Image.Image) -> bytearray: ...
+    def Clear(self) -> None:
+        """Clear the display."""
+        ...
 
     @abstractmethod
-    def Clear(self) -> None: ...
+    def sleep(self) -> None:
+        """Put the display into sleep mode."""
+        ...
 
     @abstractmethod
-    def sleep(self) -> None: ...
+    def show(self, image: Image.Image) -> None:
+        """Display the image on the e-paper display.
+
+        Args:
+            image: The image to display.
+        """
+        ...
 
 
 class EPDMonochrome(EPDBase):
     """EPD with only black and white color"""
 
     @abstractmethod
-    def display(self, image: bytearray) -> None: ...
+    def display(self, image: bytearray) -> None:
+        """Display the image data on the e-paper display.
+
+        Args:
+            image: The image data to display.
+        """
+        ...
+
+    def show(self, image: Image.Image) -> None:
+        self.display(self.getbuffer(image))
 
 
 class EPDHighlight(EPDBase):
@@ -50,8 +104,29 @@ class EPDHighlight(EPDBase):
 
     @abstractmethod
     def display(
-        self, imageblack: bytearray, highlights: Optional[bytearray]
-    ) -> None: ...
+        self, imageblack: bytearray, highlights: Optional[bytearray] = None
+    ) -> None:
+        """Display the image data on the e-paper display.
+
+        Args:
+            image: The image data to display.
+            highlights: The extra color image data to display.
+        """
+        ...
+
+    def show(self, image: Image.Image) -> None:
+        threshold = 20
+        highlight_buffer = None
+        if image.mode == "RGB":
+            highlight_mask = np.array(image).std(axis=-1) >= threshold
+            if highlight_mask.any():
+                logger.info("Highlight pixels: %i", highlight_mask.sum())
+                highlight_buffer = self.getbuffer(Image.fromarray(~highlight_mask))
+
+        self.display(
+            self.getbuffer(image),
+            highlights=highlight_buffer,
+        )
 
 
 # Could be used later to utilize the partial refresh feature of some of the EPDs

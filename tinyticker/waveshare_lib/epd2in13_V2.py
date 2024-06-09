@@ -248,6 +248,7 @@ class EPD(EPDMonochrome):
         self.send_command(0x20)
         self.ReadBusy()
 
+    # NOTE: unused
     def TurnOnDisplayPart(self):
         self.send_command(0x22)
         self.send_data(0x0C)
@@ -344,40 +345,12 @@ class EPD(EPDMonochrome):
             self.send_data(0x01)
         return 0
 
-    def getbuffer(self, image):
-        if self.width % 8 == 0:
-            linewidth = int(self.width / 8)
-        else:
-            linewidth = int(self.width / 8) + 1
-
-        buf = [0xFF] * (linewidth * self.height)
-        image_monocolor = image.convert("1")
-        imwidth, imheight = image_monocolor.size
-        # pixels = image_monocolor.load()
-
-        if imwidth == self.width and imheight == self.height:
-            logger.debug("Vertical")
-            for y in range(imheight):
-                for x in range(imwidth):
-                    if image_monocolor.getpixel((x, y)) == 0:
-                        x = imwidth - x
-                        buf[int(x / 8) + y * linewidth] &= ~(0x80 >> (x % 8))
-        elif imwidth == self.height and imheight == self.width:
-            logger.debug("Horizontal")
-            for y in range(imheight):
-                for x in range(imwidth):
-                    newx = y
-                    newy = self.height - x - 1
-                    if image_monocolor.getpixel((x, y)) == 0:
-                        newy = imwidth - newy - 1
-                        buf[int(newx / 8) + newy * linewidth] &= ~(0x80 >> (y % 8))
-        return bytearray(buf)
-
     def display(self, image):
         self.send_command(0x24)
         self.send_data2(image)
         self.TurnOnDisplay()
 
+    # NOTE: unused
     def displayPartial(self, image):
         if self.width % 8 == 0:
             linewidth = int(self.width / 8)
@@ -396,6 +369,7 @@ class EPD(EPDMonochrome):
         self.send_data2(buf)
         self.TurnOnDisplayPart()
 
+    # NOTE: unused
     def displayPartBaseImage(self, image):
         self.send_command(0x24)
         self.send_data2(image)
