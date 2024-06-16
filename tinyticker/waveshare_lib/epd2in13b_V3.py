@@ -1,56 +1,15 @@
-# *****************************************************************************
-# * | File        :	  epd2in13bc.py
-# * | Author      :   Waveshare team
-# * | Function    :   Electronic paper driver
-# * | Info        :
-# *----------------
-# * | This version:   V4.0
-# * | Date        :   2019-06-20
-# # | Info        :   python demo
-# -----------------------------------------------------------------------------
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documnetation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to  whom the Software is
-# furished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS OR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-#
-
 import logging
-from typing import Type
 
 from ._base import EPDHighlight
-from .device import RaspberryPi
 
-# Display resolution
-EPD_WIDTH = 104
-EPD_HEIGHT = 212
 
 logger = logging.getLogger(__name__)
 
 
 class EPD(EPDHighlight):
-    def __init__(self, device: Type[RaspberryPi] = RaspberryPi):
-        self.device = device()
-        self.reset_pin = self.device.RST_PIN
-        self.dc_pin = self.device.DC_PIN
-        self.busy_pin = self.device.BUSY_PIN
-        self.cs_pin = self.device.CS_PIN
-        self.width = EPD_WIDTH
-        self.height = EPD_HEIGHT
+    width = 104
+    height = 212
 
-    # Hardware reset
     def reset(self):
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(200)
@@ -59,20 +18,9 @@ class EPD(EPDHighlight):
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(200)
 
-    def send_command(self, command):
-        self.device.digital_write(self.dc_pin, 0)
-        self.device.digital_write(self.cs_pin, 0)
-        self.device.spi_writebyte([command])
-        self.device.digital_write(self.cs_pin, 1)
-
-    def send_data(self, data):
-        self.device.digital_write(self.dc_pin, 1)
-        self.device.digital_write(self.cs_pin, 0)
-        self.device.spi_writebyte([data])
-        self.device.digital_write(self.cs_pin, 1)
-
     def ReadBusy(self):
         logger.debug("e-Paper busy")
+        # NOTE: only 2in13b_V2 and 7in5b_V2 send 0x71 while waiting, does it do anything?
         self.send_command(0x71)
         while self.device.digital_read(self.busy_pin) == 0:
             self.send_command(0x71)
@@ -80,8 +28,7 @@ class EPD(EPDHighlight):
         logger.debug("e-Paper busy release")
 
     def init(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
 
         self.reset()
         self.send_command(0x04)
@@ -107,30 +54,13 @@ class EPD(EPDHighlight):
         # WBmode:VBDF 17|D7 VBDW 97 VBDB 57
         # WBRmode:VBDF F7 VBDW 77 VBDB 37  VBDR B7
 
-        return 0
-
     def display(self, imageblack, highlights=None):
         self.send_command(0x10)
-        for i in range(0, int(self.width * self.height / 8)):
-            self.send_data(imageblack[i])
+        self.send_data2(imageblack)
 
         if highlights is not None:
             self.send_command(0x13)
-            for i in range(0, int(self.width * self.height / 8)):
-                self.send_data(highlights[i])
-
-        self.send_command(0x12)  # REFRESH
-        self.device.delay_ms(100)
-        self.ReadBusy()
-
-    def Clear(self):
-        self.send_command(0x10)
-        for _ in range(0, int(self.width * self.height / 8)):
-            self.send_data(0xFF)
-
-        self.send_command(0x13)
-        for _ in range(0, int(self.width * self.height / 8)):
-            self.send_data(0xFF)
+            self.send_data2(highlights)
 
         self.send_command(0x12)  # REFRESH
         self.device.delay_ms(100)

@@ -1,57 +1,15 @@
-# *****************************************************************************
-# * | File        :	  epd2in13_V2.py
-# * | Author      :   Waveshare team
-# * | Function    :   Electronic paper driver
-# * | Info        :
-# *----------------
-# * | This version:   V4.0
-# * | Date        :   2019-06-20
-# # | Info        :   python demo
-# -----------------------------------------------------------------------------
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documnetation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to  whom the Software is
-# furished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS OR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-#
-
 import logging
-from typing import Type
 
 from ._base import EPDMonochrome
-from .device import RaspberryPi
-
-# Display resolution
-EPD_WIDTH = 122
-EPD_HEIGHT = 250
 
 logger = logging.getLogger(__name__)
 
+FULL_UPDATE = 0
+
 
 class EPD(EPDMonochrome):
-    def __init__(self, device: Type[RaspberryPi] = RaspberryPi):
-        self.device = device()
-        self.reset_pin = self.device.RST_PIN
-        self.dc_pin = self.device.DC_PIN
-        self.busy_pin = self.device.BUSY_PIN
-        self.cs_pin = self.device.CS_PIN
-        self.width = EPD_WIDTH
-        self.height = EPD_HEIGHT
-
-    FULL_UPDATE = 0
-    PART_UPDATE = 1
+    width = 122
+    height = 250
     lut_full_update = [
         0x80,
         0x60,
@@ -210,7 +168,6 @@ class EPD(EPDMonochrome):
         0x0A,
     ]
 
-    # Hardware reset
     def reset(self):
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(200)
@@ -219,28 +176,11 @@ class EPD(EPDMonochrome):
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(200)
 
-    def send_command(self, command):
-        self.device.digital_write(self.dc_pin, 0)
-        self.device.digital_write(self.cs_pin, 0)
-        self.device.spi_writebyte([command])
-        self.device.digital_write(self.cs_pin, 1)
-
-    def send_data(self, data):
-        self.device.digital_write(self.dc_pin, 1)
-        self.device.digital_write(self.cs_pin, 0)
-        self.device.spi_writebyte([data])
-        self.device.digital_write(self.cs_pin, 1)
-
-    # send a lot of data
-    def send_data2(self, data):
-        self.device.digital_write(self.dc_pin, 1)
-        self.device.digital_write(self.cs_pin, 0)
-        self.device.spi_writebyte2(data)
-        self.device.digital_write(self.cs_pin, 1)
-
     def ReadBusy(self):
+        logger.debug("e-Paper busy")
         while self.device.digital_read(self.busy_pin) == 1:  # 0: idle, 1: busy
             self.device.delay_ms(100)
+        logger.debug("e-Paper busy release")
 
     def TurnOnDisplay(self):
         self.send_command(0x22)
@@ -248,19 +188,17 @@ class EPD(EPDMonochrome):
         self.send_command(0x20)
         self.ReadBusy()
 
-    # NOTE: unused
     def TurnOnDisplayPart(self):
         self.send_command(0x22)
         self.send_data(0x0C)
         self.send_command(0x20)
         self.ReadBusy()
 
-    def init(self, update=0):
-        if self.device.module_init() != 0:
-            return -1
+    def init(self, update=FULL_UPDATE):
+        self.device.module_init()
         # EPD hardware init start
         self.reset()
-        if update == self.FULL_UPDATE:
+        if update == FULL_UPDATE:
             self.ReadBusy()
             self.send_command(0x12)  # soft reset
             self.ReadBusy()
@@ -343,14 +281,12 @@ class EPD(EPDMonochrome):
 
             self.send_command(0x3C)  # BorderWavefrom
             self.send_data(0x01)
-        return 0
 
     def display(self, image):
         self.send_command(0x24)
         self.send_data2(image)
         self.TurnOnDisplay()
 
-    # NOTE: unused
     def displayPartial(self, image):
         if self.width % 8 == 0:
             linewidth = int(self.width / 8)
@@ -361,6 +297,7 @@ class EPD(EPDMonochrome):
         for j in range(0, self.height):
             for i in range(0, linewidth):
                 buf[i + j * linewidth] = ~image[i + j * linewidth]
+        buf = bytearray(buf)
 
         self.send_command(0x24)
         self.send_data2(image)
@@ -369,35 +306,12 @@ class EPD(EPDMonochrome):
         self.send_data2(buf)
         self.TurnOnDisplayPart()
 
-    # NOTE: unused
     def displayPartBaseImage(self, image):
         self.send_command(0x24)
         self.send_data2(image)
 
         self.send_command(0x26)
         self.send_data2(image)
-        self.TurnOnDisplay()
-
-    def Clear(self, color=0xFF):
-        if self.width % 8 == 0:
-            linewidth = int(self.width / 8)
-        else:
-            linewidth = int(self.width / 8) + 1
-        # logger.debug(linewidth)
-
-        buf = [0x00] * self.height * linewidth
-        for j in range(0, self.height):
-            for i in range(0, linewidth):
-                buf[i + j * linewidth] = color
-
-        self.send_command(0x24)
-        self.send_data2(buf)
-
-        # self.send_command(0x26)
-        # for j in range(0, self.height):
-        # for i in range(0, linewidth):
-        # self.send_data(color)
-
         self.TurnOnDisplay()
 
     def sleep(self):

@@ -47,7 +47,7 @@ class Display:
         """Initialize the ePaper display module."""
         self._log.info("Init ePaper display.")
         self.epd.init()
-        self.epd.Clear()
+        self.epd.clear()
 
     def text(self, text: str, show: bool = False, **kwargs) -> Tuple[Figure, Axes]:
         """Create a `plt.Figure` and `plt.Axes` with centered text.

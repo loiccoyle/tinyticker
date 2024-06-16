@@ -1,46 +1,6 @@
-# *****************************************************************************
-# * | File        :	  epd2in7_V2.py
-# * | Author      :   Waveshare team
-# * | Function    :   Electronic paper driver
-# * | Info        :
-# *----------------
-# * | This version:   V1.0
-# * | Date        :   2022-09-17
-# # | Info        :   python demo
-# -----------------------------------------------------------------------------
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documnetation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to  whom the Software is
-# furished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS OR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-#
-
 import logging
-from typing import Type
 
 from ._base import EPDMonochrome
-from .device import RaspberryPi
-
-# Display resolution
-EPD_WIDTH = 176
-EPD_HEIGHT = 264
-
-GRAY1 = 0xFF  # white
-GRAY2 = 0xC0
-GRAY3 = 0x80  # gray
-GRAY4 = 0x00  # Blackest
 
 logger = logging.getLogger(__name__)
 
@@ -48,18 +8,8 @@ logger = logging.getLogger(__name__)
 # NOTE: this display is black and white but also supports 4 gray levels which are
 # currently not used for tinyticker
 class EPD(EPDMonochrome):
-    def __init__(self, device: Type[RaspberryPi] = RaspberryPi):
-        self.device = device()
-        self.reset_pin = self.device.RST_PIN
-        self.dc_pin = self.device.DC_PIN
-        self.busy_pin = self.device.BUSY_PIN
-        self.cs_pin = self.device.CS_PIN
-        self.width = EPD_WIDTH
-        self.height = EPD_HEIGHT
-        self.GRAY1 = GRAY1  # white
-        self.GRAY2 = GRAY2
-        self.GRAY3 = GRAY3  # gray
-        self.GRAY4 = GRAY4  # Blackest
+    width = 176
+    height = 264
 
     LUT_DATA_4Gray = [
         0x40,
@@ -223,7 +173,6 @@ class EPD(EPDMonochrome):
         0x1C,
     ]
 
-    # Hardware reset
     def reset(self):
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(200)
@@ -231,18 +180,6 @@ class EPD(EPDMonochrome):
         self.device.delay_ms(2)
         self.device.digital_write(self.reset_pin, 1)
         self.device.delay_ms(200)
-
-    def send_command(self, command):
-        self.device.digital_write(self.dc_pin, 0)
-        self.device.digital_write(self.cs_pin, 0)
-        self.device.spi_writebyte([command])
-        self.device.digital_write(self.cs_pin, 1)
-
-    def send_data(self, data):
-        self.device.digital_write(self.dc_pin, 1)
-        self.device.digital_write(self.cs_pin, 0)
-        self.device.spi_writebyte([data])
-        self.device.digital_write(self.cs_pin, 1)
 
     def ReadBusy(self):
         logger.debug("e-Paper busy")
@@ -280,8 +217,7 @@ class EPD(EPDMonochrome):
             self.send_data(self.LUT_DATA_4Gray[i])
 
     def init(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
 
         # EPD hardware init start
         self.reset()
@@ -302,11 +238,9 @@ class EPD(EPDMonochrome):
 
         self.send_command(0x11)  # data entry mode
         self.send_data(0x03)
-        return 0
 
     def init_Fast(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
 
         # EPD hardware init start
         self.reset()
@@ -347,11 +281,10 @@ class EPD(EPDMonochrome):
         self.send_data(0x91)
         self.send_command(0x20)
         self.ReadBusy()
-        return 0
 
     def Init_4Gray(self):
-        if self.device.module_init() != 0:
-            return -1
+        self.device.module_init()
+
         self.reset()
 
         self.send_command(0x12)  # soft reset
@@ -404,7 +337,6 @@ class EPD(EPDMonochrome):
         self.send_data(0x00)
         self.send_data(0x00)
         self.ReadBusy()
-        return 0
 
     def getbuffer_4Gray(self, image):
         # logger.debug("bufsiz = ",int(self.width/8) * self.height)
@@ -452,40 +384,14 @@ class EPD(EPDMonochrome):
                         )
         return buf
 
-    def Clear(self):
-        if self.width % 8 == 0:
-            Width = self.width // 8
-        else:
-            Width = self.width // 8 + 1
-        Height = self.height
-        self.send_command(0x24)
-        for _ in range(Height):
-            for _ in range(Width):
-                self.send_data(0xFF)
-        self.TurnOnDisplay()
-
     def display(self, image):
-        if self.width % 8 == 0:
-            Width = self.width // 8
-        else:
-            Width = self.width // 8 + 1
-        Height = self.height
         self.send_command(0x24)
-        for j in range(Height):
-            for i in range(Width):
-                self.send_data(image[i + j * Width])
+        self.send_data2(image)
         self.TurnOnDisplay()
 
     def display_Fast(self, image):
-        if self.width % 8 == 0:
-            Width = self.width // 8
-        else:
-            Width = self.width // 8 + 1
-        Height = self.height
         self.send_command(0x24)
-        for j in range(Height):
-            for i in range(Width):
-                self.send_data(image[i + j * Width])
+        self.send_data2(image)
         self.TurnOnDisplay_Fast()
 
     def display_Base(self, image):

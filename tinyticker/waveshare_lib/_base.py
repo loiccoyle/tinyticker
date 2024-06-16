@@ -1,6 +1,7 @@
 import logging
+import math
 from abc import abstractmethod
-from typing import Literal, Optional, Tuple, Type
+from typing import Optional, Tuple, Type
 
 import numpy as np
 from PIL import Image
@@ -14,8 +15,13 @@ class EPDBase:
     width: int
     height: int
 
-    @abstractmethod
-    def __init__(self, device: Type[RaspberryPi] = RaspberryPi) -> None: ...
+    def __init__(self, Device: Type[RaspberryPi] = RaspberryPi) -> None:
+        self.device = Device()
+        self.reset_pin = self.device.RST_PIN
+        self.dc_pin = self.device.DC_PIN
+        self.busy_pin = self.device.BUSY_PIN
+        self.cs_pin = self.device.CS_PIN
+        self._blank = bytearray([0xFF] * math.ceil(self.width / 8) * self.height)
 
     @property
     def size(self) -> Tuple[int, int]:
@@ -28,12 +34,8 @@ class EPDBase:
         )
 
     @abstractmethod
-    def init(self) -> Literal[0, -1]:
-        """Initializes the display.
-
-        Returns:
-            The initialization status. It can be either 0 or -1.
-        """
+    def init(self) -> None:
+        """Initialize the display."""
         ...
 
     def getbuffer(self, image: Image.Image) -> bytearray:
@@ -61,12 +63,39 @@ class EPDBase:
             image = image.convert("1", dither=Image.Dither.NONE)
         return bytearray(image.tobytes())
 
-    @abstractmethod
-    def Clear(self) -> None:
-        """Clear the display."""
-        ...
+    def send_command(self, command: int) -> None:
+        """Send command to the display.
 
-    @abstractmethod
+        Args:
+            command: The command to send.
+        """
+        self.device.digital_write(self.dc_pin, 0)
+        self.device.digital_write(self.cs_pin, 0)
+        self.device.spi_writebyte([command])
+        self.device.digital_write(self.cs_pin, 1)
+
+    def send_data(self, data: int) -> None:
+        """Send data to the display.
+
+        Args:
+            data: The data to send.
+        """
+        self.device.digital_write(self.dc_pin, 1)
+        self.device.digital_write(self.cs_pin, 0)
+        self.device.spi_writebyte([data])
+        self.device.digital_write(self.cs_pin, 1)
+
+    def send_data2(self, data: bytearray) -> None:
+        """Send a bunch of data bytes to the display.
+
+        Args:
+            data: The data to send.
+        """
+        self.device.digital_write(self.dc_pin, 1)
+        self.device.digital_write(self.cs_pin, 0)
+        self.device.spi_writebyte2(data)
+        self.device.digital_write(self.cs_pin, 1)
+
     def sleep(self) -> None:
         """Put the display into sleep mode."""
         ...
@@ -78,6 +107,11 @@ class EPDBase:
         Args:
             image: The image to display.
         """
+        ...
+
+    @abstractmethod
+    def clear(self) -> None:
+        """Clear the display."""
         ...
 
 
@@ -92,6 +126,9 @@ class EPDMonochrome(EPDBase):
             image: The image data to display.
         """
         ...
+
+    def clear(self) -> None:
+        self.display(self._blank)
 
     def show(self, image: Image.Image) -> None:
         self.display(self.getbuffer(image))
@@ -111,6 +148,9 @@ class EPDHighlight(EPDBase):
             highlights: The extra color image data to display.
         """
         ...
+
+    def clear(self) -> None:
+        self.display(self._blank, highlights=self._blank)
 
     def show(self, image: Image.Image) -> None:
         threshold = 20

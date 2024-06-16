@@ -102,7 +102,6 @@ class RaspberryPi:
         self.SPI.open(0, 0)
         self.SPI.max_speed_hz = 4000000
         self.SPI.mode = 0b00
-        return 0
 
     def module_exit(self):
         logger.debug("spi end")
