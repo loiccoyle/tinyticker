@@ -154,7 +154,7 @@ class EPDHighlight(EPDBase):
 
     def show(self, image: Image.Image) -> None:
         threshold = 20
-        highlight_buffer = None
+        highlight_buffer = self._blank
         if image.mode == "RGB":
             highlight_mask = np.array(image).std(axis=-1) >= threshold
             if highlight_mask.any():
