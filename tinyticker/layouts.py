@@ -13,6 +13,7 @@ import mplfinance as mpf
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib.text import Text
 from matplotlib.ticker import FormatStrFormatter
 from PIL import Image
 
@@ -41,6 +42,25 @@ Size = Tuple[int, int]
 LayoutFunc = Callable[[Size, TickerBase, TickerResponse], Image.Image]
 
 logger = logging.getLogger(__name__)
+
+
+def _adjust_text_width(text: Text, max_width: int, fontsize: int) -> Text:
+    """Adjust the fontsize of the text to fit within the provided width.
+
+    Args:
+        text: the `matplotlib.text.Text` object to adjust.
+        max_width: the maximum width the text can be.
+        fontsize: the desired fontsize.
+
+    Returns:
+        The adjusted `matplotlib.text.Text` object.
+    """
+    # try the provided fontsize
+    text.set_fontsize(fontsize)
+    if text.get_window_extent().width > max_width:
+        # adjust the fontsize to fit within the width
+        text.set_fontsize(fontsize * max_width / text.get_window_extent().width)
+    return text
 
 
 def _strip_ax(ax: Axes) -> None:
@@ -263,22 +283,30 @@ def big_price(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Ima
     """Big price layout."""
     perc_change = _perc_change(ticker, resp)
     fig, (ax, _) = _historical_plot(size, ticker, resp)
-    fig.suptitle(
-        f"{ticker.config.symbol} ${resp.current_price:.2f}",
-        fontsize=18,
-        weight="bold",
-        x=0,
-        y=1,
-        horizontalalignment="left",
+    _adjust_text_width(
+        fig.suptitle(
+            f"{ticker.config.symbol} ${resp.current_price:.2f}",
+            weight="bold",
+            x=0,
+            y=1,
+            horizontalalignment="left",
+        ),
+        size[0],
+        18,
     )
+
     sub_string = f"{len(resp.historical)}x{ticker.config.interval} {perc_change:+.2f}%"
     if ticker.config.avg_buy_price:
         sub_string += f" ({_perc_change_abp(ticker, resp):+.2f}%)"
-    ax.set_title(
-        sub_string,
-        fontsize=12,
-        weight="bold",
-        loc="left",
+
+    _adjust_text_width(
+        ax.set_title(
+            sub_string,
+            weight="bold",
+            loc="left",
+        ),
+        size[0],
+        12,
     )
 
     ax = apply_layout_config(ax, ticker.config.layout, resp)
