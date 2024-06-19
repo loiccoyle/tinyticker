@@ -57,9 +57,10 @@ def _adjust_text_width(text: Text, max_width: int, fontsize: int) -> Text:
     """
     # try the provided fontsize
     text.set_fontsize(fontsize)
-    if text.get_window_extent().width > max_width:
+    text_width = text.get_window_extent().width
+    if text_width > max_width:
         # adjust the fontsize to fit within the width
-        text.set_fontsize(fontsize * max_width / text.get_window_extent().width)
+        text.set_fontsize(fontsize * max_width / text_width)
     return text
 
 
