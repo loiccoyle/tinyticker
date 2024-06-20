@@ -18,7 +18,7 @@ class TickerStock(TickerBase):
     def __init__(self, config) -> None:
         super().__init__(config)
         self._yf_ticker = yfinance.Ticker(self.config.symbol)
-        self.currency = self._yf_ticker.fast_info.get("currency", "USD")  # type: ignore
+        self.currency = self._yf_ticker.fast_info.get("currency", "USD").upper()  # type: ignore
 
     def _get_yfinance_start_end(self) -> Tuple[pd.Timestamp, pd.Timestamp]:
         end = utils.now()
