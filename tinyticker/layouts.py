@@ -36,6 +36,13 @@ TEXT_BBOX = {
     "facecolor": "white",
     "edgecolor": "white",
 }
+CURRENCY_SYMBOLS = {
+    "USD": "$",
+    "EUR": "€",
+    "GBP": "£",
+    "JPY": "¥",
+    "CNY": "¥",
+}
 LAYOUTS = {}
 
 Size = Tuple[int, int]
@@ -246,7 +253,7 @@ def default(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image
 
     perc_change = _perc_change(ticker, resp)
 
-    top_string = f"{ticker.config.symbol} ${resp.current_price:.2f}"
+    top_string = f"{ticker.config.symbol} {CURRENCY_SYMBOLS.get(ticker.currency, '$')}{resp.current_price:.2f}"
     if ticker.config.avg_buy_price is not None:
         # calculate the delta from the average buy price
         top_string += f" {_perc_change_abp(ticker, resp):+.2f}%"
@@ -286,7 +293,7 @@ def big_price(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Ima
     fig, (ax, _) = _historical_plot(size, ticker, resp)
     _adjust_text_width(
         fig.suptitle(
-            f"{ticker.config.symbol} ${resp.current_price:.2f}",
+            f"{ticker.config.symbol} {CURRENCY_SYMBOLS.get(ticker.currency, '$')}{resp.current_price:.2f}",
             weight="bold",
             x=0,
             y=1,

@@ -106,6 +106,8 @@ def get_cryptocompare(
 
 
 class TickerCrypto(TickerBase):
+    currency = CRYPTO_CURRENCY
+
     @classmethod
     def from_config(cls, tt_config, ticker_config) -> "TickerCrypto":
         if tt_config.api_key is None:

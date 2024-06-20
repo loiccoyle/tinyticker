@@ -65,6 +65,8 @@ class TickerResponse:
 
 
 class TickerBase:
+    currency: str
+
     @classmethod
     def from_config(
         cls, tt_config: TinytickerConfig, ticker_config: TickerConfig
