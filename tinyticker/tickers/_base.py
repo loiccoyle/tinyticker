@@ -128,6 +128,6 @@ class TickerBase:
                 self.config.symbol_type,
                 self.config.symbol,
                 f"{self.lookback}x{self.config.interval}",
-                str(self.config.wait_time),
+                f"{self.config.wait_time}s",
             ]
         )
