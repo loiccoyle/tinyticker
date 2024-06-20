@@ -59,7 +59,7 @@ def restart() -> None:
 def next_ticker() -> None:
     """Skip the current ticker and display the next one."""
     if PID_FILE.is_file() and SOCKET_FILE.is_socket():
-        LOGGER.info("Sending %s to tinyticker socket.", Message.NEXT)
+        LOGGER.info("Sending '%s' to tinyticker socket.", Message.NEXT.value)
         send_message(Message.NEXT)
     else:
         LOGGER.info("tinyticker is not runnning.")
@@ -69,7 +69,7 @@ def next_ticker() -> None:
 def previous_ticker() -> None:
     """Skip the current ticker and display the previous one."""
     if PID_FILE.is_file() and SOCKET_FILE.is_socket():
-        LOGGER.info("Sending %s to tinyticker.", Message.PREVIOUS)
+        LOGGER.info("Sending '%s' to tinyticker.", Message.PREVIOUS.value)
         send_message(Message.PREVIOUS)
     else:
         LOGGER.info("tinyticker is not runnning.")
