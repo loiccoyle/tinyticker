@@ -2,7 +2,6 @@ import argparse
 import asyncio
 import atexit
 import os
-import signal
 import sys
 from pathlib import Path
 from typing import List
@@ -16,6 +15,7 @@ from .display import Display
 from .paths import CONFIG_FILE, PID_FILE
 from .sequence import Sequence
 from .utils import RawTextArgumentDefaultsHelpFormatter, set_verbosity
+from .socket import run_server
 
 
 def parse_args(args: List[str]) -> argparse.Namespace:
@@ -57,20 +57,7 @@ async def start_ticker(config_file: Path) -> None:
     Args:
         config_file: config file path.
     """
-    logger.info("Starting ticker process")
-
-    def next_ticker(*_):
-        logger.info("Next ticker.")
-        if sequence is not None and sequence.current_index is not None:
-            sequence.go_to_index((sequence.current_index + 1) % len(sequence.tickers))
-
-    def prev_ticker(*_):
-        logger.info("Previous ticker.")
-        if sequence is not None and sequence.current_index is not None:
-            sequence.go_to_index((sequence.current_index - 1) % len(sequence.tickers))
-
-    signal.signal(signal.SIGUSR1, next_ticker)
-    signal.signal(signal.SIGUSR2, prev_ticker)
+    logger.info("Starting ticker task.")
 
     # Read config values
     tt_config = load_config_safe(config_file)
@@ -79,12 +66,16 @@ async def start_ticker(config_file: Path) -> None:
     sequence = Sequence.from_tinyticker_config(tt_config)
     logger.debug(sequence)
 
+    # start the socket server to control the sequence.
+    socket_server = asyncio.create_task(run_server(sequence))
+
     try:
         async for ticker, resp in sequence.start():
             logger.debug("Ticker response len(historical): %s", len(resp.historical))
             logger.debug("Ticker response current_price: %s", resp.current_price)
             display.show(ticker, resp)
     except Exception as exc:
+        socket_server.cancel()
         logger.error(exc, stack_info=True)
         display.text(
             f"Whoops something broke:\n{exc}",
@@ -92,6 +83,7 @@ async def start_ticker(config_file: Path) -> None:
             weight="bold",
             fontsize="small",
         )
+        await socket_server
 
 
 async def run():
@@ -102,8 +94,7 @@ async def run():
         set_verbosity(logger, args.verbose)
     logger.info("Tinyticker version: %s", __version__)
 
-    # make sure the config file exists and can be parsed before setting up the file
-    # monitor
+    # make sure the config file exists and can be parsed before setting up the file monitor
     load_config_safe(config_file)
 
     # write the process pid to file.
@@ -118,6 +109,7 @@ async def run():
 
     class ConfigModifiedHandler(FileSystemEventHandler):
         def on_modified(self, event):
+            # when the file is modified, cancel the current task.
             logger.info(f"{event.src_path} was changed, cancelling ticker task.")
             if tick_task and not tick_task.done():
                 tick_task.cancel()

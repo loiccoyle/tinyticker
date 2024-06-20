@@ -1,7 +1,5 @@
 import dataclasses as dc
 import logging
-import os
-import signal
 import subprocess
 from typing import Callable, Dict, List, Optional, Union
 
@@ -9,6 +7,7 @@ from pip._internal.cli.main import main as pipmain
 
 from ..config import TinytickerConfig
 from ..paths import CONFIG_FILE, PID_FILE
+from ..socket import send_message, Message, SOCKET_FILE
 
 LOGGER = logging.getLogger(__name__)
 COMMANDS: Dict[str, "Command"] = {}
@@ -59,11 +58,9 @@ def restart() -> None:
 @register
 def next_ticker() -> None:
     """Skip the current ticker and display the next one."""
-    if PID_FILE.is_file():
-        LOGGER.info("Sending SIGUSR1 to tinyticker.")
-        with open(PID_FILE, "r") as pid_file:
-            pid = int(pid_file.readline())
-        os.kill(pid, signal.SIGUSR1)
+    if PID_FILE.is_file() and SOCKET_FILE.is_socket():
+        LOGGER.info("Sending %s to tinyticker socket.", Message.NEXT)
+        send_message(Message.NEXT)
     else:
         LOGGER.info("tinyticker is not runnning.")
 
@@ -71,11 +68,9 @@ def next_ticker() -> None:
 @register
 def previous_ticker() -> None:
     """Skip the current ticker and display the previous one."""
-    if PID_FILE.is_file():
-        LOGGER.info("Sending SIGUSR2 to tinyticker.")
-        with open(PID_FILE, "r") as pid_file:
-            pid = int(pid_file.readline())
-        os.kill(pid, signal.SIGUSR2)
+    if PID_FILE.is_file() and SOCKET_FILE.is_socket():
+        LOGGER.info("Sending %s to tinyticker.", Message.PREVIOUS)
+        send_message(Message.PREVIOUS)
     else:
         LOGGER.info("tinyticker is not runnning.")
 
