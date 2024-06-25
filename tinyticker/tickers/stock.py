@@ -1,8 +1,8 @@
 import logging
-from typing import Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import pandas as pd
-import yfinance
+import yahooquery as yq
 
 from .. import utils
 from ._base import TickerBase
@@ -17,8 +17,23 @@ class TickerStock(TickerBase):
 
     def __init__(self, config) -> None:
         super().__init__(config)
-        self._yf_ticker = yfinance.Ticker(self.config.symbol)
-        self.currency = self._yf_ticker.fast_info.get("currency", "USD").upper()  # type: ignore
+        self._yq_ticker = yq.Ticker(self.config.symbol)
+        price = self._yq_ticker.price[self.config.symbol]
+        if isinstance(price, str):
+            raise ValueError(price)
+        self.currency = price["currency"]
+
+    def current_price(self) -> float:
+        price_data: Dict[str, Any] = self._yq_ticker.price[self.config.symbol]  # type: ignore
+        market_state: str = price_data["marketState"]
+        print(market_state)
+        if (not self.config.prepost) or market_state == "REGULAR":
+            return price_data["regularMarketPrice"]
+        elif market_state == "PRE":
+            return price_data["preMarketPrice"]
+        else:
+            # when the market is closed or postpost, we still want the latest price
+            return price_data["postMarketPrice"]
 
     def _get_yfinance_start_end(self) -> Tuple[pd.Timestamp, pd.Timestamp]:
         end = utils.now()
@@ -74,29 +89,28 @@ class TickerStock(TickerBase):
     def _single_tick(self) -> Tuple[pd.DataFrame, Optional[float]]:
         LOGGER.info("Stock tick: %s", self.config.symbol)
         # clear the cached price data
-        self._yf_ticker._fast_info = None
-        current_price: Optional[float] = self._yf_ticker.fast_info.get(
-            "lastPrice", None
-        )
         start, end = self._get_yfinance_start_end()
-        historical = self._yf_ticker.history(
+        historical = self._yq_ticker.history(
             start=start,
             end=end,
             interval=self.config.interval,
-            timeout=None,
             prepost=self.config.prepost,
-        )
+        ).droplevel("symbol")
         if historical.empty:
             raise ValueError(
-                f"No historical data returned from yfinance API for {self.config.symbol}."
+                f"No historical data returned from yahoo finance API for {self.config.symbol}."
             )
         # drop the extra data
         if len(historical) > self.lookback:
             historical = historical.iloc[-self.lookback :]
-        if historical.index.tzinfo is None:  # type: ignore
-            historical.index = historical.index.tz_localize("utc")  # type: ignore
+        if not isinstance(historical.index, pd.DatetimeIndex):
+            # depending on the the interval, the index returned by yq can be a DatetimeIndex or
+            # an Index of strings
+            historical.index = pd.to_datetime(historical.index)
+        if historical.index.tz is None:
+            historical.index = historical.index.tz_localize("utc")
         if self.config.prepost:
             # yfinance gives some weird data for the high/low values during the pre/post market
             # hours, so we hide them
             historical = self._fix_prepost(historical)
-        return (historical, current_price)
+        return (historical, self.current_price())
