@@ -15,7 +15,7 @@ class TestTickerStock(TestCase):
     def setUpClass(cls) -> None:
         cls.data_dir = Path(__file__).parents[2] / "data"
         cls.historical_path = cls.data_dir / "stock_historical.pkl"
-        cls.historical: pd.DataFrame = pd.read_pickle(cls.historical_path)
+        cls.historical: pd.DataFrame = pd.read_pickle(cls.historical_path)  # type: ignore
         cls.config = TickerConfig(
             symbol="SPY",
             symbol_type="stock",
@@ -37,13 +37,12 @@ class TestTickerStock(TestCase):
     def test_same_tick(self):
         assert_same_tick(self.ticker)
 
-    def test_empty(self):
+    def test_invalid(self):
         config = TickerConfig(
             symbol="INVALID",
             symbol_type="stock",
             interval="1h",
             lookback=1,
         )
-        with pytest.raises(KeyError):
-            ticker = TickerStock(config)
-            ticker.single_tick()
+        with pytest.raises((ValueError)):
+            TickerStock(config)
