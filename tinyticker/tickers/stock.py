@@ -73,11 +73,6 @@ class TickerStock(TickerBase):
 
     def _single_tick(self) -> Tuple[pd.DataFrame, Optional[float]]:
         LOGGER.info("Stock tick: %s", self.config.symbol)
-        # clear the cached price data
-        self._yf_ticker._fast_info = None
-        current_price: Optional[float] = self._yf_ticker.fast_info.get(
-            "lastPrice", None
-        )
         start, end = self._get_yfinance_start_end()
         historical = self._yf_ticker.history(
             start=start,
@@ -99,4 +94,5 @@ class TickerStock(TickerBase):
             # yfinance gives some weird data for the high/low values during the pre/post market
             # hours, so we hide them
             historical = self._fix_prepost(historical)
+        current_price = historical["Close"].iloc[-1]
         return (historical, current_price)
