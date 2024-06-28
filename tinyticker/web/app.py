@@ -13,9 +13,6 @@ from werkzeug.utils import secure_filename
 from .. import __version__
 from ..config import (
     PLOT_TYPES,
-    LayoutConfig,
-    SequenceConfig,
-    TickerConfig,
     TinytickerConfig,
     load_config_safe,
 )
