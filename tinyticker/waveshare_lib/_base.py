@@ -219,7 +219,7 @@ class EPDGrayscale(EPDMonochrome):
             np.array(image.convert("L")) / 255
             - np.array(image.convert("1", dither=None)),
             ord=2,
-        ) / (image.size[0] * image.size[1],)
+        ) / (image.size[0] * image.size[1])
         logger.debug("grayscale bitmap loss: %f", loss)
         threshold = 1e-4
 
