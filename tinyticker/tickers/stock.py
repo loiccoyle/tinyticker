@@ -22,7 +22,10 @@ class TickerStock(TickerBase):
     def __init__(self, config) -> None:
         super().__init__(config)
         self._yf_ticker = yfinance.Ticker(self.config.symbol)
-        self.currency = self._yf_ticker.fast_info.get("currency", "USD").upper()  # type: ignore
+        try:
+            self.currency = self._yf_ticker.fast_info.get("currency", "USD").upper()  # type: ignore
+        except KeyError:
+            self.currency = "USD"
 
     def _get_logo(self) -> Union[Image.Image, Literal[False]]:
         url = self._yf_ticker.info.get("website", None)
