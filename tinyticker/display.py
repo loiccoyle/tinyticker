@@ -83,8 +83,6 @@ class Display:
 
         self._log.debug("Image size: %s", image.size)
         self._log.info("Wake up.")
-        # I think this wakes it from sleep
-        self.epd.init()
         self.epd.show(image)
         self._log.info("Display sleep.")
         self.epd.sleep()

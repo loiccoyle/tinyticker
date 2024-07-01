@@ -131,6 +131,7 @@ class EPDMonochrome(EPDBase):
         self.display(self._blank)
 
     def show(self, image: Image.Image) -> None:
+        self.init()
         self.display(self.getbuffer(image))
 
 
@@ -161,6 +162,7 @@ class EPDHighlight(EPDBase):
                 logger.info("Highlight pixels: %i", highlight_mask.sum())
                 highlight_buffer = self.getbuffer(Image.fromarray(~highlight_mask))
 
+        self.init()
         self.display(
             self.getbuffer(image),
             highlights=highlight_buffer,
@@ -212,8 +214,20 @@ class EPDGrayscale(EPDMonochrome):
         return bytearray(packed_pixels.flatten())
 
     def show(self, image: Image.Image) -> None:
-        self.init_grayscale()
-        self.display_grayscale(self.getbuffer_grayscale(image))
+        # loss when displaying in bit mode
+        loss = np.linalg.norm(
+            np.array(image.convert("L")) / 255
+            - np.array(image.convert("1", dither=None))
+        ) / (image.size[0] * image.size[1])
+        threshold = 1e-4
+
+        if loss > threshold:
+            logger.info("Using grayscale.")
+            self.init_grayscale()
+            self.display_grayscale(self.getbuffer_grayscale(image))
+        else:
+            self.init()
+            self.display(self.getbuffer(image))
 
 
 # Could be used later to utilize the partial refresh feature of some of the EPDs
