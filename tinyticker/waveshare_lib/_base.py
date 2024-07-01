@@ -208,6 +208,12 @@ class EPDGrayscale(EPDBase):
 
         return bytearray(packed_pixels.flatten())
 
+    def clear(self) -> None:
+        self.display(self._blank)
+
+    def show(self, image: Image.Image) -> None:
+        self.display(self.getbuffer(image))
+
 
 # Could be used later to utilize the partial refresh feature of some of the EPDs
 # class EPDPartial(EPDBase):
