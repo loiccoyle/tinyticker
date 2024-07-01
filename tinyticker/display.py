@@ -5,9 +5,8 @@ image to the model's capabalities.
 """
 
 import logging
-from typing import Optional, Tuple
+from typing import Tuple
 
-import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from PIL import Image
@@ -48,7 +47,7 @@ class Display:
         """Initialize the ePaper display module."""
         self._log.info("Init ePaper display.")
         self.epd.init()
-        self.epd.Clear()
+        self.epd.clear()
 
     def text(self, text: str, show: bool = False, **kwargs) -> Tuple[Figure, Axes]:
         """Create a `plt.Figure` and `plt.Axes` with centered text.
@@ -61,7 +60,7 @@ class Display:
         Returns:
             The `plt.Figure` and `plt.Axes` with the text.
         """
-        fig, ax = _create_fig_ax((self.epd.height, self.epd.width), n_axes=1)
+        fig, ax = _create_fig_ax(self.epd.size, n_axes=1)
         ax = ax[0]
         ax.text(0, 0, text, ha="center", va="center", wrap=True, **kwargs)
         if show:
@@ -73,57 +72,24 @@ class Display:
         image = _fig_to_image(fig)
         self.show_image(image)
 
-    def _show_image(
-        self, image: Image.Image, highlight: Optional[Image.Image] = None
-    ) -> None:
-        """Small wrapper to handle the capabalities of the display."""
-        if isinstance(self.epd, EPDHighlight):
-            self.epd.display(
-                self.epd.getbuffer(image),
-                self.epd.getbuffer(highlight) if highlight is not None else None,
-            )
-        else:
-            self.epd.display(self.epd.getbuffer(image))
-
     def show_image(self, image: Image.Image) -> None:
         """Show a `PIL.Image.Image` on the display and put it to sleep.
 
         Args:
             image: The image to display.
         """
-        highlight_image = None
-        if self.has_highlight and image.mode == "RGB":
-            self._log.info("Computing highlight pixels.")
-            # create an image with the pixels which are coloured
-            image_ar = np.array(image)
-            colored_pixels = ~(image_ar == image_ar[:, :, 0][:, :, None]).all(axis=-1)
-            n_coloured = colored_pixels.sum()
-            if n_coloured > 0:
-                highlight_image = (
-                    np.ones(image_ar.shape[:-1], dtype=image_ar.dtype) * 255
-                )
-                self._log.debug("Number of coloured pixels: %s", n_coloured)
-                highlight_image[colored_pixels] = 0
-                # I think there is a bug with PIL, need to convert from "L"
-                # https://stackoverflow.com/questions/32159076/python-pil-bitmap-png-from-array-with-mode-1
-                highlight_image = Image.fromarray(highlight_image, mode="L")
-                if self.flip:
-                    highlight_image = highlight_image.rotate(180)
-                self._log.debug("Highlight image size: %s", highlight_image.size)
-
-        # if image.mode != "1":
-        #     image = image.convert("1", dither=Image.Dither.NONE)
         if self.flip:
             image = image.rotate(180)
+
         self._log.debug("Image size: %s", image.size)
         self._log.info("Wake up.")
         # I think this wakes it from sleep
         self.epd.init()
-        self._show_image(image, highlight_image)
+        self.epd.show(image)
         self._log.info("Display sleep.")
         self.epd.sleep()
 
     def show(self, ticker: TickerBase, resp: TickerResponse) -> None:
         layout = LAYOUTS.get(ticker.config.layout.name, LAYOUTS["default"])
-        image = layout.func((self.epd.height, self.epd.width), ticker, resp)
+        image = layout.func(self.epd.size, ticker, resp)
         self.show_image(image)

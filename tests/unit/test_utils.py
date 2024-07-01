@@ -23,7 +23,7 @@ class TestUtils(TestCase):
         assert img_trim.size == (200, 133)
 
     def test_dashboard_qrcode(self):
-        qrcode = utils.dashboard_qrcode(200, 200)
+        qrcode = utils.dashboard_qrcode((200, 200))
         assert qrcode.size == (200, 200)
 
     def test_set_verbosity(self):

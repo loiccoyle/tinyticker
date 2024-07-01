@@ -11,3 +11,4 @@ CONFIG_FILE = CONFIG_DIR / "config.json"
 TMP_DIR = Path("/tmp/tinyticker/")
 LOG_DIR = Path("/var/log")
 PID_FILE = TMP_DIR / "tinyticker_pid"
+SOCKET_FILE = TMP_DIR / "tinyticker.sock"

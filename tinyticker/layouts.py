@@ -1,4 +1,4 @@
-"""Layouts are responsible for generating an image for a given dimension, ticker, and response.
+"""Layouts are responsible for generating an image for a given size, ticker, and response.
 
 They should not care about the capabilities of the display device, only about the content to display.
 """
@@ -13,6 +13,7 @@ import mplfinance as mpf
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib.text import Text
 from matplotlib.ticker import FormatStrFormatter
 from PIL import Image
 
@@ -29,18 +30,45 @@ MARKETCOLORS = mpf.make_marketcolors(
     volume="black",
 )
 MARKETCOLORS["vcedge"] = {"up": "black", "down": "black"}
-STYLE = mpf.make_mpf_style(marketcolors=MARKETCOLORS, mavcolors=["r"])
+STYLE = mpf.make_mpf_style(marketcolors=MARKETCOLORS, mavcolors=[(1, 0, 0)])
 TEXT_BBOX = {
     "boxstyle": "square,pad=0",
     "facecolor": "white",
     "edgecolor": "white",
 }
+CURRENCY_SYMBOLS = {
+    "USD": "$",
+    "EUR": "€",
+    "GBP": "£",
+    "JPY": "¥",
+    "CNY": "¥",
+}
 LAYOUTS = {}
 
-Dimensions = Tuple[int, int]
-LayoutFunc = Callable[[Dimensions, TickerBase, TickerResponse], Image.Image]
+Size = Tuple[int, int]
+LayoutFunc = Callable[[Size, TickerBase, TickerResponse], Image.Image]
 
 logger = logging.getLogger(__name__)
+
+
+def _adjust_text_width(text: Text, max_width: int, fontsize: int) -> Text:
+    """Adjust the fontsize of the text to fit within the provided width.
+
+    Args:
+        text: the `matplotlib.text.Text` object to adjust.
+        max_width: the maximum width the text can be.
+        fontsize: the desired fontsize.
+
+    Returns:
+        The adjusted `matplotlib.text.Text` object.
+    """
+    # try the provided fontsize
+    text.set_fontsize(fontsize)
+    text_width = text.get_window_extent().width
+    if text_width > max_width:
+        # adjust the fontsize to fit within the width
+        text.set_fontsize(fontsize * max_width / text_width)
+    return text
 
 
 def _strip_ax(ax: Axes) -> None:
@@ -50,20 +78,18 @@ def _strip_ax(ax: Axes) -> None:
     ax.grid(False)
 
 
-def _create_fig_ax(
-    dimensions: Dimensions, n_axes: int = 1, **kwargs
-) -> Tuple[Figure, np.ndarray]:
+def _create_fig_ax(size: Size, n_axes: int = 1, **kwargs) -> Tuple[Figure, np.ndarray]:
     """Create the `plt.Figure` and `plt.Axes` used to plot the chart.
 
     Args:
-        dimensions: the dimensions of the plot, (width, height).
+        size: the size of the plot, (width, height).
         n_axes: the number of subplot axes to create.
         **kwargs: passed to `plt.subplots`.
 
     Returns:
         The `plt.Figure` and an array of `plt.Axes`.
     """
-    width, height = dimensions
+    width, height = size
     dpi = plt.rcParams.get("figure.dpi", 96)
     px = 1 / dpi
     fig, axes = plt.subplots(
@@ -93,10 +119,10 @@ def _fig_to_image(fig: Figure) -> Image.Image:
     """
     fig.tight_layout(pad=0)
     with io.BytesIO() as buffer:
-        fig.savefig(buffer, format="jpg", pad_inches=0)
+        fig.savefig(buffer, format="jpeg", pad_inches=0)
         # to stop the fig from showing up in notebooks and such
         plt.close(fig)
-        return Image.open(buffer).convert("RGB")
+        return Image.open(buffer, formats=("jpeg",)).convert("RGB")
 
 
 def register(func: LayoutFunc) -> LayoutFunc:
@@ -172,14 +198,12 @@ def apply_layout_config(
 
 
 def _historical_plot(
-    dimensions: Dimensions, ticker: TickerBase, resp: TickerResponse
+    size: Size, ticker: TickerBase, resp: TickerResponse
 ) -> Tuple[Figure, Tuple[Axes, Optional[Axes]]]:
     if ticker.config.volume:
-        fig, (ax, volume_ax) = _create_fig_ax(
-            dimensions, n_axes=2, height_ratios=[3, 1]
-        )
+        fig, (ax, volume_ax) = _create_fig_ax(size, n_axes=2, height_ratios=[3, 1])
     else:
-        fig, (ax,) = _create_fig_ax(dimensions, n_axes=1)
+        fig, (ax,) = _create_fig_ax(size, n_axes=1)
         volume_ax = False
 
     kwargs = {}
@@ -224,19 +248,17 @@ def _perc_change_abp(ticker: TickerBase, resp: TickerResponse) -> float:
 
 
 @register
-def default(
-    dimensions: Dimensions, ticker: TickerBase, resp: TickerResponse
-) -> Image.Image:
+def default(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image:
     """Default layout."""
 
     perc_change = _perc_change(ticker, resp)
 
-    top_string = f"{ticker.config.symbol} ${resp.current_price:.2f}"
+    top_string = f"{ticker.config.symbol} {CURRENCY_SYMBOLS.get(ticker.currency, '$')}{resp.current_price:.2f}"
     if ticker.config.avg_buy_price is not None:
         # calculate the delta from the average buy price
         top_string += f" {_perc_change_abp(ticker, resp):+.2f}%"
 
-    fig, (ax, _) = _historical_plot(dimensions, ticker, resp)
+    fig, (ax, _) = _historical_plot(size, ticker, resp)
 
     top_text = ax.text(
         0,
@@ -248,7 +270,7 @@ def default(
         bbox=TEXT_BBOX,
         verticalalignment="top",
     )
-    ax_height = ax.get_position().height * dimensions[1]
+    ax_height = ax.get_position().height * size[1]
     ax.text(
         0,
         (ax_height - top_text.get_window_extent().height + 1) / ax_height,
@@ -265,27 +287,34 @@ def default(
 
 
 @register
-def big_price(
-    dimensions: Dimensions, ticker: TickerBase, resp: TickerResponse
-) -> Image.Image:
+def big_price(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image:
     """Big price layout."""
     perc_change = _perc_change(ticker, resp)
-    fig, (ax, _) = _historical_plot(dimensions, ticker, resp)
-    fig.suptitle(
-        f"{ticker.config.symbol} ${resp.current_price:.2f}",
-        fontsize=18,
-        weight="bold",
-        x=0,
-        horizontalalignment="left",
+    fig, (ax, _) = _historical_plot(size, ticker, resp)
+    _adjust_text_width(
+        fig.suptitle(
+            f"{ticker.config.symbol} {CURRENCY_SYMBOLS.get(ticker.currency, '$')}{resp.current_price:.2f}",
+            weight="bold",
+            x=0,
+            y=1,
+            horizontalalignment="left",
+        ),
+        size[0],
+        18,
     )
+
     sub_string = f"{len(resp.historical)}x{ticker.config.interval} {perc_change:+.2f}%"
     if ticker.config.avg_buy_price:
         sub_string += f" ({_perc_change_abp(ticker, resp):+.2f}%)"
-    ax.set_title(
-        sub_string,
-        fontsize=12,
-        weight="bold",
-        loc="left",
+
+    _adjust_text_width(
+        ax.set_title(
+            sub_string,
+            weight="bold",
+            loc="left",
+        ),
+        size[0],
+        12,
     )
 
     ax = apply_layout_config(ax, ticker.config.layout, resp)

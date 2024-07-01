@@ -90,8 +90,7 @@ def main():
         tt_config = TinytickerConfig.from_file(args.config)
         display = Display.from_tinyticker_config(tt_config)
         qrcode = dashboard_qrcode(
-            display.epd.width,
-            display.epd.height,
+            display.epd.size,
             args.port,
         )
         logger.info("Displaying qrcode.")

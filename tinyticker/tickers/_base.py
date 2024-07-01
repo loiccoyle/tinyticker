@@ -65,6 +65,8 @@ class TickerResponse:
 
 
 class TickerBase:
+    currency: str
+
     @classmethod
     def from_config(
         cls, tt_config: TinytickerConfig, ticker_config: TickerConfig
@@ -128,6 +130,6 @@ class TickerBase:
                 self.config.symbol_type,
                 self.config.symbol,
                 f"{self.lookback}x{self.config.interval}",
-                str(self.config.wait_time),
+                f"{self.config.wait_time}s",
             ]
         )

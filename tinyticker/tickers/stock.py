@@ -18,6 +18,7 @@ class TickerStock(TickerBase):
     def __init__(self, config) -> None:
         super().__init__(config)
         self._yf_ticker = yfinance.Ticker(self.config.symbol)
+        self.currency = self._yf_ticker.fast_info.get("currency", "USD").upper()  # type: ignore
 
     def _get_yfinance_start_end(self) -> Tuple[pd.Timestamp, pd.Timestamp]:
         end = utils.now()
@@ -73,9 +74,6 @@ class TickerStock(TickerBase):
     def _single_tick(self) -> Tuple[pd.DataFrame, Optional[float]]:
         LOGGER.info("Stock tick: %s", self.config.symbol)
         start, end = self._get_yfinance_start_end()
-        current_price: Optional[float] = self._yf_ticker.fast_info.get(
-            "lastPrice", None
-        )
         historical = self._yf_ticker.history(
             start=start,
             end=end,
@@ -96,4 +94,5 @@ class TickerStock(TickerBase):
             # yfinance gives some weird data for the high/low values during the pre/post market
             # hours, so we hide them
             historical = self._fix_prepost(historical)
+        current_price = historical["Close"].iloc[-1]
         return (historical, current_price)
