@@ -416,22 +416,12 @@ def logo(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image:
             regular_font.size,
             (logo_width, logo_height),
         )
-        symbol_font = ImageFont.truetype(regular_font.path, size=round(fontsize))
-
-        pos = (padding + logo_width / 2, padding + logo_height / 2)
-        draw.rounded_rectangle(
-            draw.textbbox(
-                pos,
-                ticker.config.symbol,
-                anchor="mm",
-                # a bit bigger to have some margin
-                font=ImageFont.truetype(
-                    symbol_font.path, size=round(symbol_font.size * 1.2)
-                ),
-            ),
-            4,
-            fill="#cccccc",
+        draw.text(
+            (padding + logo_width / 2, padding + logo_height / 2),
+            ticker.config.symbol,
+            anchor="mm",
+            font=ImageFont.truetype(regular_font.path, size=round(fontsize)),
+            fill=0,
         )
-        draw.text(pos, ticker.config.symbol, anchor="mm", font=symbol_font, fill=0)
 
     return img
