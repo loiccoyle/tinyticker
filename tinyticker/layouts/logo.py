@@ -58,7 +58,7 @@ def logo(
             ),
         ),
     )
-    plot_size = (plot_width, logo_height)
+    plot_size = (plot_width, logo_height - range_text_font.getbbox(range_text)[3])
 
     fig, axes = historical_plot(plot_size, ticker, resp)
     apply_layout_config(axes[0], ticker.config.layout, resp)
