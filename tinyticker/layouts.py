@@ -345,6 +345,8 @@ def logo(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image:
     logo_height = int(size[0] * 0.4) - 2 * padding
     logo_width = logo_height
 
+    plot_width = size[0] - (logo_width + 2 * padding)
+
     def ttf_font_or_default(
         font: str, size: int = 10
     ) -> Union[ImageFont.FreeTypeFont, ImageFont.ImageFont]:
@@ -354,12 +356,25 @@ def logo(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image:
             return ImageFont.load_default(size)
 
     # DejaVuSans seems to be installed by default on RPis
-    monospace_font = ttf_font_or_default("DejaVuSansMono.ttf", 12)
-    regular_font = ttf_font_or_default("DejaVuSans-Bold.ttf")
+    monospace_font_file = "DejaVuSansMono.ttf"
+    regular_font_file = "DejaVuSans-Bold.ttf"
+    default_size = 10
+    monospace_font = ttf_font_or_default(monospace_font_file, default_size)
+    regular_font = ttf_font_or_default(regular_font_file, default_size)
 
     range_text = f"{len(resp.historical)}x{ticker.config.interval} {_perc_change(ticker, resp):+.2f}%"
     range_text_bbox = monospace_font.getbbox(range_text)
-    plot_size = (size[0] - (logo_width + 2 * padding), logo_height - range_text_bbox[3])
+    range_text_font = ttf_font_or_default(
+        monospace_font_file,
+        size=round(
+            _fontsize_for_size(
+                (range_text_bbox[2], range_text_bbox[3]),
+                default_size,
+                (plot_width, 14),
+            ),
+        ),
+    )
+    plot_size = (plot_width, logo_height - range_text_font.getbbox(range_text)[3])
 
     fig, axes = _historical_plot(plot_size, ticker, resp)
     apply_layout_config(axes[0], ticker.config.layout, resp)
@@ -381,21 +396,20 @@ def logo(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image:
     draw.text(
         (size[0] - plot_size[0] - half_padding, plot_size[1] + half_padding),
         range_text,
-        font=monospace_font,
+        font=range_text_font,
         fill=0,
     )
     available_space = size[1] - (plot_size[1] + (range_text_bbox[3]))
 
-    regular_font = ImageFont.truetype("DejaVuSans.ttf")
     price_text = f"{CURRENCY_SYMBOLS.get(ticker.currency, '$')}{resp.current_price:.2f}"
     price_text_bbox = regular_font.getbbox(price_text)
 
     fontsize = _fontsize_for_size(
         (price_text_bbox[2], price_text_bbox[3]),
-        regular_font.size,
+        default_size,
         (size[0] - 2 * padding, available_space - padding),
     )
-    price_font = ImageFont.truetype(regular_font.path, size=round(fontsize))
+    price_font = ttf_font_or_default(regular_font_file, size=round(fontsize))
     draw.text(
         (size[0] / 2, size[1]),
         price_text,
@@ -413,14 +427,23 @@ def logo(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image:
         symbol_text_bbox = regular_font.getbbox(ticker.config.symbol)
         fontsize = _fontsize_for_size(
             (symbol_text_bbox[2], symbol_text_bbox[3]),
-            regular_font.size,
+            default_size,
             (logo_width, logo_height),
         )
         draw.text(
             (padding + logo_width / 2, padding + logo_height / 2),
             ticker.config.symbol,
             anchor="mm",
-            font=ImageFont.truetype(regular_font.path, size=round(fontsize)),
+            font=ttf_font_or_default(
+                regular_font_file,
+                size=round(
+                    _fontsize_for_size(
+                        (symbol_text_bbox[2], symbol_text_bbox[3]),
+                        default_size,
+                        (logo_width, logo_height),
+                    )
+                ),
+            ),
             fill=0,
         )
 
