@@ -167,16 +167,7 @@ class EPDHighlight(EPDBase):
         )
 
 
-class EPDGrayscale(EPDBase):
-    @abstractmethod
-    def display(self, image: bytearray) -> None:
-        """Display the image data on the e-paper display.
-
-        Args:
-            image: The image data to display.
-        """
-        ...
-
+class EPDGrayscale(EPDMonochrome):
     @abstractmethod
     def display_grayscale(self, image: bytearray) -> None:
         """Display the grayscale image buffer on the e-paper display.
@@ -185,6 +176,9 @@ class EPDGrayscale(EPDBase):
             image: The grayscale image data to display.
         """
         ...
+
+    @abstractmethod
+    def init_grayscale(self) -> None: ...
 
     def getbuffer_grayscale(self, image: Image.Image) -> bytearray:
         if (self.height, self.width) == image.size:
@@ -217,10 +211,8 @@ class EPDGrayscale(EPDBase):
 
         return bytearray(packed_pixels.flatten())
 
-    def clear(self) -> None:
-        self.display(self._blank)
-
     def show(self, image: Image.Image) -> None:
+        self.init_grayscale()
         self.display_grayscale(self.getbuffer_grayscale(image))
 
 

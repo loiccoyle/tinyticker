@@ -280,7 +280,7 @@ class EPD(EPDGrayscale):
         self.send_command(0x20)
         self.ReadBusy()
 
-    def Init_4Gray(self):
+    def init_grayscale(self):
         self.device.module_init()
 
         self.reset()

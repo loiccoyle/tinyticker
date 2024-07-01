@@ -587,7 +587,7 @@ class EPD(EPDGrayscale):
         self.send_data(0x12)
         self.set_lut()
 
-    def Init_4Gray(self):
+    def init_grayscale(self):
         self.device.module_init()
 
         self.reset()
