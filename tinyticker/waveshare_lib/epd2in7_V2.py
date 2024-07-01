@@ -1,15 +1,11 @@
 import logging
 
-import numpy as np
-
-from ._base import EPDMonochrome
+from ._base import EPDGrayscale
 
 logger = logging.getLogger(__name__)
 
 
-# NOTE: this display is black and white but also supports 4 gray levels which are
-# currently not used for tinyticker
-class EPD(EPDMonochrome):
+class EPD(EPDGrayscale):
     width = 176
     height = 264
 
@@ -340,42 +336,10 @@ class EPD(EPDMonochrome):
         self.send_data(0x00)
         self.ReadBusy()
 
-    def getbuffer_4Gray(self, image):
-        if (self.height, self.width) == image.size:
-            # image has correct dimensions, but needs to be rotated
-            image = image.rotate(90, expand=True)
-        if (self.width, self.height) != image.size:
-            raise ValueError(
-                f"Wrong image dimensions, must be {self.width}x{self.height}"
-            )
-        if image.mode != "L":
-            image = image.convert("L")
-
-        pixels = np.array(image)
-
-        # we process the image in chunks of 4 pixels by reshaping
-        # we pack the bits of 4 pixels into a single byte
-        # 00011011 -> black, light gray, dark gray, white
-        pixels = pixels.reshape((self.height, self.width // 4, 4))
-        # not really sure why they do this, but it's in the waveshare code
-        pixels = np.where(pixels == 0x80, 0x40, pixels)
-        pixels = np.where(pixels == 0xC0, 0x80, pixels)
-        # keep the first 2 bits, which basically quantizes the image to 4 grey levels
-        pixels = pixels & 0xC0
-        # pack the 4 pixels into a single byte
-        packed_pixels = (
-            (pixels[:, :, 0])
-            | (pixels[:, :, 1] >> 2)
-            | (pixels[:, :, 2] >> 4)
-            | pixels[:, :, 3] >> 6
-        )
-
-        return bytearray(packed_pixels.flatten())
-
-    def display(self, image):
-        self.send_command(0x24)
-        self.send_data2(image)
-        self.TurnOnDisplay()
+    # def display(self, image):
+    #     self.send_command(0x24)
+    #     self.send_data2(image)
+    #     self.TurnOnDisplay()
 
     def display_Fast(self, image):
         self.send_command(0x24)
@@ -473,7 +437,7 @@ class EPD(EPDMonochrome):
                     self.send_data(Image[i + j * Width])
         self.TurnOnDisplay_Partial()
 
-    def display_4Gray(self, image):
+    def display(self, image):
         self.send_command(0x24)
         for i in range(0, 5808):  # 5808*4  46464
             temp3 = 0
