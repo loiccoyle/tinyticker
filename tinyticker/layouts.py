@@ -339,14 +339,17 @@ def big_price(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Ima
 
 @register
 def logo(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image:
+    # some layout settings
     padding = min(8, int(0.05 * size[0]))
     half_padding = round(padding / 2)
     logo_height = int(size[0] * 0.4) - 2 * padding
     logo_width = logo_height
 
-    small_font = ImageFont.truetype("DejaVuSansMono.ttf", size=12)
+    monospace_font = ImageFont.truetype("DejaVuSansMono.ttf", size=12)
+    regular_font = ImageFont.truetype("DejaVuSans.ttf")
+
     range_text = f"{len(resp.historical)}x{ticker.config.interval} {_perc_change(ticker, resp):+.2f}%"
-    range_text_bbox = small_font.getbbox(range_text)
+    range_text_bbox = monospace_font.getbbox(range_text)
     plot_size = (size[0] - (logo_width + 2 * padding), logo_height - range_text_bbox[3])
 
     fig, axes = _historical_plot(plot_size, ticker, resp)
@@ -369,27 +372,26 @@ def logo(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image:
     draw.text(
         (size[0] - plot_size[0] - half_padding, plot_size[1] + half_padding),
         range_text,
-        font=small_font,
+        font=monospace_font,
         fill=0,
     )
     available_space = size[1] - (plot_size[1] + (range_text_bbox[3]))
 
-    big_font = ImageFont.truetype("DejaVuSans.ttf")
+    regular_font = ImageFont.truetype("DejaVuSans.ttf")
     price_text = f"{CURRENCY_SYMBOLS.get(ticker.currency, '$')}{resp.current_price:.2f}"
-    price_text_bbox = big_font.getbbox(price_text)
+    price_text_bbox = regular_font.getbbox(price_text)
 
     fontsize = _fontsize_for_size(
         (price_text_bbox[2], price_text_bbox[3]),
-        big_font.size,
+        regular_font.size,
         (size[0] - 2 * padding, available_space - padding),
     )
-    big_font = ImageFont.truetype(big_font.path, size=round(fontsize))
-    # print(available_space)
+    price_font = ImageFont.truetype(regular_font.path, size=round(fontsize))
     draw.text(
         (size[0] / 2, size[1]),
         price_text,
         fill=0,
-        font=big_font,
+        font=price_font,
         anchor="md",
     )
 
@@ -398,13 +400,14 @@ def logo(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image:
             _resize_aspect(ticker.logo, (logo_width, logo_height)), (padding, padding)
         )
     else:
-        symbol_text_bbox = big_font.getbbox(ticker.config.symbol)
+        # if we don't have a logo, show the ticker symbol
+        symbol_text_bbox = regular_font.getbbox(ticker.config.symbol)
         fontsize = _fontsize_for_size(
             (symbol_text_bbox[2], symbol_text_bbox[3]),
-            big_font.size,
+            regular_font.size,
             (logo_width, logo_height),
         )
-        big_font = ImageFont.truetype(big_font.path, size=round(fontsize))
+        symbol_font = ImageFont.truetype(regular_font.path, size=round(fontsize))
 
         pos = (padding + logo_width / 2, padding + logo_height / 2)
         draw.rounded_rectangle(
@@ -413,11 +416,13 @@ def logo(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image:
                 ticker.config.symbol,
                 anchor="mm",
                 # a bit bigger to have some margin
-                font=ImageFont.truetype(big_font.path, size=round(big_font.size * 1.2)),
+                font=ImageFont.truetype(
+                    symbol_font.path, size=round(symbol_font.size * 1.2)
+                ),
             ),
             4,
             fill="#cccccc",
         )
-        draw.text(pos, ticker.config.symbol, anchor="mm", font=big_font, fill=0)
+        draw.text(pos, ticker.config.symbol, anchor="mm", font=symbol_font, fill=0)
 
     return img
