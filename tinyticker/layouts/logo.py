@@ -38,7 +38,7 @@ def logo(
     plot_width = size[0] - (logo_width + 2 * padding)
 
     # DejaVuSans seems to be installed by default on RPis
-    monospace_font_file = "DejaVuSansMono.ttf"
+    monospace_font_file = "DejaVuSansMono-Bold.ttf"
     regular_font_file = "DejaVuSans-Bold.ttf"
     default_size = 10
     monospace_font = ttf_font_or_default(monospace_font_file, default_size)
