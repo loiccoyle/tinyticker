@@ -13,9 +13,8 @@ import mplfinance as mpf
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-from matplotlib.text import Text
 from matplotlib.ticker import FormatStrFormatter
-from PIL import Image
+from PIL import Image, ImageFont, ImageDraw
 
 from .config import LayoutConfig
 from .tickers._base import TickerBase, TickerResponse
@@ -51,24 +50,33 @@ LayoutFunc = Callable[[Size, TickerBase, TickerResponse], Image.Image]
 logger = logging.getLogger(__name__)
 
 
-def _adjust_text_width(text: Text, max_width: int, fontsize: int) -> Text:
-    """Adjust the fontsize of the text to fit within the provided width.
+def _resize_aspect(image: Image.Image, size: Tuple[int, int]):
+    (width, height) = image.size
+    (target_width, target_height) = size
+    if width < height:
+        out = image.resize((round(width * target_height / height), target_height))
+    else:
+        out = image.resize((target_width, round(height * target_width / width)))
+    return out
+
+
+def _fontsize_for_size(
+    text_size: Tuple[float, float], fontsize: float, size: Tuple[int, int]
+) -> float:
+    """Interpolates to get the maximum font size to fit the text within the provided size.
 
     Args:
-        text: the `matplotlib.text.Text` object to adjust.
-        max_width: the maximum width the text can be.
-        fontsize: the desired fontsize.
+        text_size: The text width and height at current font size.
+        fontsize: The current font size
+        size: The target size to fit the text within.
 
     Returns:
-        The adjusted `matplotlib.text.Text` object.
+        The computed font size.
+
     """
-    # try the provided fontsize
-    text.set_fontsize(fontsize)
-    text_width = text.get_window_extent().width
-    if text_width > max_width:
-        # adjust the fontsize to fit within the width
-        text.set_fontsize(fontsize * max_width / text_width)
-    return text
+    (text_width, text_height) = text_size
+    (width, height) = size
+    return min(fontsize * width / text_width, fontsize * height / text_height)
 
 
 def _strip_ax(ax: Axes) -> None:
@@ -291,31 +299,125 @@ def big_price(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Ima
     """Big price layout."""
     perc_change = _perc_change(ticker, resp)
     fig, (ax, _) = _historical_plot(size, ticker, resp)
-    _adjust_text_width(
-        fig.suptitle(
-            f"{ticker.config.symbol} {CURRENCY_SYMBOLS.get(ticker.currency, '$')}{resp.current_price:.2f}",
-            weight="bold",
-            x=0,
-            y=1,
-            horizontalalignment="left",
-        ),
-        size[0],
-        18,
+    text = fig.suptitle(
+        f"{ticker.config.symbol} {CURRENCY_SYMBOLS.get(ticker.currency, '$')}{resp.current_price:.2f}",
+        weight="bold",
+        x=0,
+        y=1,
+        horizontalalignment="left",
+        fontsize=18,
+    )
+    text.set_fontsize(
+        _fontsize_for_size(
+            (text.get_window_extent().width, text.get_window_extent().height),
+            18,
+            (size[0], 22),
+        )
     )
 
     sub_string = f"{len(resp.historical)}x{ticker.config.interval} {perc_change:+.2f}%"
     if ticker.config.avg_buy_price:
         sub_string += f" ({_perc_change_abp(ticker, resp):+.2f}%)"
 
-    _adjust_text_width(
-        ax.set_title(
-            sub_string,
-            weight="bold",
-            loc="left",
-        ),
-        size[0],
-        12,
+    text = ax.set_title(
+        sub_string,
+        weight="bold",
+        loc="left",
+        fontsize=12,
+    )
+    text.set_fontsize(
+        _fontsize_for_size(
+            (text.get_window_extent().width, text.get_window_extent().height),
+            12,
+            (size[0], 18),
+        )
     )
 
     ax = apply_layout_config(ax, ticker.config.layout, resp)
     return _fig_to_image(fig)
+
+
+@register
+def logo(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image:
+    padding = min(8, int(0.05 * size[0]))
+    half_padding = round(padding / 2)
+    logo_height = int(size[0] * 0.4) - 2 * padding
+    logo_width = logo_height
+
+    small_font = ImageFont.truetype("DejaVuSansMono.ttf", size=12)
+    range_text = f"{len(resp.historical)}x{ticker.config.interval} {_perc_change(ticker, resp):+.2f}%"
+    range_text_bbox = small_font.getbbox(range_text)
+    plot_size = (size[0] - (logo_width + 2 * padding), logo_height - range_text_bbox[3])
+
+    fig, axes = _historical_plot(plot_size, ticker, resp)
+    apply_layout_config(axes[0], ticker.config.layout, resp)
+    axes[0].axhline(
+        resp.historical[["Open", "High", "Low", "Close"]].mean().mean(),
+        linestyle="dotted",
+        linewidth=1,
+        color="k",
+    )
+    img_plot = _fig_to_image(fig)
+
+    img = Image.new("RGB", size, "#ffffff")
+    img.paste(img_plot, (size[0] - plot_size[0] - half_padding, half_padding))
+    draw = ImageDraw.Draw(img)
+
+    if ticker.config.avg_buy_price:
+        range_text += f" ({_perc_change_abp(ticker, resp):+.2f}%)"
+
+    draw.text(
+        (size[0] - plot_size[0] - half_padding, plot_size[1] + half_padding),
+        range_text,
+        font=small_font,
+        fill=0,
+    )
+    available_space = size[1] - (plot_size[1] + (range_text_bbox[3]))
+
+    big_font = ImageFont.truetype("DejaVuSans.ttf")
+    price_text = f"{CURRENCY_SYMBOLS.get(ticker.currency, '$')}{resp.current_price:.2f}"
+    price_text_bbox = big_font.getbbox(price_text)
+
+    fontsize = _fontsize_for_size(
+        (price_text_bbox[2], price_text_bbox[3]),
+        big_font.size,
+        (size[0] - 2 * padding, available_space - padding),
+    )
+    big_font = ImageFont.truetype(big_font.path, size=round(fontsize))
+    # print(available_space)
+    draw.text(
+        (size[0] / 2, size[1]),
+        price_text,
+        fill=0,
+        font=big_font,
+        anchor="md",
+    )
+
+    if ticker.logo:
+        img.paste(
+            _resize_aspect(ticker.logo, (logo_width, logo_height)), (padding, padding)
+        )
+    else:
+        symbol_text_bbox = big_font.getbbox(ticker.config.symbol)
+        fontsize = _fontsize_for_size(
+            (symbol_text_bbox[2], symbol_text_bbox[3]),
+            big_font.size,
+            (logo_width, logo_height),
+        )
+        big_font = ImageFont.truetype(big_font.path, size=round(fontsize))
+
+        pos = (padding + logo_width / 2, padding + logo_height / 2)
+        draw.rounded_rectangle(
+            draw.textbbox(
+                pos,
+                ticker.config.symbol,
+                anchor="mm",
+                # a bit bigger to have some margin
+                font=ImageFont.truetype(big_font.path, size=round(big_font.size * 1.2)),
+            ),
+            4,
+            fill="#cccccc",
+        )
+        draw.text(pos, ticker.config.symbol, anchor="mm", font=big_font, fill=0)
+
+    return img
