@@ -6,7 +6,7 @@ They should not care about the capabilities of the display device, only about th
 import dataclasses as dc
 import io
 import logging
-from typing import Callable, Optional, Tuple
+from typing import Callable, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import mplfinance as mpf
@@ -14,7 +14,7 @@ import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.ticker import FormatStrFormatter
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 from .config import LayoutConfig
 from .tickers._base import TickerBase, TickerResponse
@@ -345,8 +345,17 @@ def logo(size: Size, ticker: TickerBase, resp: TickerResponse) -> Image.Image:
     logo_height = int(size[0] * 0.4) - 2 * padding
     logo_width = logo_height
 
-    monospace_font = ImageFont.truetype("DejaVuSansMono.ttf", size=12)
-    regular_font = ImageFont.truetype("DejaVuSans.ttf")
+    def ttf_font_or_default(
+        font: str, size: int = 10
+    ) -> Union[ImageFont.FreeTypeFont, ImageFont.ImageFont]:
+        try:
+            return ImageFont.truetype(font, size)
+        except OSError:
+            return ImageFont.load_default(size)
+
+    # DejaVuSans seems to be installed by default on RPis
+    monospace_font = ttf_font_or_default("DejaVuSansMono.ttf", 12)
+    regular_font = ttf_font_or_default("DejaVuSans-Bold.ttf")
 
     range_text = f"{len(resp.historical)}x{ticker.config.interval} {_perc_change(ticker, resp):+.2f}%"
     range_text_bbox = monospace_font.getbbox(range_text)
