@@ -177,7 +177,16 @@ class EPDGrayscale(EPDBase):
         """
         ...
 
-    def getbuffer(self, image: Image.Image) -> bytearray:
+    @abstractmethod
+    def display_grayscale(self, image: bytearray) -> None:
+        """Display the grayscale image buffer on the e-paper display.
+
+        Args:
+            image: The grayscale image data to display.
+        """
+        ...
+
+    def getbuffer_grayscale(self, image: Image.Image) -> bytearray:
         if (self.height, self.width) == image.size:
             # image has correct dimensions, but needs to be rotated
             image = image.rotate(90, expand=True)
@@ -212,7 +221,7 @@ class EPDGrayscale(EPDBase):
         self.display(self._blank)
 
     def show(self, image: Image.Image) -> None:
-        self.display(self.getbuffer(image))
+        self.display_grayscale(self.getbuffer_grayscale(image))
 
 
 # Could be used later to utilize the partial refresh feature of some of the EPDs

@@ -655,13 +655,13 @@ class EPD(EPDGrayscale):
         self.send_command(0x50)  # VCOM AND DATA INTERVAL SETTING
         self.send_data(0x57)
 
-    # def display(self, image):
-    #     self.send_command(0x13)
-    #     self.send_data2(image)
-    #     self.send_command(0x12)
-    #     self.ReadBusy()
-
     def display(self, image):
+        self.send_command(0x13)
+        self.send_data2(image)
+        self.send_command(0x12)
+        self.ReadBusy()
+
+    def display_grayscale(self, image):
         self.send_command(0x10)
         for i in range(0, 5808):  # 5808*4  46464
             temp3 = 0

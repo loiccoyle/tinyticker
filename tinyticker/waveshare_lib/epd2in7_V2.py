@@ -336,10 +336,10 @@ class EPD(EPDGrayscale):
         self.send_data(0x00)
         self.ReadBusy()
 
-    # def display(self, image):
-    #     self.send_command(0x24)
-    #     self.send_data2(image)
-    #     self.TurnOnDisplay()
+    def display(self, image):
+        self.send_command(0x24)
+        self.send_data2(image)
+        self.TurnOnDisplay()
 
     def display_Fast(self, image):
         self.send_command(0x24)
@@ -437,7 +437,7 @@ class EPD(EPDGrayscale):
                     self.send_data(Image[i + j * Width])
         self.TurnOnDisplay_Partial()
 
-    def display(self, image):
+    def display_grayscale(self, image):
         self.send_command(0x24)
         for i in range(0, 5808):  # 5808*4  46464
             temp3 = 0
