@@ -1,8 +1,11 @@
+import io
 import logging
 from typing import Dict, Optional, Tuple
 
 import cryptocompare
 import pandas as pd
+import requests
+from PIL import Image
 
 from .. import utils
 from ..config import TickerConfig
@@ -17,6 +20,7 @@ CRYPTO_INTERVAL_TIMEDELTAS: Dict[str, pd.Timedelta] = {
 }
 
 LOGGER = logging.getLogger(__name__)
+LOGO_API = "https://api.coingecko.com/api/v3/search"
 
 
 def get_cryptocompare(
@@ -118,6 +122,23 @@ class TickerCrypto(TickerBase):
         self.api_key = api_key
         cryptocompare.cryptocompare._set_api_key_parameter(self.api_key)
         super().__init__(config)
+
+    def _get_logo(self):
+        api = f"{LOGO_API}/?query={self.config.symbol}"
+        resp = requests.get(api)
+        if not resp.ok:
+            return False
+        try:
+            img = Image.open(
+                io.BytesIO(requests.get(resp.json()["coins"][0]["large"]).content)
+            )
+            if img.mode == "RGBA":
+                # remove transparancy make it white
+                background = Image.new("RGBA", img.size, (255, 255, 255))
+                img = Image.alpha_composite(background, img)
+            return img
+        except Exception:
+            return False
 
     def _single_tick(self) -> Tuple[pd.DataFrame, Optional[float]]:
         LOGGER.info("Crypto tick: %s", self.config.symbol)

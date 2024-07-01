@@ -1,11 +1,11 @@
 import logging
 
-from ._base import EPDMonochrome
+from ._base import EPDGrayscale
 
 logger = logging.getLogger(__name__)
 
 
-class EPD(EPDMonochrome):
+class EPD(EPDGrayscale):
     width = 176
     height = 264
 
@@ -587,7 +587,7 @@ class EPD(EPDMonochrome):
         self.send_data(0x12)
         self.set_lut()
 
-    def Init_4Gray(self):
+    def init_grayscale(self):
         self.device.module_init()
 
         self.reset()
@@ -655,59 +655,13 @@ class EPD(EPDMonochrome):
         self.send_command(0x50)  # VCOM AND DATA INTERVAL SETTING
         self.send_data(0x57)
 
-    def getbuffer_4Gray(self, image):
-        # logger.debug("bufsiz = ",int(self.width/8) * self.height)
-        buf = [0xFF] * (int(self.width / 4) * self.height)
-        image_monocolor = image.convert("L")
-        imwidth, imheight = image_monocolor.size
-        pixels = image_monocolor.load()
-        i = 0
-        # logger.debug("imwidth = %d, imheight = %d",imwidth,imheight)
-        if imwidth == self.width and imheight == self.height:
-            logger.debug("Vertical")
-            for y in range(imheight):
-                for x in range(imwidth):
-                    # Set the bits for the column of pixels at the current position.
-                    if pixels[x, y] == 0xC0:
-                        pixels[x, y] = 0x80
-                    elif pixels[x, y] == 0x80:
-                        pixels[x, y] = 0x40
-                    i = i + 1
-                    if i % 4 == 0:
-                        buf[int((x + (y * self.width)) / 4)] = (
-                            (pixels[x - 3, y] & 0xC0)
-                            | (pixels[x - 2, y] & 0xC0) >> 2
-                            | (pixels[x - 1, y] & 0xC0) >> 4
-                            | (pixels[x, y] & 0xC0) >> 6
-                        )
-
-        elif imwidth == self.height and imheight == self.width:
-            logger.debug("Horizontal")
-            for x in range(imwidth):
-                for y in range(imheight):
-                    newx = y
-                    newy = self.height - x - 1
-                    if pixels[x, y] == 0xC0:
-                        pixels[x, y] = 0x80
-                    elif pixels[x, y] == 0x80:
-                        pixels[x, y] = 0x40
-                    i = i + 1
-                    if i % 4 == 0:
-                        buf[int((newx + (newy * self.width)) / 4)] = (
-                            (pixels[x, y - 3] & 0xC0)
-                            | (pixels[x, y - 2] & 0xC0) >> 2
-                            | (pixels[x, y - 1] & 0xC0) >> 4
-                            | (pixels[x, y] & 0xC0) >> 6
-                        )
-        return buf
-
     def display(self, image):
         self.send_command(0x13)
         self.send_data2(image)
         self.send_command(0x12)
         self.ReadBusy()
 
-    def display_4Gray(self, image):
+    def display_grayscale(self, image):
         self.send_command(0x10)
         for i in range(0, 5808):  # 5808*4  46464
             temp3 = 0

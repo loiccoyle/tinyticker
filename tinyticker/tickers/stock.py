@@ -1,13 +1,17 @@
+import io
 import logging
-from typing import Optional, Tuple
+from typing import Literal, Optional, Tuple, Union
 
 import pandas as pd
 import yfinance
+from PIL import Image
+from yfinance.scrapers.quote import requests
 
 from .. import utils
 from ._base import TickerBase
 
 LOGGER = logging.getLogger(__name__)
+LOGO_API = "https://logo.clearbit.com"
 
 
 class TickerStock(TickerBase):
@@ -18,7 +22,24 @@ class TickerStock(TickerBase):
     def __init__(self, config) -> None:
         super().__init__(config)
         self._yf_ticker = yfinance.Ticker(self.config.symbol)
-        self.currency = self._yf_ticker.fast_info.get("currency", "USD").upper()  # type: ignore
+        try:
+            self.currency = self._yf_ticker.fast_info.get("currency", "USD").upper()  # type: ignore
+        except KeyError:
+            self.currency = "USD"
+
+    def _get_logo(self) -> Union[Image.Image, Literal[False]]:
+        url = self._yf_ticker.info.get("website", None)
+        if url is None:
+            return False
+        resp = requests.get(f"{LOGO_API}/{url}")
+        if not resp.ok:
+            return False
+        img = Image.open(io.BytesIO(resp.content))
+        if img.mode == "RGBA":
+            # remove transparancy make it white
+            background = Image.new("RGBA", img.size, (255, 255, 255))
+            img = Image.alpha_composite(background, img)
+        return img
 
     def _get_yfinance_start_end(self) -> Tuple[pd.Timestamp, pd.Timestamp]:
         end = utils.now()

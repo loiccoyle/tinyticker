@@ -13,15 +13,15 @@ from . import (
     epd2in13bc,
     epd7in5b_V2,
 )
-from ._base import EPDHighlight, EPDMonochrome
+from ._base import EPDHighlight, EPDMonochrome, EPDGrayscale
 
-EPDModel = Union[EPDMonochrome, EPDHighlight]
+EPDModel = Union[EPDMonochrome, EPDHighlight, EPDGrayscale]
 
 
 @dataclass
 class EPDData:
     name: str
-    EPD: Union[Type[EPDMonochrome], Type[EPDHighlight]]
+    EPD: Union[Type[EPDMonochrome], Type[EPDHighlight], Type[EPDGrayscale]]
     desc: str
 
 

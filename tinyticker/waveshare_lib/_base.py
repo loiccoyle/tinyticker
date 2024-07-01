@@ -131,6 +131,7 @@ class EPDMonochrome(EPDBase):
         self.display(self._blank)
 
     def show(self, image: Image.Image) -> None:
+        self.init()
         self.display(self.getbuffer(image))
 
 
@@ -161,10 +162,74 @@ class EPDHighlight(EPDBase):
                 logger.info("Highlight pixels: %i", highlight_mask.sum())
                 highlight_buffer = self.getbuffer(Image.fromarray(~highlight_mask))
 
+        self.init()
         self.display(
             self.getbuffer(image),
             highlights=highlight_buffer,
         )
+
+
+class EPDGrayscale(EPDMonochrome):
+    @abstractmethod
+    def display_grayscale(self, image: bytearray) -> None:
+        """Display the grayscale image buffer on the e-paper display.
+
+        Args:
+            image: The grayscale image data to display.
+        """
+        ...
+
+    @abstractmethod
+    def init_grayscale(self) -> None: ...
+
+    def getbuffer_grayscale(self, image: Image.Image) -> bytearray:
+        if (self.height, self.width) == image.size:
+            # image has correct dimensions, but needs to be rotated
+            image = image.rotate(90, expand=True)
+        if (self.width, self.height) != image.size:
+            raise ValueError(
+                f"Wrong image dimensions, must be {self.width}x{self.height}"
+            )
+        if image.mode != "L":
+            image = image.convert("L")
+
+        pixels = np.array(image)
+        # we process the image in chunks of 4 pixels by reshaping
+        # we pack the bits of 4 pixels into a single byte
+        # 00011011 -> black, light gray, dark gray, white
+        pixels = pixels.reshape((self.height, self.width // 4, 4))
+        # not really sure why they do this, but it's in the waveshare code
+        pixels = np.where(pixels == 0x80, 0x40, pixels)
+        pixels = np.where(pixels == 0xC0, 0x80, pixels)
+        # keep the first 2 bits, which basically quantizes the image to 4 grey levels
+        pixels = pixels & 0xC0
+        # pack the 4 pixels into a single byte
+        packed_pixels = (
+            (pixels[:, :, 0])
+            | (pixels[:, :, 1] >> 2)
+            | (pixels[:, :, 2] >> 4)
+            | pixels[:, :, 3] >> 6
+        )
+
+        return bytearray(packed_pixels.flatten())
+
+    def show(self, image: Image.Image) -> None:
+        # loss when displaying in bit mode
+        loss = np.linalg.norm(
+            np.array(image.convert("L")) / 255
+            - np.array(image.convert("1", dither=None)),
+            ord=2,
+        ) / (image.size[0] * image.size[1])
+        logger.debug("grayscale bitmap loss: %f", loss)
+        threshold = 1.5e-4
+
+        if loss > threshold:
+            logger.info("Using grayscale.")
+            self.init_grayscale()
+            self.display_grayscale(self.getbuffer_grayscale(image))
+        else:
+            self.init()
+            self.display(self.getbuffer(image))
 
 
 # Could be used later to utilize the partial refresh feature of some of the EPDs

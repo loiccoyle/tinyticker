@@ -1,9 +1,10 @@
 import dataclasses as dc
 import logging
 import time
-from typing import Dict, Iterator, Optional, Tuple
+from typing import Dict, Iterator, Literal, Optional, Tuple, Union
 
 import pandas as pd
+from PIL.Image import Image
 
 from ..config import TickerConfig, TinytickerConfig
 
@@ -76,6 +77,7 @@ class TickerBase:
 
     def __init__(self, config: TickerConfig) -> None:
         self._log = logging.getLogger(__name__)
+        self._logo = None
         self.config = config
         self.interval_dt = INTERVAL_TIMEDELTAS[config.interval]
         self.lookback = (
@@ -83,6 +85,16 @@ class TickerBase:
             if self.config.lookback is not None
             else INTERVAL_LOOKBACKS[config.interval]
         )
+
+    @property
+    def logo(self) -> Union[Image, Literal[False]]:
+        if self._logo is None:
+            self._logo = self._get_logo()
+        return self._logo  # type: ignore
+
+    def _get_logo(self) -> Union[Image, Literal[False]]:
+        """Get the logo, should return false if it couldn't be fetched."""
+        ...
 
     def _single_tick(self) -> Tuple[pd.DataFrame, Optional[float]]: ...
 

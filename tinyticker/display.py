@@ -12,7 +12,8 @@ from matplotlib.figure import Figure
 from PIL import Image
 
 from .config import TinytickerConfig
-from .layouts import LAYOUTS, _create_fig_ax, _fig_to_image
+from .layouts import LAYOUTS
+from .layouts.utils import create_fig_ax, fig_to_image
 from .tickers._base import TickerBase, TickerResponse
 from .waveshare_lib._base import EPDHighlight
 from .waveshare_lib.models import MODELS, EPDModel
@@ -60,7 +61,7 @@ class Display:
         Returns:
             The `plt.Figure` and `plt.Axes` with the text.
         """
-        fig, ax = _create_fig_ax(self.epd.size, n_axes=1)
+        fig, ax = create_fig_ax(self.epd.size, n_axes=1)
         ax = ax[0]
         ax.text(0, 0, text, ha="center", va="center", wrap=True, **kwargs)
         if show:
@@ -69,7 +70,7 @@ class Display:
 
     def show_fig(self, fig: Figure) -> None:
         """Show a `plt.Figure` on the display."""
-        image = _fig_to_image(fig)
+        image = fig_to_image(fig)
         self.show_image(image)
 
     def show_image(self, image: Image.Image) -> None:
@@ -83,8 +84,6 @@ class Display:
 
         self._log.debug("Image size: %s", image.size)
         self._log.info("Wake up.")
-        # I think this wakes it from sleep
-        self.epd.init()
         self.epd.show(image)
         self._log.info("Display sleep.")
         self.epd.sleep()
