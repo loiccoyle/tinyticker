@@ -9,6 +9,10 @@ from PIL import Image
 from tinyticker import utils
 
 
+def test_test(ticker_response):
+    assert ticker_response
+
+
 class TestUtils(TestCase):
     def test_now(self):
         now = utils.now()
