@@ -45,6 +45,8 @@ def logo(
     regular_font = ttf_font_or_default(regular_font_file, default_size)
 
     range_text = f"{len(resp.historical)}x{ticker.config.interval} {perc_change(ticker, resp):+.2f}%"
+    if ticker.config.avg_buy_price:
+        range_text += f" ({perc_change_abp(ticker, resp):+.2f}%)"
     range_text_bbox = monospace_font.getbbox(range_text)
     range_text_font = ttf_font_or_default(
         monospace_font_file,
@@ -56,7 +58,7 @@ def logo(
             ),
         ),
     )
-    plot_size = (plot_width, logo_height - range_text_font.getbbox(range_text)[3])
+    plot_size = (plot_width, logo_height)
 
     fig, axes = historical_plot(plot_size, ticker, resp)
     apply_layout_config(axes[0], ticker.config.layout, resp)
@@ -69,14 +71,11 @@ def logo(
     img_plot = fig_to_image(fig)
 
     img = Image.new("RGB", size, "#ffffff")
-    img.paste(img_plot, (size[0] - plot_size[0] - half_padding, half_padding))
+    img.paste(img_plot, (logo_width + 2 * padding, half_padding))
     draw = ImageDraw.Draw(img)
 
-    if ticker.config.avg_buy_price:
-        range_text += f" ({perc_change_abp(ticker, resp):+.2f}%)"
-
     draw.text(
-        (size[0] - plot_size[0] - half_padding, plot_size[1] + half_padding),
+        (logo_width + 2 * padding, plot_size[1] + half_padding),
         range_text,
         font=range_text_font,
         fill=0,
