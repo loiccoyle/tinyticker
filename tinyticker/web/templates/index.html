@@ -387,6 +387,26 @@
                     />
                     Add line on time gap
                   </label>
+
+                  <label
+                    class="uk-form-label"
+                    for="ticker-layout-show_logo"
+                    uk-tooltip="Try to show logo."
+                  >
+                    <input
+                      type="hidden"
+                      id="ticker-layout-show_logo"
+                      name="ticker-layout-show_logo"
+                      value="{{ 1 if ticker.layout.show_logo | default(False) else 0 }}"
+                    />
+                    <input
+                      class="uk-checkbox"
+                      type="checkbox"
+                      {% if ticker.layout.show_logo | default(True) %}checked{% endif %}
+                      onclick="this.previousElementSibling.value=1-this.previousElementSibling.value"
+                    />
+                    Show logo
+                  </label>
                 </div>
               {%- endfor -%}
               <div

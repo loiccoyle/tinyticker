@@ -21,9 +21,9 @@ def default(
     size: Tuple[int, int], ticker: TickerBase, resp: TickerResponse
 ) -> Image.Image:
     """Default layout."""
-
+    show_logo = ticker.config.layout.show_logo and ticker.logo
     top_string = f"{CURRENCY_SYMBOLS.get(ticker.currency, '$')}{resp.current_price:.2f}"
-    if not ticker.logo:
+    if not show_logo:
         top_string = f"{ticker.config.symbol} {top_string}"
     if ticker.config.avg_buy_price is not None:
         # calculate the delta from the average buy price
@@ -56,7 +56,7 @@ def default(
         verticalalignment="top",
     )
 
-    if ticker.logo:
+    if show_logo:
         # add the logo and shift the text to the right
         logo_height_abs = (
             top_text.get_window_extent().height

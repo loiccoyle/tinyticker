@@ -99,7 +99,7 @@ def big_logo(
         anchor="md",
     )
 
-    if ticker.logo:
+    if ticker.config.layout.show_logo and ticker.logo:
         img.paste(
             resize_aspect(ticker.logo, (logo_width, logo_height)), (padding, padding)
         )

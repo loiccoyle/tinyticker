@@ -15,6 +15,7 @@ class LayoutConfig:
     name: str = "default"
     y_axis: bool = False
     x_gaps: bool = True
+    show_logo: bool = True
 
 
 @dc.dataclass

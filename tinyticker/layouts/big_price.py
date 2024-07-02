@@ -21,10 +21,11 @@ def big_price(
     size: Tuple[int, int], ticker: TickerBase, resp: TickerResponse
 ) -> Image.Image:
     """Big price layout."""
+    show_logo = ticker.config.layout.show_logo and ticker.logo
     fig, (ax, _) = historical_plot(size, ticker, resp)
 
     top_string = f"{CURRENCY_SYMBOLS.get(ticker.currency, '$')}{resp.current_price:.2f}"
-    if not ticker.logo:
+    if not show_logo:
         top_string = f"{ticker.config.symbol} {top_string}"
 
     suptitle_text = fig.suptitle(
@@ -79,7 +80,7 @@ def big_price(
     ax = apply_layout_config(ax, ticker.config.layout, resp)
     fig.tight_layout(pad=0)
 
-    if ticker.logo:
+    if show_logo:
         # add the logo and shift the text to the right
         logo_height_abs = (
             suptitle_text.get_window_extent().height
