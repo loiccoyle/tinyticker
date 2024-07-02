@@ -63,7 +63,17 @@ def big_price(
                 title_text.get_window_extent().height,
             ),
             12,
-            (size[0], 18),
+            (
+                round(
+                    size[0]
+                    - (
+                        suptitle_text.get_window_extent().height * 2
+                        if ticker.logo
+                        else 0
+                    )
+                ),
+                18,
+            ),
         )
     )
     ax = apply_layout_config(ax, ticker.config.layout, resp)
