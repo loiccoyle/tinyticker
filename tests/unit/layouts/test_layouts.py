@@ -12,4 +12,4 @@ def test_big_price(ticker_response):
 
 
 def test_logo(ticker_response):
-    layout_test(layouts.logo, DIMENSIONS, ticker_response, LAYOUT_DIR)
+    layout_test(layouts.big_logo, DIMENSIONS, ticker_response, LAYOUT_DIR)

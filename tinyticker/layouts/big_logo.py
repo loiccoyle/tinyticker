@@ -26,7 +26,7 @@ def ttf_font_or_default(
 
 
 @register
-def logo(
+def big_logo(
     size: Tuple[int, int], ticker: TickerBase, resp: TickerResponse
 ) -> Image.Image:
     # some layout settings
