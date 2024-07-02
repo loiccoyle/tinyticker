@@ -48,6 +48,8 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' && github.repository_owner == 'loiccoyle' }}
     needs:
       - tests
+    outputs:
+      release_created: ${{ steps.release.release_created }}
     runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v4
@@ -58,8 +60,9 @@ jobs:
 
   publish:
     name: Publish to pypi
-    needs: tests
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    needs:
+      - release
+    if: needs.release.outputs.release_created
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -80,8 +83,9 @@ jobs:
 
   trigger_image_build:
     name: Trigger tinyticker disk image build
-    needs: publish
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    needs:
+      - publish
+    if: needs.release.outputs.release_created
     runs-on: ubuntu-latest
     steps:
       - name: Workflow dispatch
