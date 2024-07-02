@@ -88,8 +88,8 @@ class TickerStock(TickerBase):
             ["Close", "Open"]
         ].min(axis=1)
 
-        self._log.debug("Fixed %s high values", to_correct_high.sum())
-        self._log.debug("Fixed %s low values", to_correct_low.sum())
+        LOGGER.debug("Fixed %s high values", to_correct_high.sum())
+        LOGGER.debug("Fixed %s low values", to_correct_low.sum())
         return historical
 
     def _single_tick(self) -> Tuple[pd.DataFrame, Optional[float]]:

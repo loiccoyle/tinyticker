@@ -8,6 +8,8 @@ from PIL.Image import Image
 
 from ..config import TickerConfig, TinytickerConfig
 
+LOGGER = logging.getLogger(__name__)
+
 INTERVALS = [
     "1m",
     "2m",
@@ -76,7 +78,6 @@ class TickerBase:
         ...
 
     def __init__(self, config: TickerConfig) -> None:
-        self._log = logging.getLogger(__name__)
         self._logo = None
         self.config = config
         self.interval_dt = INTERVAL_TIMEDELTAS[config.interval]
@@ -89,6 +90,7 @@ class TickerBase:
     @property
     def logo(self) -> Union[Image, Literal[False]]:
         if self._logo is None:
+            LOGGER.debug("Fetching logo")
             self._logo = self._get_logo()
         return self._logo  # type: ignore
 
@@ -130,9 +132,9 @@ class TickerBase:
             Iterator over the responses.
         """
         while True:
-            self._log.info("Ticker start.")
+            LOGGER.info("Ticker start.")
             yield self.single_tick()
-            self._log.debug("Sleeping %i s", self.config.wait_time)
+            LOGGER.debug("Sleeping %i s", self.config.wait_time)
             time.sleep(self.config.wait_time)
 
     def __str__(self) -> str:
