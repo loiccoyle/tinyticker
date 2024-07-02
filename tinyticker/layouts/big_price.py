@@ -51,12 +51,7 @@ def big_price(
     if ticker.config.avg_buy_price:
         sub_string += f" ({perc_change_abp(ticker, resp):+.2f}%)"
 
-    title_text = ax.set_title(
-        sub_string,
-        weight="bold",
-        loc="left",
-        fontsize=12,
-    )
+    title_text = ax.set_title(sub_string, weight="bold", loc="left", fontsize=12)
     title_text.set_fontsize(
         fontsize_for_size(
             (
@@ -97,7 +92,9 @@ def big_price(
         )
         title_text.set_position(
             (
-                title_text.get_position()[0] + logo_width * 1 / ax.get_position().width,
+                title_text.get_position()[0]
+                + 1 / size[0]
+                + logo_width / ax.get_position().width,
                 title_text.get_position()[1],
             )
         )
