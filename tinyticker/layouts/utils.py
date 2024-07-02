@@ -104,7 +104,7 @@ def create_fig_ax(
     return fig, axes  # type: ignore
 
 
-def fig_to_image(fig: Figure) -> Image.Image:
+def fig_to_image(fig: Figure, tight_layout: bool = True) -> Image.Image:
     """Convert a `plt.Figure` to `PIL.Image.Image`.
 
     Args:
@@ -113,7 +113,8 @@ def fig_to_image(fig: Figure) -> Image.Image:
     Returns:
         The `PIL.Image.Image` representation of the provided `plt.Figure`.
     """
-    fig.tight_layout(pad=0)
+    if tight_layout:
+        fig.tight_layout(pad=0)
     with io.BytesIO() as buffer:
         fig.savefig(buffer, format="jpeg", pad_inches=0)
         # to stop the fig from showing up in notebooks and such

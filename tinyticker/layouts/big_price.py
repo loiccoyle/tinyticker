@@ -12,6 +12,7 @@ from .utils import (
     historical_plot,
     perc_change,
     perc_change_abp,
+    strip_ax,
 )
 
 
@@ -21,17 +22,25 @@ def big_price(
 ) -> Image.Image:
     """Big price layout."""
     fig, (ax, _) = historical_plot(size, ticker, resp)
-    text = fig.suptitle(
-        f"{ticker.config.symbol} {CURRENCY_SYMBOLS.get(ticker.currency, '$')}{resp.current_price:.2f}",
+
+    top_string = f"{CURRENCY_SYMBOLS.get(ticker.currency, '$')}{resp.current_price:.2f}"
+    if not ticker.logo:
+        top_string = f"{ticker.config.symbol} {top_string}"
+
+    suptitle_text = fig.suptitle(
+        top_string,
         weight="bold",
         x=0,
         y=1,
         horizontalalignment="left",
         fontsize=18,
     )
-    text.set_fontsize(
+    suptitle_text.set_fontsize(
         fontsize_for_size(
-            (text.get_window_extent().width, text.get_window_extent().height),
+            (
+                suptitle_text.get_window_extent().width,
+                suptitle_text.get_window_extent().height,
+            ),
             18,
             (size[0], 22),
         )
@@ -41,19 +50,57 @@ def big_price(
     if ticker.config.avg_buy_price:
         sub_string += f" ({perc_change_abp(ticker, resp):+.2f}%)"
 
-    text = ax.set_title(
+    title_text = ax.set_title(
         sub_string,
         weight="bold",
         loc="left",
         fontsize=12,
     )
-    text.set_fontsize(
+    title_text.set_fontsize(
         fontsize_for_size(
-            (text.get_window_extent().width, text.get_window_extent().height),
+            (
+                title_text.get_window_extent().width,
+                title_text.get_window_extent().height,
+            ),
             12,
             (size[0], 18),
         )
     )
-
     ax = apply_layout_config(ax, ticker.config.layout, resp)
-    return fig_to_image(fig)
+    fig.tight_layout(pad=0)
+
+    if ticker.logo:
+        # add the logo and shift the text to the right
+        logo_height_abs = (
+            suptitle_text.get_window_extent().height
+            + title_text.get_window_extent().height
+            + 2
+        )
+        logo_height = logo_height_abs / size[1]
+        logo_width = logo_height_abs / size[0]
+        suptitle_text.set_position(
+            (
+                suptitle_text.get_position()[0] + logo_width,
+                suptitle_text.get_position()[1],
+            )
+        )
+        title_text.set_position(
+            (
+                title_text.get_position()[0] + logo_width * 1 / ax.get_position().width,
+                title_text.get_position()[1],
+            )
+        )
+
+        img_ax = fig.add_axes(
+            (
+                0,
+                1 - logo_height,
+                logo_width,
+                logo_height,
+            )
+        )
+        img_ax.imshow(ticker.logo, aspect="equal")
+        strip_ax(img_ax)
+
+    # ax = apply_layout_config(ax, ticker.config.layout, resp)
+    return fig_to_image(fig, tight_layout=False)
