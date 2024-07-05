@@ -49,7 +49,7 @@ jobs:
     needs:
       - tests
     outputs:
-      releases_created: ${{ steps.release.releases_created }}
+      release_created: ${{ steps.release.outputs.release_created }}
     runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v4
@@ -62,7 +62,7 @@ jobs:
     name: Publish to pypi
     needs:
       - release
-    if: needs.release.outputs.releases_created
+    if: needs.release.outputs.release_created
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -85,7 +85,7 @@ jobs:
     name: Trigger tinyticker disk image build
     needs:
       - publish
-    if: needs.release.outputs.releases_created
+    if: needs.release.outputs.release_created
     runs-on: ubuntu-latest
     steps:
       - name: Workflow dispatch
