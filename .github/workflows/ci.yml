@@ -85,7 +85,7 @@ jobs:
     name: Trigger tinyticker disk image build
     needs:
       - publish
-    if: needs.release.outputs.release_created
+    if: needs.release.outputs.releases_created
     runs-on: ubuntu-latest
     steps:
       - name: Workflow dispatch
