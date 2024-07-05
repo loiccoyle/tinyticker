@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/loiccoyle/tinyticker/compare/v1.1.0...v1.1.1) (2024-07-05)
+
+
+### Bug Fixes
+
+* **layouts:** clear `fast_info` cache before getting `previous_close` ([35566e7](https://github.com/loiccoyle/tinyticker/commit/35566e7c9e859ee562cf6830f6571878cccec63e))
+
 ## [1.1.0](https://github.com/loiccoyle/tinyticker/compare/v1.0.0...v1.1.0) (2024-07-02)
 
 
