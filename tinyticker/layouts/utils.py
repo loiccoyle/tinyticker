@@ -207,6 +207,7 @@ def historical_plot(
 
 def perc_change(ticker: TickerBase, resp: TickerResponse) -> float:
     if isinstance(ticker, TickerStock):
+        ticker._yf_ticker._fast_info = None
         perc_change_start = ticker._yf_ticker.fast_info["previous_close"]
     else:
         perc_change_start = resp.historical.iloc[0]["Open"]
