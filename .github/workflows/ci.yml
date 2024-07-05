@@ -48,8 +48,6 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' && github.repository_owner == 'loiccoyle' }}
     needs:
       - tests
-    outputs:
-      releases_created: ${{ steps.release.releases_created }}
     runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v4
@@ -58,37 +56,29 @@ jobs:
           config-file: .github/release-please-config.json
           manifest-file: .github/.release-please-manifest.json
 
-  publish:
-    name: Publish to pypi
-    needs:
-      - release
-    if: needs.release.outputs.releases_created
-    runs-on: ubuntu-latest
-    steps:
+      # publish to pypi
       - uses: actions/checkout@v4
+        if: steps.release.outputs.release_created
       - uses: actions/setup-python@v5
+        if: steps.release.outputs.release_created
         with:
           python-version: "3.10"
       - uses: abatilo/actions-poetry@v3
+        if: steps.release.outputs.release_created
         with:
           poetry-version: 1.8.2
-
       - name: Configure Pypi token
+        if: steps.release.outputs.release_created
         shell: bash
         run: poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
-
       - name: Publish Package
+        if: steps.release.outputs.release_created
         shell: bash
         run: poetry publish --build
 
-  trigger_image_build:
-    name: Trigger tinyticker disk image build
-    needs:
-      - publish
-    if: needs.release.outputs.releases_created
-    runs-on: ubuntu-latest
-    steps:
-      - name: Workflow dispatch
+      # trigger image build
+      - name: Trigger tinyticker disk image build
+        if: steps.release.outputs.release_created
         run: gh workflow run "Build TinyTicker RPi image" --json --ref refs/heads/main --repo loiccoyle/private.actionsrunner
         env:
           GH_TOKEN: ${{ secrets.PRIVATE_RUNNER_ACCESS_TOKEN }}
