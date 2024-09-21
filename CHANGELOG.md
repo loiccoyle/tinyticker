@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.2](https://github.com/loiccoyle/tinyticker/compare/v1.1.1...v1.1.2) (2024-09-21)
+
+
+### Bug Fixes
+
+* convert logos to grayscale ([900f674](https://github.com/loiccoyle/tinyticker/commit/900f6740124351e3486b51c6a395b1ba059fea64))
+* round floats to ints ([cf99189](https://github.com/loiccoyle/tinyticker/commit/cf9918904f9a87a1f14ace250af2f652c18e0dc6))
+
 ## [1.1.1](https://github.com/loiccoyle/tinyticker/compare/v1.1.0...v1.1.1) (2024-07-05)
 
 
