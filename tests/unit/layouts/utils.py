@@ -28,11 +28,11 @@ def layout_test(layout_func: LayoutFunc, dimensions, resp, data_dir):
 
         ticker = TickerStock(config)
         out = layout_func(dimensions, ticker, resp)
-        assert out.size == dimensions
         filename = f"{layout_func.__name__}_{y_axis}_{x_gap}_{volume}.png"
+        assert out.size == dimensions, f"Wrong dimensions: {filename}"
         if UPDATE_REF_PLOTS:
             out.save(data_dir / filename)
         assert (
             out.tobytes() == Image.open(data_dir / filename).tobytes()
             or UPDATE_REF_PLOTS
-        )
+        ), f"Different image: {filename}"
