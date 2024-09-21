@@ -136,7 +136,8 @@ class TickerCrypto(TickerBase):
                 # remove transparancy make it white
                 background = Image.new("RGBA", img.size, (255, 255, 255))
                 img = Image.alpha_composite(background, img)
-            return img
+            # convert to greyscale but keep 3 channels
+            return img.convert("L").convert("RGB")
         except Exception:
             return False
 
