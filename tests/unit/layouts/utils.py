@@ -5,7 +5,7 @@ from PIL import Image
 
 from tinyticker.config import TickerConfig
 from tinyticker.layouts.register import LayoutFunc
-from tinyticker.tickers import TickerCrypto
+from tinyticker.tickers import TickerStock
 
 from ..utils import DATA_DIR
 
@@ -16,7 +16,7 @@ DIMENSIONS = (250, 122)
 
 def layout_test(layout_func: LayoutFunc, dimensions, resp, data_dir):
     config = TickerConfig(
-        symbol="SPY", interval="1d", lookback=30, plot_type="candle", volume=False
+        symbol="AAPL", interval="1d", lookback=30, plot_type="candle", volume=False
     )
     volume = [True, False]
     y_axis = [True, False]
@@ -26,7 +26,7 @@ def layout_test(layout_func: LayoutFunc, dimensions, resp, data_dir):
         config.layout.y_axis = y_axis
         config.layout.x_gaps = x_gap
 
-        ticker = TickerCrypto("dummy key", config)
+        ticker = TickerStock(config)
         out = layout_func(dimensions, ticker, resp)
         assert out.size == dimensions
         filename = f"{layout_func.__name__}_{y_axis}_{x_gap}_{volume}.png"
