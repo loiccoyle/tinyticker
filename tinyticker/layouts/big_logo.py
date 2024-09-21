@@ -58,7 +58,10 @@ def big_logo(
             ),
         ),
     )
-    plot_size = (plot_width, logo_height - range_text_font.getbbox(range_text)[3])
+    plot_size = (
+        plot_width,
+        logo_height - int(round(range_text_font.getbbox(range_text)[3])),
+    )
 
     fig, axes = historical_plot(plot_size, ticker, resp)
     apply_layout_config(axes[0], ticker.config.layout, resp)
@@ -80,7 +83,7 @@ def big_logo(
         font=range_text_font,
         fill=0,
     )
-    available_space = size[1] - (plot_size[1] + (range_text_bbox[3]))
+    available_space = int(round(size[1] - (plot_size[1] + (range_text_bbox[3]))))
 
     price_text = f"{CURRENCY_SYMBOLS.get(ticker.currency, '$')}{resp.current_price:.2f}"
     price_text_bbox = regular_font.getbbox(price_text)
