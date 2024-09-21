@@ -1,7 +1,5 @@
 import json
-from pathlib import Path
-from shutil import copy, rmtree
-from unittest import TestCase
+from shutil import copy
 
 from tinyticker import config
 
