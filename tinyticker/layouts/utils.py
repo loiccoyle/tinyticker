@@ -2,6 +2,7 @@ import io
 from typing import Optional, Tuple
 
 import matplotlib.pyplot as plt
+from yfinance.scrapers.quote import Quote
 import mplfinance as mpf
 import numpy as np
 from matplotlib.axes import Axes
@@ -207,8 +208,11 @@ def historical_plot(
 
 def perc_change(ticker: TickerBase, resp: TickerResponse) -> float:
     if isinstance(ticker, TickerStock):
-        ticker._yf_ticker._fast_info = None
-        perc_change_start = ticker._yf_ticker.fast_info["previous_close"]
+        # reset the quote object to avoid yfinance's caching
+        ticker._yf_ticker._quote = Quote(
+            ticker._yf_ticker._data, ticker._yf_ticker.ticker
+        )
+        perc_change_start = ticker._yf_ticker.get_info()["previousClose"]
     else:
         perc_change_start = resp.historical.iloc[0]["Open"]
     return 100 * (resp.current_price - perc_change_start) / perc_change_start
