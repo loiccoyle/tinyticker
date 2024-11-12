@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/loiccoyle/tinyticker/compare/v1.1.2...v1.1.3) (2024-11-12)
+
+
+### Bug Fixes
+
+* use correct `previousClose` price ([#65](https://github.com/loiccoyle/tinyticker/issues/65)) ([dfbfde7](https://github.com/loiccoyle/tinyticker/commit/dfbfde75f9f0bff3c77da403c1a4e00d3e4aa7f0))
+
 ## [1.1.2](https://github.com/loiccoyle/tinyticker/compare/v1.1.1...v1.1.2) (2024-09-21)
 
 
