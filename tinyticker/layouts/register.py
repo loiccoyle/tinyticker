@@ -1,12 +1,12 @@
 import dataclasses as dc
-from typing import Callable, Optional, Tuple
+from typing import Callable, Optional, Tuple, Dict
+
 
 from PIL import Image
 
 from ..tickers._base import TickerBase, TickerResponse
 
-LayoutFunc = Callable[[Tuple[int, int], TickerBase, TickerResponse], Image.Image]
-LAYOUTS = {}
+LayoutFunc = Callable[[Tuple[int, int], TickerBase, TickerResponse, float], Image.Image]
 
 
 @dc.dataclass
@@ -14,6 +14,9 @@ class LayoutData:
     func: LayoutFunc
     name: str
     desc: Optional[str]
+
+
+LAYOUTS: Dict[str, LayoutData] = {}
 
 
 def register(func: LayoutFunc) -> LayoutFunc:

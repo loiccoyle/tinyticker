@@ -27,7 +27,7 @@ def layout_test(layout_func: LayoutFunc, dimensions, resp, data_dir):
         config.layout.x_gaps = x_gap
 
         ticker = TickerStock(config)
-        out = layout_func(dimensions, ticker, resp)
+        out = layout_func(dimensions, ticker, resp, 100)
         filename = f"{layout_func.__name__}_{y_axis}_{x_gap}_{volume}.png"
         assert out.size == dimensions, f"Wrong dimensions: {filename}"
         if UPDATE_REF_PLOTS:

@@ -10,7 +10,6 @@ from .utils import (
     fig_to_image,
     fontsize_for_size,
     historical_plot,
-    perc_change,
     perc_change_abp,
     strip_ax,
 )
@@ -18,7 +17,7 @@ from .utils import (
 
 @register
 def big_price(
-    size: Tuple[int, int], ticker: TickerBase, resp: TickerResponse
+    size: Tuple[int, int], ticker: TickerBase, resp: TickerResponse, perc_change: float
 ) -> Image.Image:
     """Big price layout."""
     show_logo = ticker.config.layout.show_logo and ticker.logo
@@ -47,7 +46,7 @@ def big_price(
         )
     )
 
-    sub_string = f"{len(resp.historical)}x{ticker.config.interval} {perc_change(ticker, resp):+.2f}%"
+    sub_string = f"{len(resp.historical)}x{ticker.config.interval} {perc_change:+.2f}%"
     if ticker.config.avg_buy_price:
         sub_string += f" ({perc_change_abp(ticker, resp):+.2f}%)"
 

@@ -10,7 +10,6 @@ from .utils import (
     fig_to_image,
     fontsize_for_size,
     historical_plot,
-    perc_change,
     perc_change_abp,
     resize_aspect,
 )
@@ -27,7 +26,7 @@ def ttf_font_or_default(
 
 @register
 def big_logo(
-    size: Tuple[int, int], ticker: TickerBase, resp: TickerResponse
+    size: Tuple[int, int], ticker: TickerBase, resp: TickerResponse, perc_change: float
 ) -> Image.Image:
     # some layout settings
     padding = min(8, int(0.05 * size[0]))
@@ -44,7 +43,7 @@ def big_logo(
     monospace_font = ttf_font_or_default(monospace_font_file, default_size)
     regular_font = ttf_font_or_default(regular_font_file, default_size)
 
-    range_text = f"{len(resp.historical)}x{ticker.config.interval} {perc_change(ticker, resp):+.2f}%"
+    range_text = f"{len(resp.historical)}x{ticker.config.interval} {perc_change:+.2f}%"
     if ticker.config.avg_buy_price:
         range_text += f" ({perc_change_abp(ticker, resp):+.2f}%)"
     range_text_bbox = monospace_font.getbbox(range_text)

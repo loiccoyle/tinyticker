@@ -13,7 +13,7 @@ from PIL import Image
 
 from .config import TinytickerConfig
 from .layouts import LAYOUTS
-from .layouts.utils import create_fig_ax, fig_to_image
+from .layouts.utils import create_fig_ax, fig_to_image, perc_change
 from .tickers._base import TickerBase, TickerResponse
 from .waveshare_lib._base import EPDHighlight
 from .waveshare_lib.models import MODELS, EPDModel
@@ -90,5 +90,5 @@ class Display:
 
     def show(self, ticker: TickerBase, resp: TickerResponse) -> None:
         layout = LAYOUTS.get(ticker.config.layout.name, LAYOUTS["default"])
-        image = layout.func(self.epd.size, ticker, resp)
+        image = layout.func(self.epd.size, ticker, resp, perc_change(ticker, resp))
         self.show_image(image)

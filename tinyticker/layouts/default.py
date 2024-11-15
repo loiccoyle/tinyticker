@@ -10,7 +10,6 @@ from .utils import (
     apply_layout_config,
     fig_to_image,
     historical_plot,
-    perc_change,
     perc_change_abp,
     strip_ax,
 )
@@ -18,7 +17,7 @@ from .utils import (
 
 @register
 def default(
-    size: Tuple[int, int], ticker: TickerBase, resp: TickerResponse
+    size: Tuple[int, int], ticker: TickerBase, resp: TickerResponse, perc_change: float
 ) -> Image.Image:
     """Default layout."""
     show_logo = ticker.config.layout.show_logo and ticker.logo
@@ -48,7 +47,7 @@ def default(
     sub_text = ax.text(
         0,
         1 - (top_text.get_window_extent().height + 1) / (pos.height * size[1]),
-        f"{len(resp.historical)}x{ticker.config.interval} {perc_change(ticker, resp):+.2f}%",
+        f"{len(resp.historical)}x{ticker.config.interval} {perc_change:+.2f}%",
         transform=ax.transAxes,
         fontsize=8,
         weight="bold",
