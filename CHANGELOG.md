@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.4](https://github.com/loiccoyle/tinyticker/compare/v1.1.3...v1.1.4) (2024-11-15)
+
+
+### Bug Fixes
+
+* add manifest for standalone PWA ([f13218d](https://github.com/loiccoyle/tinyticker/commit/f13218d88d9d635672814e3c0fbdb8d4debd7e32))
+* **web:** shorten footer to avoid new line on small screens ([1e643f1](https://github.com/loiccoyle/tinyticker/commit/1e643f17a2adad7e7b05d1a7ae4615cd5ee53b74))
+
 ## [1.1.3](https://github.com/loiccoyle/tinyticker/compare/v1.1.2...v1.1.3) (2024-11-12)
 
 
