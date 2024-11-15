@@ -163,6 +163,10 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
     def send_css(path):
         return send_from_directory(TEMPLATE_PATH + "/css", path)
 
+    @app.route("/public/<path:path>")
+    def send_public(path):
+        return send_from_directory(TEMPLATE_PATH + "/public", path)
+
     @app.errorhandler(500)
     def internal_error(_):
         sys.exit(1)
