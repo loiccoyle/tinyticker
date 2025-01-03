@@ -56,7 +56,8 @@ class TickerStock(TickerBase):
             start -= pd.to_timedelta("1d") * n_trade_days
         # if we passed a weekend, add 2 days and a bit more because the added days can themselves
         # be weekends
-        start -= pd.to_timedelta("2d") * (end.week - start.week) * 1.5
+        n_weekends = len(pd.bdate_range(start, end, freq="C", weekmask="Sat Sun"))
+        start -= pd.to_timedelta("2d") * (n_weekends) * 1.5
         # go back before weekend
         # start.weekday() returns 6 for Sunday, and 5 for Saturday
         # max(0, start.weekday() - 4) is 0 for Mon-Fri, 1 for Sat, 2 for Sun
