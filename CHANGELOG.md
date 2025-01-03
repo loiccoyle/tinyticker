@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.5](https://github.com/loiccoyle/tinyticker/compare/v1.1.4...v1.1.5) (2025-01-03)
+
+
+### Bug Fixes
+
+* bad week end count when crossing years ([08cb292](https://github.com/loiccoyle/tinyticker/commit/08cb2926f5758fe53c20bbd781d9d58a536dfbcc))
+* pandas deprecation warning ([d749b6a](https://github.com/loiccoyle/tinyticker/commit/d749b6a99688633d3e4150f6cc5461e46b65b07e))
+
 ## [1.1.4](https://github.com/loiccoyle/tinyticker/compare/v1.1.3...v1.1.4) (2024-11-15)
 
 
