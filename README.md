@@ -27,10 +27,13 @@ Shopping list:
   - [Waveshare ePaper 2.13in Black, White & Red](<https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT_(B)>)
   - [Waveshare ePaper 2.13in Black, White & Yellow](<https://www.waveshare.com/wiki/2.13inch_e-Paper_HAT_(C)>)
   - [Waveshare ePaper 2.7in Black & White](https://www.waveshare.com/wiki/2.7inch_e-Paper_HAT)
-  - [Waveshare ePaper 7.5in Black, White & Red](https://www.waveshare.com/wiki/7.5inch_e-Paper_HAT_(B)_Manual)
+  - [Waveshare ePaper 7.5in Black, White & Red](<https://www.waveshare.com/wiki/7.5inch_e-Paper_HAT_(B)_Manual>)
 - A micro sd card
 
 ## 📦 Installation
+
+> [!TIP]
+> Check out <https://tinyticker.loiccoyle.com> for more information.
 
 ### Recommended setup
 
