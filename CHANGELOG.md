@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.6](https://github.com/loiccoyle/tinyticker/compare/v1.1.5...v1.1.6) (2025-02-20)
+
+
+### Bug Fixes
+
+* **web:** minor typos ([bc6447e](https://github.com/loiccoyle/tinyticker/commit/bc6447e551dabab25a39e222edfecceed6bdb17f))
+
+
+### Documentation
+
+* **readme:** add link to landing page ([5862a34](https://github.com/loiccoyle/tinyticker/commit/5862a34ea69c89c2d09faa7f310c438834faf881))
+
 ## [1.1.5](https://github.com/loiccoyle/tinyticker/compare/v1.1.4...v1.1.5) (2025-01-03)
 
 
