@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.7](https://github.com/loiccoyle/tinyticker/compare/v1.1.6...v1.1.7) (2025-02-24)
+
+
+### Bug Fixes
+
+* **deps:** force yfinance version bump ([4a8f96a](https://github.com/loiccoyle/tinyticker/commit/4a8f96a55c827ac197f78585fa2dbb683a3eb90b))
+
 ## [1.1.6](https://github.com/loiccoyle/tinyticker/compare/v1.1.5...v1.1.6) (2025-02-20)
 
 
