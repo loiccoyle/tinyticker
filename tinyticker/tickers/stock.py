@@ -11,7 +11,7 @@ from .. import utils
 from ._base import TickerBase
 
 LOGGER = logging.getLogger(__name__)
-LOGO_API = "https://logo.clearbit.com"
+LOGO_API = "https://img.logo.dev/ticker/{}?token=pk_fuNCzwW3TcCApHMnkDZ3cw&fallback=404"
 
 
 class TickerStock(TickerBase):
@@ -28,17 +28,10 @@ class TickerStock(TickerBase):
             self.currency = "USD"
 
     def _get_logo(self) -> Union[Image.Image, Literal[False]]:
-        url = self._yf_ticker.info.get("website", None)
-        if url is None:
-            return False
-        resp = requests.get(f"{LOGO_API}/{url}")
+        resp = requests.get(LOGO_API.format(self.config.symbol))
         if not resp.ok:
             return False
         img = Image.open(io.BytesIO(resp.content))
-        if img.mode == "RGBA":
-            # remove transparancy make it white
-            background = Image.new("RGBA", img.size, (255, 255, 255))
-            img = Image.alpha_composite(background, img)
         # convert to greyscale but keep 3 channels
         return img.convert("L").convert("RGB")
 
