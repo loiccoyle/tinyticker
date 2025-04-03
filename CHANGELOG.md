@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.8](https://github.com/loiccoyle/tinyticker/compare/v1.1.7...v1.1.8) (2025-04-03)
+
+
+### Bug Fixes
+
+* clearbit deprecation, replaced with logo.dev ([2b62149](https://github.com/loiccoyle/tinyticker/commit/2b62149b9243f0453726154503621a55423181b8))
+
 ## [1.1.7](https://github.com/loiccoyle/tinyticker/compare/v1.1.6...v1.1.7) (2025-02-24)
 
 
