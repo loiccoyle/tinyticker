@@ -15,7 +15,7 @@ from ..utils import (
 )
 from . import logger
 from .app import create_app
-from .startup import STARTUP_DIR, run_scripts
+from .startup import STARTUP_DIR, get_scripts, run_scripts
 
 
 def parse_args(args: List[str]) -> argparse.Namespace:
@@ -82,8 +82,13 @@ def main():
     if not STARTUP_DIR.is_dir():
         STARTUP_DIR.mkdir(parents=True)
 
-    logger.info("Running startup scripts.")
-    processes = run_scripts()
+    scripts = get_scripts()
+    if scripts:
+        logger.info("Running startup scripts.")
+        logger.debug("Startup scripts: %s", [script.name for script in scripts])
+        processes = run_scripts(scripts)
+    else:
+        processes = []
 
     if args.show_qrcode:
         logger.info("Generating qrcode.")

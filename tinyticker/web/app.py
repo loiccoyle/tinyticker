@@ -22,7 +22,7 @@ from ..tickers import SYMBOL_TYPES
 from ..tickers._base import INTERVAL_LOOKBACKS
 from ..waveshare_lib.models import MODELS
 from .command import COMMANDS, reboot
-from .startup import STARTUP_DIR
+from .startup import STARTUP_DIR, get_scripts
 
 LOGGER = logging.getLogger(__name__)
 TEMPLATE_PATH = str(Path(__file__).parent / "templates")
@@ -208,8 +208,8 @@ def create_app(config_file: Path = CONFIG_FILE, log_dir: Path = LOG_DIR) -> Flas
         return send_from_directory(STARTUP_DIR, filename, mimetype="text/plain")
 
     @app.route("/startup")
-    def startup_scippts():
-        files = sorted([path.name for path in STARTUP_DIR.glob("*")])
+    def startup_scripts():
+        files = sorted([script.name for script in get_scripts()])
         return render_template("startup.html", files=files)
 
     return app
